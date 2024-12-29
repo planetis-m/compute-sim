@@ -1,0 +1,30 @@
+# Ignore all root files
+/*
+# Exclude doc files in root directory
+!/LICENSE
+!/readme.md
+!/computesim.nimble
+!/*.nims
+# Exclude root directories
+!/src/
+!/tests/
+!/examples/
+!/docs/
+# Include all files in subdirectories
+/*/*
+# Exclude source code files in subdirectories
+!/*/*.nim
+!/*/*.nims
+!/*/*.cfg
+!/*/*.glsl
+# Exclude doc files in docs directory
+!/docs/*.html
+!/docs/*.css
+!/docs/dochack.js
+# Exclude /src/computesim directory
+!/src/computesim
+# Include all files in /src/computesim directory
+/src/computesim/*
+# Exclude source code files in /src/computesim directory
+!/src/computesim/*.nim
+!/src/computesim/*.nims
