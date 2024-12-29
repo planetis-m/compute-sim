@@ -91,6 +91,9 @@ type
     gl_SubgroupID*: uint32           # ID of the current subgroup [0..gl_NumSubgroups)
     gl_SubgroupInvocationID*: uint32 # ID of the invocation within the subgroup [0..gl_SubgroupSize)
 
+  BarrierHandle* = object
+    x: ptr Barrier
+
   ComputeProc*[A, B, C] = proc (
     env: GlEnvironment,
     buffers: A,
@@ -98,6 +101,11 @@ type
     args: C
   ) {.nimcall.}
 
+proc getHandle*(b: var Barrier): BarrierHandle {.inline.} =
+  result = BarrierHandle(x: addr(b))
+
+proc wait*(m: BarrierHandle) {.inline.} =
+  wait(m.x[])
 
 const
   MaxConcurrentWorkGroups {.intdefine.} = 2
@@ -143,7 +151,7 @@ proc runComputeOnCpu*[A, B, C](
   let numBatches = ceilDiv(totalGroups, MaxConcurrentWorkGroups)
   var currentGroup = 0
   # Initialize workgroup coordinates
-  var wgX, wgY, wgZ: uint = 0
+  var wgX, wgY, wgZ: uint32 = 0
   # Process workgroups in batches to limit concurrent execution
   for batch in 0 ..< numBatches:
     let endGroup = min(currentGroup + MaxConcurrentWorkGroups, totalGroups.int)

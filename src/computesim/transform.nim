@@ -134,7 +134,7 @@ macro computeShader*(prc: untyped): untyped =
 
     if node.kind in CallNodes:
       let op = getSubgroupOp(node)
-      if op != SubgroupOp.invalid:
+      if op != invalid:
         return genSubgroupOpCall(op, node, newYieldId(), ident"iterArgs")
 
     case node.kind

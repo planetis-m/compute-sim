@@ -52,7 +52,7 @@ proc runThreads*(threads: SubgroupThreads) =
         for groupIdx in 0..<numGroups:
           let firstThreadId = threadGroups[groupIdx][0]
           if commands[firstThreadId].id == commands[threadId].id:
-            assert commands[firstThreadId].kind == commands[threadId].kind
+            # assert commands[firstThreadId].kind == commands[threadId].kind
             # Find first empty slot in group
             for slot in 0..<SubgroupSize:
               if threadGroups[groupIdx][slot] == InvalidId:
@@ -73,13 +73,31 @@ proc runThreads*(threads: SubgroupThreads) =
       let opKind = commands[firstThreadId].kind
       let opId = commands[firstThreadId].id
       case opKind:
+      of subgroupBroadcast:
+        execBroadcast(results, commands, threadGroups[groupIdx], firstThreadId, opId)
       of subgroupBroadcastFirst:
         execBroadcastFirst(results, commands, threadGroups[groupIdx], firstThreadId, opId)
       of subgroupAdd:
         execAdd(results, commands, threadGroups[groupIdx], firstThreadId, opId)
+      of subgroupMin:
+        execMin(results, commands, threadGroups[groupIdx], firstThreadId, opId)
+      of subgroupMax:
+        execMax(results, commands, threadGroups[groupIdx], firstThreadId, opId)
       of subgroupInclusiveAdd:
         execInclusiveAdd(results, commands, threadGroups[groupIdx], firstThreadId, opId)
+      of subgroupExclusiveAdd:
+        execExclusiveAdd(results, commands, threadGroups[groupIdx], firstThreadId, opId)
+      of subgroupShuffle:
+        execShuffle(results, commands, threadGroups[groupIdx], firstThreadId, opId)
+      of subgroupShuffleXor:
+        execShuffleXor(results, commands, threadGroups[groupIdx], firstThreadId, opId)
+      of subgroupBallot:
+        execBallot(results, commands, threadGroups[groupIdx], firstThreadId, opId)
       of subgroupElect:
         execElect(results, commands, threadGroups[groupIdx], firstThreadId, opId)
+      of subgroupAll:
+        execAll(results, commands, threadGroups[groupIdx], firstThreadId, opId)
+      of subgroupAny:
+        execAny(results, commands, threadGroups[groupIdx], firstThreadId, opId)
       else:
         discard

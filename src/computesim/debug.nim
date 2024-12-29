@@ -1,6 +1,6 @@
 import std/strutils, core
 
-proc formatValue(t: ValueType, val: RawValue): string =
+proc formatValue*(t: ValueType, val: RawValue): string =
   case t
   of Bool: $getValue[bool](val)
   of Int: $getValue[int32](val)
@@ -8,7 +8,7 @@ proc formatValue(t: ValueType, val: RawValue): string =
   of Float: $getValue[float32](val)
   of Double: $getValue[float64](val)
 
-proc formatValues(group: SubgroupThreadIDs, t: ValueType, values: openArray[RawValue]): string =
+proc formatValues*(group: SubgroupThreadIDs, t: ValueType, values: openArray[RawValue]): string =
   result = "["
   for threadId in threadsInGroup(group):
     result.addSep(", ", startLen = 1)
@@ -40,9 +40,10 @@ proc formatThreadValues(group: SubgroupThreadIDs, commands: SubgroupCommands): s
   let firstThreadId = group[0]
   let opKind = commands[firstThreadId].kind
   case opKind
-  of subgroupBroadcastFirst, subgroupAdd, subgroupInclusiveAdd:
+  of subgroupBroadcast, subgroupBroadcastFirst, subgroupAdd, subgroupMin, subgroupMax,
+      subgroupInclusiveAdd, subgroupExclusiveAdd, subgroupShuffle, subgroupShuffleXor:
     formatValuedThreads(group, commands)
-  of subgroupAll:
+  of subgroupBallot, subgroupAll, subgroupAny:
     formatBoolThreads(group, commands)
   else:
     formatThreadList(group)

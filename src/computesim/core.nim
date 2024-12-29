@@ -1,12 +1,12 @@
 const
-  SubgroupSize* {.intdefine.} = 8u32
+  SubgroupSize* {.intdefine.} = 8'u32
 
 type
   ValueType* = enum
     Bool, Int, Uint, Float, Double # Scalar types
 
   RawValue* = object
-    data: array[3, uint32]
+    data: uint64
 
   SubgroupOp* = enum
     invalid
@@ -42,10 +42,10 @@ type
     res*: RawValue
 
 proc toValue*[T](val: T): RawValue =
-  cast[ptr T](addr result.data[0])[] = val
+  cast[ptr T](addr result.data)[] = val
 
 proc getValue*[T](v: RawValue): T =
-  cast[ptr T](addr v.data[0])[]
+  cast[ptr T](addr v.data)[]
 
 proc getValueType*[T](x: T): ValueType =
   # Use when clauses to match against types
@@ -62,15 +62,15 @@ proc getValueType*[T](x: T): ValueType =
   else:
     {.error: "Unsupported type for getValueType".}
 
-const
-  InvalidId* = high(uint32) # Sentinel value for empty/invalid
-
 type
   ThreadClosure* = iterator (iterArgs: SubgroupResult): SubgroupCommand
   SubgroupResults* = array[SubgroupSize, SubgroupResult]
   SubgroupCommands* = array[SubgroupSize, SubgroupCommand]
   SubgroupThreadIDs* = array[SubgroupSize, uint32]
   SubgroupThreads* = array[SubgroupSize, ThreadClosure]
+
+const
+  InvalidId* = high(uint32) # Sentinel value for empty/invalid
 
 iterator threadsInGroup*(group: SubgroupThreadIDs): uint32 =
   for member in group.items:

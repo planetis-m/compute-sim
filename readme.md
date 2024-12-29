@@ -34,11 +34,11 @@ proc reduce(env: GlEnvironment; buffers: ptr Buffers; numElements: uint32) {.com
   if env.gl_SubgroupInvocationID == 0:
     atomicInc buffers.sum, sum
 
-proc main() =
-  const
-    NumElements = 1024'u32
-    WorkGroupSize = 256'u32
+const
+  NumElements = 1024'u32
+  WorkGroupSize = 256'u32
 
+proc main() =
   # Set up compute dimensions
   let numWorkGroups = uvec3(ceilDiv(NumElements, WorkGroupSize), 1, 1)
   let workGroupSize = uvec3(WorkGroupSize, 1, 1)
@@ -48,7 +48,7 @@ proc main() =
   buffers.input = newSeq[float32](NumElements)
   for i in 0..<NumElements:
     buffers.input[i] = float32(i)
-  buffers.sum.store(0'f32, moRelaxed)  # Initialize atomic
+  buffers.sum.store(0, moRelaxed)  # Initialize atomic
 
   # Run reduction on CPU
   runComputeOnCpu(
@@ -57,7 +57,7 @@ proc main() =
     compute = reduce,
     ssbo = addr buffers,
     smem = 0'f32, # unused
-    args = numElements)
+    args = numElements
   )
 
   let result = buffers.sum.load(moRelaxed)
