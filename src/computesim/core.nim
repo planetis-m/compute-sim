@@ -1,5 +1,5 @@
 const
-  SubgroupSize* {.intdefine.} = 8'u32
+  SubgroupSize* {.intdefine.} = 8
 
 type
   ValueType* = enum
@@ -34,9 +34,9 @@ type
         subgroupBroadcast, subgroupShuffle, subgroupShuffleXor:
       dirty*: uint32
       t*: ValueType
-      value*: RawValue
+      val*: RawValue
     of subgroupBallot, subgroupAll, subgroupAny:
-      bValue*: bool
+      bVal*: bool
     of subgroupElect, subgroupBarrier, reconverge, invalid:
       discard
 
@@ -75,7 +75,7 @@ proc getValueType*[T](x: T): ValueType =
     {.error: "Unsupported type for getValueType".}
 
 type
-  ThreadClosure* = iterator (iterArgs: SubgroupResult): SubgroupCommand
+  ThreadClosure* = iterator (iterArg: SubgroupResult): SubgroupCommand
   SubgroupResults* = array[SubgroupSize, SubgroupResult]
   SubgroupCommands* = array[SubgroupSize, SubgroupCommand]
   SubgroupThreadIDs* = array[SubgroupSize, uint32]

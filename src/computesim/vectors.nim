@@ -107,7 +107,7 @@ template defineVec4Constructors*(Vec2Type, Vec3Type, Vec4Type: typedesc,
     ## Constructs Vec4 from two Vec2 components
     Vec4Type(data: [xy.x, xy.y, zw.x, zw.y])
 
-{.push boundChecks:off.}
+{.push boundChecks: off.}
 
 # Usage example for boolean vectors:
 defineVec2Constructors(BVec2, BVec3, BVec4, bool, bvec2)

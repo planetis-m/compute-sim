@@ -19,14 +19,14 @@ proc formatValuedThreads(group: SubgroupThreadIDs, commands: SubgroupCommands): 
   result = "{"
   for threadId in threadsInGroup(group):
     result.addSep(", ", startLen = 1)
-    result.addf("t$#: $#", threadId, formatValue(commands[threadId].t, commands[threadId].value))
+    result.addf("t$#: $#", threadId, formatValue(commands[threadId].t, commands[threadId].val))
   result.add("}")
 
 proc formatBoolThreads(group: SubgroupThreadIDs, commands: SubgroupCommands): string =
   result = "{"
   for threadId in threadsInGroup(group):
     result.addSep(", ", startLen = 1)
-    result.addf("t$#: $#", threadId, commands[threadId].bValue)
+    result.addf("t$#: $#", threadId, commands[threadId].bVal)
   result.add("}")
 
 proc formatThreadList(group: SubgroupThreadIDs): string =

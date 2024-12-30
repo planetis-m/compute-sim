@@ -26,12 +26,12 @@ proc execBroadcast*(results: var SubgroupResults, commands: SubgroupCommands,
   var found = false
   for threadId in threadsInGroup(group):
     if threadId == srcThreadId:
-      broadcastVal = commands[threadId].value
+      broadcastVal = commands[threadId].val
       found = true
       break
   # If source thread not found, use first thread's value
   if not found:
-    broadcastVal = commands[firstThreadId].value
+    broadcastVal = commands[firstThreadId].val
 
   let valueType = commands[firstThreadId].t
   # Then broadcast to all threads
@@ -45,7 +45,7 @@ proc execBroadcast*(results: var SubgroupResults, commands: SubgroupCommands,
 
   when defined(debugSubgroup):
     debugSubgroupOp("Broadcast", opId, group, commands,
-      "broadcast " & formatValue(commands[firstThreadId].t, commands[firstThreadId].value) &
+      "broadcast " & formatValue(commands[firstThreadId].t, commands[firstThreadId].val) &
       " from thread: " & $srcThreadId)
 
 proc execBroadcastFirst*(results: var SubgroupResults, commands: SubgroupCommands,
@@ -55,19 +55,19 @@ proc execBroadcastFirst*(results: var SubgroupResults, commands: SubgroupCommand
       id: opId,
       kind: subgroupBroadcastFirst,
       t: commands[firstThreadId].t,
-      res: commands[firstThreadId].value
+      res: commands[firstThreadId].val
     )
 
   when defined(debugSubgroup):
     debugSubgroupOp("BroadcastFirst", opId, group, commands,
-      "broadcast: " & formatValue(commands[firstThreadId].t, commands[firstThreadId].value))
+      "broadcast: " & formatValue(commands[firstThreadId].t, commands[firstThreadId].val))
 
 proc execAdd*(results: var SubgroupResults, commands: SubgroupCommands,
               group: SubgroupThreadIDs, firstThreadId, opId: uint32) =
   template sumValues(initVal: typed) =
     var total = initVal
     for threadId in threadsInGroup(group):
-      total += getValue[typeof(initVal)](commands[threadId].value)
+      total += getValue[typeof(initVal)](commands[threadId].val)
     sum = toValue(total)
 
   var sum: RawValue
@@ -100,7 +100,7 @@ proc execMax*(results: var SubgroupResults, commands: SubgroupCommands,
   template maxValues(initVal: typed) =
     var maxVal = initVal
     for threadId in threadsInGroup(group):
-      maxVal = max(maxVal, getValue[typeof(initVal)](commands[threadId].value))
+      maxVal = max(maxVal, getValue[typeof(initVal)](commands[threadId].val))
     maximum = toValue(maxVal)
 
   var maximum: RawValue
@@ -133,7 +133,7 @@ proc execMin*(results: var SubgroupResults, commands: SubgroupCommands,
   template minValues(initVal: typed) =
     var minVal = initVal
     for threadId in threadsInGroup(group):
-      minVal = min(minVal, getValue[typeof(initVal)](commands[threadId].value))
+      minVal = min(minVal, getValue[typeof(initVal)](commands[threadId].val))
     minimum = toValue(minVal)
 
   var minimum: RawValue
@@ -168,7 +168,7 @@ proc execInclusiveAdd*(results: var SubgroupResults, commands: SubgroupCommands,
   template inclusiveSum(initVal: typed) =
     var total = initVal
     for threadId in threadsInGroup(group):
-      total += getValue[typeof(initVal)](commands[threadId].value)
+      total += getValue[typeof(initVal)](commands[threadId].val)
       inclusiveSums[threadId] = toValue(total)
 
   let valueType = commands[firstThreadId].t
@@ -204,7 +204,7 @@ proc execExclusiveAdd*(results: var SubgroupResults, commands: SubgroupCommands,
     var total = initVal
     for threadId in threadsInGroup(group):
       exclusiveSums[threadId] = toValue(total)
-      total += getValue[typeof(initVal)](commands[threadId].value)
+      total += getValue[typeof(initVal)](commands[threadId].val)
 
   let valueType = commands[firstThreadId].t
   case valueType:
@@ -245,7 +245,7 @@ proc execShuffle*(results: var SubgroupResults, commands: SubgroupCommands,
         break
     # If source thread is valid, take its value
     # Otherwise use this thread's own value
-    shuffledVals[threadId] = commands[if found: srcThreadId else: threadId].value
+    shuffledVals[threadId] = commands[if found: srcThreadId else: threadId].val
 
   let valueType = commands[firstThreadId].t
   # Then construct results
@@ -275,7 +275,7 @@ proc execShuffleXor*(results: var SubgroupResults, commands: SubgroupCommands,
         break
     # If source thread is valid, take its value
     # Otherwise use this thread's own value
-    shuffledVals[threadId] = commands[if found: srcThreadId else: threadId].value
+    shuffledVals[threadId] = commands[if found: srcThreadId else: threadId].val
 
   let valueType = commands[firstThreadId].t
   # Then construct results
@@ -296,7 +296,7 @@ proc execBallot*(results: var SubgroupResults, commands: SubgroupCommands,
   var ballot: uint32 = 0 # Use uint32 as the ballot mask
   # Set bits in ballot mask based on each thread's boolean value
   for threadId in threadsInGroup(group):
-    if commands[threadId].bValue:
+    if commands[threadId].bVal:
       ballot = ballot or (1'u32 shl threadId)
 
   for threadId in threadsInGroup(group):
@@ -326,7 +326,7 @@ proc execAll*(results: var SubgroupResults, commands: SubgroupCommands,
               group: SubgroupThreadIDs, firstThreadId, opId: uint32) =
   var allTrue = true
   for threadId in threadsInGroup(group):
-    if commands[threadId].bValue == false:
+    if commands[threadId].bVal == false:
       allTrue = false
       break
 
@@ -344,7 +344,7 @@ proc execAny*(results: var SubgroupResults, commands: SubgroupCommands,
               group: SubgroupThreadIDs, firstThreadId, opId: uint32) =
   var anyTrue = false
   for threadId in threadsInGroup(group):
-    if commands[threadId].bValue == true:
+    if commands[threadId].bVal == true:
       anyTrue = true
       break
 
@@ -357,3 +357,15 @@ proc execAny*(results: var SubgroupResults, commands: SubgroupCommands,
 
   when defined(debugSubgroup):
     debugSubgroupOp("Any", opId, group, commands, "any: " & $anyTrue)
+
+proc execBarrier*(results: var SubgroupResults, commands: SubgroupCommands,
+                  group: SubgroupThreadIDs, firstThreadId, opId: uint32) =
+  # For barrier, just mark that each thread participated
+  for threadId in threadsInGroup(group):
+    results[threadId] = SubgroupResult(
+      id: opId,
+      kind: subgroupBarrier
+    )
+
+  when defined(debugSubgroup):
+    debugSubgroupOp("Barrier", opId, group, commands, "barrier sync")

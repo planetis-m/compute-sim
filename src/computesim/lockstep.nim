@@ -56,14 +56,14 @@ proc runThreads*(threads: SubgroupThreads) =
             # Find first empty slot in group
             for slot in 0..<SubgroupSize:
               if threadGroups[groupIdx][slot] == InvalidId:
-                threadGroups[groupIdx][slot] = threadId
+                threadGroups[groupIdx][slot] = threadId.uint32
                 if slot + 1 < SubgroupSize:
                   threadGroups[groupIdx][slot + 1] = InvalidId
                 break
             found = true
             break
         if not found:
-          threadGroups[numGroups][0] = threadId
+          threadGroups[numGroups][0] = threadId.uint32
           threadGroups[numGroups][1] = InvalidId
           inc numGroups
 
@@ -102,5 +102,7 @@ proc runThreads*(threads: SubgroupThreads) =
         execSubgroupOp(execAll)
       of subgroupAny:
         execSubgroupOp(execAny)
+      of subgroupBarrier:
+        execSubgroupOp(execBarrier)
       else:
         discard

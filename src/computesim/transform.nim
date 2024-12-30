@@ -60,21 +60,21 @@ proc getSubgroupOp(node: NimNode): SubgroupOp =
     result = invalid
 
 template binaryOpCommand(cmdId, opKind, cmdVal, cmdParam: untyped): untyped =
-  SubgroupCommand(id: cmdId, kind: opKind, t: getValueType(cmdVal), value: toValue(cmdVal), dirty: cmdParam)
+  SubgroupCommand(id: cmdId, kind: opKind, t: getValueType(cmdVal), val: toValue(cmdVal), dirty: cmdParam)
 
 template unaryOpCommand(cmdId, opKind, cmdVal: untyped): untyped =
-  SubgroupCommand(id: cmdId, kind: opKind, t: getValueType(cmdVal), value: toValue(cmdVal))
+  SubgroupCommand(id: cmdId, kind: opKind, t: getValueType(cmdVal), val: toValue(cmdVal))
 
 template boolOpCommand(cmdId, opKind, cmdVal: untyped): untyped =
-  SubgroupCommand(id: cmdId, kind: opKind, bValue: cmdVal)
+  SubgroupCommand(id: cmdId, kind: opKind, bVal: cmdVal)
 
-template scalarOpResult(iterArgs, cmdVal: untyped): untyped =
-  getValue[typeof(cmdVal)](iterArgs.res)
+template scalarOpResult(iterArg, cmdVal: untyped): untyped =
+  getValue[typeof(cmdVal)](iterArg.res)
 
-template ballotResult(iterArgs: untyped): untyped =
-  uvec4(getValue[uint32](iterArgs.res), 0, 0, 0)
+template ballotResult(iterArg: untyped): untyped =
+  uvec4(getValue[uint32](iterArg.res), 0, 0, 0)
 
-proc genSubgroupOpCall*(op: SubgroupOp; node, id, iterArgs: NimNode): NimNode =
+proc genSubgroupOpCall*(op: SubgroupOp; node, id, iterArg: NimNode): NimNode =
   result = newStmtList()
   # Generate the command part based on operation type
   let cmdPart = case op
@@ -94,18 +94,18 @@ proc genSubgroupOpCall*(op: SubgroupOp; node, id, iterArgs: NimNode): NimNode =
     of subgroupBroadcast, subgroupShuffle, subgroupShuffleXor,
        subgroupBroadcastFirst, subgroupAdd, subgroupMin, subgroupMax,
        subgroupInclusiveAdd, subgroupExclusiveAdd:
-      getAst(scalarOpResult(iterArgs, node[1]))
+      getAst(scalarOpResult(iterArg, node[1]))
     of subgroupAll, subgroupAny, subgroupElect:
-      newTree(nnkDotExpr, iterArgs, ident"bRes")
+      newTree(nnkDotExpr, iterArg, ident"bRes")
     of subgroupBallot:
-      getAst(ballotResult(iterArgs))
+      getAst(ballotResult(iterArg))
     of subgroupBarrier:
       newTree(nnkDiscardStmt, newEmptyNode())
     else: nil
   # Combine both parts
   result.add quote do:
     yield `cmdPart`
-    case `iterArgs`.kind
+    case `iterArg`.kind
     of `op`:
       `resultPart`
     else:
@@ -135,7 +135,7 @@ macro computeShader*(prc: untyped): untyped =
     if node.kind in CallNodes:
       let op = getSubgroupOp(node)
       if op != invalid:
-        return genSubgroupOpCall(op, node, newYieldId(), ident"iterArgs")
+        return genSubgroupOpCall(op, node, newYieldId(), ident"iterArg")
 
     case node.kind
     of nnkForStmt, nnkWhileStmt:
@@ -172,11 +172,11 @@ macro computeShader*(prc: untyped): untyped =
 
   # Create the iterator that implements the divergent control flow
   let procName = prc.name
-  let iterArgs = ident"iterArgs"
+  let iterArg = ident"iterArg"
   let traversedBody = traverseAndModify(prc.body)
   result = quote do:
     proc `procName`(): ThreadClosure =
-      iterator (`iterArgs`: SubgroupResult): SubgroupCommand =
+      iterator (`iterArg`: SubgroupResult): SubgroupCommand =
         `traversedBody`
 
   # Now inject the parameters and pragmas from original proc
