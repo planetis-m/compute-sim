@@ -91,21 +91,12 @@ type
     gl_SubgroupID*: uint32           # ID of the current subgroup [0..gl_NumSubgroups)
     gl_SubgroupInvocationID*: uint32 # ID of the invocation within the subgroup [0..gl_SubgroupSize)
 
-  BarrierHandle* = object
-    x: ptr Barrier
-
   ComputeProc*[A, B, C] = proc (
     env: GlEnvironment,
     buffers: A,
     shared: ptr B,
     args: C
   ) {.nimcall.}
-
-proc getHandle*(b: var Barrier): BarrierHandle {.inline.} =
-  result = BarrierHandle(x: addr(b))
-
-proc wait*(m: BarrierHandle) {.inline.} =
-  wait(m.x[])
 
 const
   MaxConcurrentWorkGroups {.intdefine.} = 2

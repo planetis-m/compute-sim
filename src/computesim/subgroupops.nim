@@ -326,7 +326,7 @@ proc execAll*(results: var SubgroupResults, commands: SubgroupCommands,
               group: SubgroupThreadIDs, firstThreadId, opId: uint32) =
   var allTrue = true
   for threadId in threadsInGroup(group):
-    if commands[threadId].bVal == false:
+    if not commands[threadId].bVal:
       allTrue = false
       break
 
@@ -344,7 +344,7 @@ proc execAny*(results: var SubgroupResults, commands: SubgroupCommands,
               group: SubgroupThreadIDs, firstThreadId, opId: uint32) =
   var anyTrue = false
   for threadId in threadsInGroup(group):
-    if commands[threadId].bVal == true:
+    if commands[threadId].bVal:
       anyTrue = true
       break
 
@@ -358,13 +358,25 @@ proc execAny*(results: var SubgroupResults, commands: SubgroupCommands,
   when defined(debugSubgroup):
     debugSubgroupOp("Any", opId, group, commands, "any: " & $anyTrue)
 
+proc execSubBarrier*(results: var SubgroupResults, commands: SubgroupCommands,
+                     group: SubgroupThreadIDs, firstThreadId, opId: uint32) =
+  # For barrier, just mark that each thread participated
+  for threadId in threadsInGroup(group):
+    results[threadId] = SubgroupResult(
+      id: opId,
+      kind: subgroupBarrier
+    )
+
+  when defined(debugSubgroup):
+    debugSubgroupOp("SubBarrier", opId, group, commands, "subgroup barrier sync")
+
 proc execBarrier*(results: var SubgroupResults, commands: SubgroupCommands,
                   group: SubgroupThreadIDs, firstThreadId, opId: uint32) =
   # For barrier, just mark that each thread participated
   for threadId in threadsInGroup(group):
     results[threadId] = SubgroupResult(
       id: opId,
-      kind: subgroupBarrier
+      kind: barrier
     )
 
   when defined(debugSubgroup):

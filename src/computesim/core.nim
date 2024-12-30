@@ -1,3 +1,5 @@
+import threading/barrier
+
 const
   SubgroupSize* {.intdefine.} = 8
 
@@ -25,6 +27,7 @@ type
     subgroupAll
     subgroupAny
     subgroupBarrier
+    barrier
 
   SubgroupCommand* = object
     id*: uint32
@@ -37,7 +40,7 @@ type
       val*: RawValue
     of subgroupBallot, subgroupAll, subgroupAny:
       bVal*: bool
-    of subgroupElect, subgroupBarrier, reconverge, invalid:
+    of subgroupElect, subgroupBarrier, barrier, reconverge, invalid:
       discard
 
   SubgroupResult* = object
@@ -50,8 +53,11 @@ type
       res*: RawValue
     of subgroupElect, subgroupAll, subgroupAny:
       bRes*: bool
-    of subgroupBarrier, reconverge, invalid:
+    of subgroupBarrier, barrier, reconverge, invalid:
       discard
+
+  BarrierHandle* = object
+    x: ptr Barrier
 
 proc toValue*[T](val: T): RawValue =
   cast[ptr T](addr result.data)[] = val
@@ -73,6 +79,12 @@ proc getValueType*[T](x: T): ValueType =
     ValueType.Double
   else:
     {.error: "Unsupported type for getValueType".}
+
+proc getHandle*(b: var Barrier): BarrierHandle {.inline.} =
+  result = BarrierHandle(x: addr(b))
+
+proc wait*(m: BarrierHandle) {.inline.} =
+  wait(m.x[])
 
 type
   ThreadClosure* = iterator (iterArg: SubgroupResult): SubgroupCommand

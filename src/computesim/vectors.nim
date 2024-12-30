@@ -43,8 +43,8 @@ template `z=`*[N, T](v: TVec[N, T]; val: T) = v.data[2] = val
 template `w=`*[N, T](v: TVec[N, T]; val: T) = v.data[3] = val
 
 # Array access
-proc `[]`*[N, T](v: TVec[N, T], i: int): T = v.data[i]
-proc `[]=`*[N, T](v: var TVec[N, T], i: int, val: T) = v.data[i] = val
+proc `[]`*[N, T](v: TVec[N, T], i: int): T {.inline.} = v.data[i]
+proc `[]=`*[N, T](v: var TVec[N, T], i: int, val: T) {.inline.} = v.data[i] = val
 
 # Template for generating 2D vector constructors
 template defineVec2Constructors*(Vec2Type, Vec3Type, Vec4Type: typedesc,

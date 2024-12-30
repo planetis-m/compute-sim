@@ -56,6 +56,8 @@ proc getSubgroupOp(node: NimNode): SubgroupOp =
     validateNoArgOp(subgroupElect)
   of "subgroupbarrier":
     validateNoArgOp(subgroupBarrier)
+  of "barrier":
+    validateNoArgOp(barrier)
   else:
     result = invalid
 
@@ -85,7 +87,7 @@ proc genSubgroupOpCall*(op: SubgroupOp; node, id, iterArg: NimNode): NimNode =
       getAst(unaryOpCommand(id, newLit(op), node[1]))
     of subgroupBallot, subgroupAll, subgroupAny:
       getAst(boolOpCommand(id, newLit(op), node[1]))
-    of subgroupElect, subgroupBarrier:
+    of subgroupElect, subgroupBarrier, barrier:
       quote do:
         SubgroupCommand(id: `id`, kind: `op`)
     else: nil # cannot happen
@@ -99,7 +101,7 @@ proc genSubgroupOpCall*(op: SubgroupOp; node, id, iterArg: NimNode): NimNode =
       newTree(nnkDotExpr, iterArg, ident"bRes")
     of subgroupBallot:
       getAst(ballotResult(iterArg))
-    of subgroupBarrier:
+    of subgroupBarrier, barrier:
       newTree(nnkDiscardStmt, newEmptyNode())
     else: nil
   # Combine both parts
