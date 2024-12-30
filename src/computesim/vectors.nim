@@ -32,19 +32,19 @@ type
   BVec4* = TVec4[bool]
 
 # Accessors
-template x*[N,T](v: TVec[N,T]): T = v.data[0]
-template y*[N,T](v: TVec[N,T]): T = v.data[1]
-template z*[N,T](v: TVec[N,T]): T = v.data[2]
-template w*[N,T](v: TVec[N,T]): T = v.data[3]
+template x*[N, T](v: TVec[N, T]): T = v.data[0]
+template y*[N, T](v: TVec[N, T]): T = v.data[1]
+template z*[N, T](v: TVec[N, T]): T = v.data[2]
+template w*[N, T](v: TVec[N, T]): T = v.data[3]
 
-template `x=`*[N,T](v: TVec[N,T]; val: T) = v.data[0] = val
-template `y=`*[N,T](v: TVec[N,T]; val: T) = v.data[1] = val
-template `z=`*[N,T](v: TVec[N,T]; val: T) = v.data[2] = val
-template `w=`*[N,T](v: TVec[N,T]; val: T) = v.data[3] = val
+template `x=`*[N, T](v: TVec[N, T]; val: T) = v.data[0] = val
+template `y=`*[N, T](v: TVec[N, T]; val: T) = v.data[1] = val
+template `z=`*[N, T](v: TVec[N, T]; val: T) = v.data[2] = val
+template `w=`*[N, T](v: TVec[N, T]; val: T) = v.data[3] = val
 
 # Array access
-proc `[]`*[N,T](v: TVec[N,T], i: int): T = v.data[i]
-proc `[]=`*[N,T](v: var TVec[N,T], i: int, val: T) = v.data[i] = val
+proc `[]`*[N, T](v: TVec[N, T], i: int): T = v.data[i]
+proc `[]=`*[N, T](v: var TVec[N, T], i: int, val: T) = v.data[i] = val
 
 # Template for generating 2D vector constructors
 template defineVec2Constructors*(Vec2Type, Vec3Type, Vec4Type: typedesc,

@@ -60,10 +60,10 @@ proc getSubgroupOp(node: NimNode): SubgroupOp =
     result = invalid
 
 template binaryOpCommand(cmdId, opKind, cmdVal, cmdParam: untyped): untyped =
-  SubgroupCommand(id: cmdId, kind: opKind, t: getValueType(cmdVal), val: toValue(cmdVal), dirty: cmdParam)
+  SubgroupCommand(id: cmdId, kind: opKind, t: getValueType(cmdVal), value: toValue(cmdVal), dirty: cmdParam)
 
 template unaryOpCommand(cmdId, opKind, cmdVal: untyped): untyped =
-  SubgroupCommand(id: cmdId, kind: opKind, t: getValueType(cmdVal), val: toValue(cmdVal))
+  SubgroupCommand(id: cmdId, kind: opKind, t: getValueType(cmdVal), value: toValue(cmdVal))
 
 template boolOpCommand(cmdId, opKind, cmdVal: untyped): untyped =
   SubgroupCommand(id: cmdId, kind: opKind, bValue: cmdVal)

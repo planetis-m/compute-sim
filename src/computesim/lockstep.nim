@@ -67,6 +67,9 @@ proc runThreads*(threads: SubgroupThreads) =
           threadGroups[numGroups][1] = InvalidId
           inc numGroups
 
+    template execSubgroupOp(op: untyped) =
+      op(results, commands, threadGroups[groupIdx], firstThreadId, opId)
+
     # Process operation groups
     for groupIdx in 0..<numGroups:
       let firstThreadId = threadGroups[groupIdx][0]
@@ -74,30 +77,30 @@ proc runThreads*(threads: SubgroupThreads) =
       let opId = commands[firstThreadId].id
       case opKind:
       of subgroupBroadcast:
-        execBroadcast(results, commands, threadGroups[groupIdx], firstThreadId, opId)
+        execSubgroupOp(execBroadcast)
       of subgroupBroadcastFirst:
-        execBroadcastFirst(results, commands, threadGroups[groupIdx], firstThreadId, opId)
+        execSubgroupOp(execBroadcastFirst)
       of subgroupAdd:
-        execAdd(results, commands, threadGroups[groupIdx], firstThreadId, opId)
+        execSubgroupOp(execAdd)
       of subgroupMin:
-        execMin(results, commands, threadGroups[groupIdx], firstThreadId, opId)
+        execSubgroupOp(execMin)
       of subgroupMax:
-        execMax(results, commands, threadGroups[groupIdx], firstThreadId, opId)
+        execSubgroupOp(execMax)
       of subgroupInclusiveAdd:
-        execInclusiveAdd(results, commands, threadGroups[groupIdx], firstThreadId, opId)
+        execSubgroupOp(execInclusiveAdd)
       of subgroupExclusiveAdd:
-        execExclusiveAdd(results, commands, threadGroups[groupIdx], firstThreadId, opId)
+        execSubgroupOp(execExclusiveAdd)
       of subgroupShuffle:
-        execShuffle(results, commands, threadGroups[groupIdx], firstThreadId, opId)
+        execSubgroupOp(execShuffle)
       of subgroupShuffleXor:
-        execShuffleXor(results, commands, threadGroups[groupIdx], firstThreadId, opId)
+        execSubgroupOp(execShuffleXor)
       of subgroupBallot:
-        execBallot(results, commands, threadGroups[groupIdx], firstThreadId, opId)
+        execSubgroupOp(execBallot)
       of subgroupElect:
-        execElect(results, commands, threadGroups[groupIdx], firstThreadId, opId)
+        execSubgroupOp(execElect)
       of subgroupAll:
-        execAll(results, commands, threadGroups[groupIdx], firstThreadId, opId)
+        execSubgroupOp(execAll)
       of subgroupAny:
-        execAny(results, commands, threadGroups[groupIdx], firstThreadId, opId)
+        execSubgroupOp(execAny)
       else:
         discard

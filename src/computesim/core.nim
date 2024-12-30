@@ -28,18 +28,30 @@ type
 
   SubgroupCommand* = object
     id*: uint32
-    kind*: SubgroupOp
-    bVal*: bool
-    t*: ValueType
-    val*: RawValue
-    dirty*: uint32 # Used as id for broadcast or mask for shuffleXor
+    case kind*: SubgroupOp
+    of subgroupBroadcastFirst, subgroupAdd, subgroupMin, subgroupMax,
+        subgroupInclusiveAdd, subgroupExclusiveAdd,
+        subgroupBroadcast, subgroupShuffle, subgroupShuffleXor:
+      dirty*: uint32
+      t*: ValueType
+      value*: RawValue
+    of subgroupBallot, subgroupAll, subgroupAny:
+      bValue*: bool
+    of subgroupElect, subgroupBarrier, reconverge, invalid:
+      discard
 
   SubgroupResult* = object
     id*: uint32
-    kind*: SubgroupOp
-    bRes*: bool
-    t*: ValueType
-    res*: RawValue
+    case kind*: SubgroupOp
+    of subgroupBroadcastFirst, subgroupAdd, subgroupMin, subgroupMax,
+        subgroupInclusiveAdd, subgroupExclusiveAdd, subgroupBallot,
+        subgroupBroadcast, subgroupShuffle, subgroupShuffleXor:
+      t*: ValueType
+      res*: RawValue
+    of subgroupElect, subgroupAll, subgroupAny:
+      bRes*: bool
+    of subgroupBarrier, reconverge, invalid:
+      discard
 
 proc toValue*[T](val: T): RawValue =
   cast[ptr T](addr result.data)[] = val
