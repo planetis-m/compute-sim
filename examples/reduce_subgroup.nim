@@ -26,11 +26,12 @@ proc main() =
   let workGroupSize = uvec3(WorkGroupSize, 1, 1)
 
   # Initialize buffers
-  var buffers: Buffers
-  buffers.input = newSeq[int32](NumElements)
+  var buffers = Buffers(
+    input: newSeq[int32](NumElements),
+    sum: default(Atomic[int32])
+  )
   for i in 0..<NumElements:
     buffers.input[i] = int32(i)
-  buffers.sum.store(0, moRelaxed)  # Initialize atomic
 
   # Run reduction on CPU
   runComputeOnCpu(
