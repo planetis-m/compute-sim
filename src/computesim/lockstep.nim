@@ -1,21 +1,37 @@
 # (c) 2024 Antonis Geralis
-import core, subgroupops
+import core, subgroupops, vectors
 
-proc raiseDeadlockError(threadsAtBarrier: uint32) {.noinline, noreturn.} =
-  raise newException(AssertionDefect,
-    "Invalid shader: Deadlock detected - no threads could make progress this iteration. " &
-    "Threads stuck at barrier: " & $threadsAtBarrier)
+const
+  debugWorkgroupX {.intdefine.} = 0
+  debugWorkgroupY {.intdefine.} = 0
+  debugWorkgroupZ {.intdefine.} = 0
+  debugSubgroupID {.intdefine.} = 0
 
-proc raiseNonUniformBarrierError(id1, id2: uint32) {.noinline, noreturn.} =
+template shouldShowDebugOutput(): untyped =
+  when defined(debugSubgroup):
+    workgroupID.x == debugWorkgroupX.uint32 and
+    workgroupID.y == debugWorkgroupY.uint32 and
+    workgroupID.z == debugWorkgroupZ.uint32 and
+    subgroupID == debugSubgroupID.uint32
+  else:
+    false
+
+proc raiseDeadlockError(workgroupID: UVec3; subgroupID, threadsAtBarrier: uint32) {.noinline, noreturn.} =
   raise newException(AssertionDefect,
-    "Invalid shader: Barrier must be uniformly executed by all threads in a workgroup. " &
-    "Found different barrier IDs: " & $id1 & " and " & $id2)
+    "Invalid shader: Deadlock detected in workgroup " & $workgroupID &
+    ", subgroup " & $subgroupID & ". Threads stuck at barrier: " & $threadsAtBarrier)
+
+proc raiseNonUniformBarrierError(workgroupID: UVec3; subgroupID, id1, id2: uint32) {.noinline, noreturn.} =
+  raise newException(AssertionDefect,
+    "Invalid shader: Barrier must be uniformly executed by all threads in workgroup " &
+    $workgroupID & ", subgroup " & $subgroupID & ". Found different barrier IDs: " & $id1 & " and " & $id2)
 
 type
   ThreadState = enum
     running, halted, atSubBarrier, atBarrier, finished
 
-proc runThreads*(threads: SubgroupThreads; b: BarrierHandle) =
+proc runThreads*(threads: SubgroupThreads, numActiveThreads: uint32; workgroupID: UVec3;
+                 subgroupID: uint32; b: BarrierHandle) =
   var
     anyThreadsActive = true
     allThreadsHalted = false
@@ -24,8 +40,9 @@ proc runThreads*(threads: SubgroupThreads; b: BarrierHandle) =
     results: SubgroupResults
     minReconvergeId: uint32 = 0
     barrierId = InvalidId
-    activeThreadCount: uint32 = SubgroupSize # todo: make a parameter
+    activeThreadCount: uint32 = numActiveThreads
     barrierThreadCount: uint32 = 0
+    showDebugOutput = shouldShowDebugOutput()
 
   template canReconverge(): bool =
     (allThreadsHalted and minReconvergeId < barrierId and commands[threadId].id == minReconvergeId)
@@ -36,8 +53,8 @@ proc runThreads*(threads: SubgroupThreads; b: BarrierHandle) =
   # Run until all threads are done
   while anyThreadsActive:
     # Run each active thread once
-    for threadId in 0..<SubgroupSize:
-      var madeProgress = false
+    var madeProgress = false
+    for threadId in 0..<numActiveThreads:
       if threadStates[threadId] != finished and
           threadStates[threadId] == running or canReconverge or canPassBarrier:
         madeProgress = true
@@ -58,10 +75,10 @@ proc runThreads*(threads: SubgroupThreads; b: BarrierHandle) =
     allThreadsHalted = true
     minReconvergeId = InvalidId
     barrierId = InvalidId
-    activeThreadCount = SubgroupSize
+    activeThreadCount = numActiveThreads
     barrierThreadCount = 0
 
-    for threadId in 0..<SubgroupSize:
+    for threadId in 0..<numActiveThreads:
       if threadStates[threadId] != finished:
         anyThreadsActive = true
       case threadStates[threadId]
@@ -74,12 +91,12 @@ proc runThreads*(threads: SubgroupThreads; b: BarrierHandle) =
         if barrierId == InvalidId:
           barrierId = commands[threadId].id
         elif barrierId != commands[threadId].id:
-          raiseNonUniformBarrierError(barrierId, commands[threadId].id)
+          raiseNonUniformBarrierError(workgroupID, subgroupID, barrierId, commands[threadId].id)
       of finished:
         dec activeThreadCount
 
-    if not madeProgress:
-      raiseDeadlockError(barrierThreadCount) # No thread could execute this iteration
+    if not madeProgress: # No thread could execute this iteration
+      raiseDeadlockError(workgroupID, subgroupID, barrierThreadCount)
 
     # Group matching operations
     var
@@ -87,7 +104,7 @@ proc runThreads*(threads: SubgroupThreads; b: BarrierHandle) =
       numGroups: uint32 = 0
 
     # Group by operation id
-    for threadId in 0..<SubgroupSize:
+    for threadId in 0..<numActiveThreads:
       if threadStates[threadId] != finished and
           (threadStates[threadId] == running or
           (threadStates[threadId] == atSubBarrier and canReconverge) or canPassBarrier):
@@ -111,7 +128,7 @@ proc runThreads*(threads: SubgroupThreads; b: BarrierHandle) =
           inc numGroups
 
     template execSubgroupOp(op: untyped) =
-      op(results, commands, threadGroups[groupIdx], firstThreadId, opId)
+      op(results, commands, threadGroups[groupIdx], firstThreadId, opId, showDebugOutput)
 
     # Process operation groups
     for groupIdx in 0..<numGroups:

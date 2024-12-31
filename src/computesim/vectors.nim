@@ -135,4 +135,11 @@ defineVec2Constructors(DVec2, DVec3, DVec4, float64, dvec2)
 defineVec3Constructors(DVec2, DVec3, DVec4, float64, dvec3)
 defineVec4Constructors(DVec2, DVec3, DVec4, float64, dvec4)
 
+proc `$`*[T](v: TVec2[T]): string =
+  "(" & $v.x & "," & $v.y & ")"
+proc `$`*[T](v: TVec3[T]): string =
+  "(" & $v.x & "," & $v.y & "," & $v.z & ")"
+proc `$`*[T](v: TVec4[T]): string =
+  "(" & $v.x & "," & $v.y & "," & $v.z & "," & $v.w & ")"
+
 {.pop.}

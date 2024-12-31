@@ -17,10 +17,14 @@
 # bool subgroupAny(bool condition);
 
 # (c) 2024 Antonis Geralis
-import std/[fenv, strutils], core, debug
+import std/[fenv, strutils], core, debug, vectors
 
-proc execBroadcast*(results: var SubgroupResults, commands: SubgroupCommands,
-                    group: SubgroupThreadIDs, firstThreadId, opId: uint32) =
+template defineSubgroupOp(op, body: untyped) {.dirty.} =
+  proc op*(results: var SubgroupResults, commands: SubgroupCommands,
+           group: SubgroupThreadIDs, firstThreadId, opId: uint32, showDebugOutput: bool) =
+    body
+
+defineSubgroupOp(execBroadcast):
   var broadcastVal: RawValue
   # First find the source value
   let srcThreadId = commands[firstThreadId].dirty
@@ -44,13 +48,12 @@ proc execBroadcast*(results: var SubgroupResults, commands: SubgroupCommands,
       res: broadcastVal
     )
 
-  when defined(debugSubgroup):
+  if showDebugOutput:
     debugSubgroupOp("Broadcast", opId, group, commands,
       "broadcast " & formatValue(commands[firstThreadId].t, commands[firstThreadId].val) &
       " from thread: " & $srcThreadId)
 
-proc execBroadcastFirst*(results: var SubgroupResults, commands: SubgroupCommands,
-                         group: SubgroupThreadIDs, firstThreadId, opId: uint32) =
+defineSubgroupOp(execBroadcastFirst):
   for threadId in threadsInGroup(group):
     results[threadId] = SubgroupResult(
       id: opId,
@@ -59,12 +62,11 @@ proc execBroadcastFirst*(results: var SubgroupResults, commands: SubgroupCommand
       res: commands[firstThreadId].val
     )
 
-  when defined(debugSubgroup):
+  if showDebugOutput:
     debugSubgroupOp("BroadcastFirst", opId, group, commands,
       "broadcast: " & formatValue(commands[firstThreadId].t, commands[firstThreadId].val))
 
-proc execAdd*(results: var SubgroupResults, commands: SubgroupCommands,
-              group: SubgroupThreadIDs, firstThreadId, opId: uint32) =
+defineSubgroupOp(execAdd):
   template sumValues(initVal: typed) =
     var total = initVal
     for threadId in threadsInGroup(group):
@@ -93,11 +95,10 @@ proc execAdd*(results: var SubgroupResults, commands: SubgroupCommands,
       res: sum
     )
 
-  when defined(debugSubgroup):
+  if showDebugOutput:
     debugSubgroupOp("Add", opId, group, commands, "sum: " & formatValue(valueType, sum))
 
-proc execMax*(results: var SubgroupResults, commands: SubgroupCommands,
-              group: SubgroupThreadIDs, firstThreadId, opId: uint32) =
+defineSubgroupOp(execMax):
   template maxValues(initVal: typed) =
     var maxVal = initVal
     for threadId in threadsInGroup(group):
@@ -126,11 +127,10 @@ proc execMax*(results: var SubgroupResults, commands: SubgroupCommands,
       res: maximum
     )
 
-  when defined(debugSubgroup):
+  if showDebugOutput:
     debugSubgroupOp("Max", opId, group, commands, "max: " & formatValue(valueType, maximum))
 
-proc execMin*(results: var SubgroupResults, commands: SubgroupCommands,
-              group: SubgroupThreadIDs, firstThreadId, opId: uint32) =
+defineSubgroupOp(execMin):
   template minValues(initVal: typed) =
     var minVal = initVal
     for threadId in threadsInGroup(group):
@@ -159,11 +159,10 @@ proc execMin*(results: var SubgroupResults, commands: SubgroupCommands,
       res: minimum
     )
 
-  when defined(debugSubgroup):
+  if showDebugOutput:
     debugSubgroupOp("Min", opId, group, commands, "min: " & formatValue(valueType, minimum))
 
-proc execInclusiveAdd*(results: var SubgroupResults, commands: SubgroupCommands,
-                       group: SubgroupThreadIDs, firstThreadId, opId: uint32) =
+defineSubgroupOp(execInclusiveAdd):
   var inclusiveSums: array[SubgroupSize, RawValue]
 
   template inclusiveSum(initVal: typed) =
@@ -193,12 +192,11 @@ proc execInclusiveAdd*(results: var SubgroupResults, commands: SubgroupCommands,
       res: inclusiveSums[threadId]
     )
 
-  when defined(debugSubgroup):
+  if showDebugOutput:
     debugSubgroupOp("InclusiveAdd", opId, group, commands,
       "prefix sums: " & formatValues(group, valueType, inclusiveSums))
 
-proc execExclusiveAdd*(results: var SubgroupResults, commands: SubgroupCommands,
-                       group: SubgroupThreadIDs, firstThreadId, opId: uint32) =
+defineSubgroupOp(execExclusiveAdd):
   var exclusiveSums: array[SubgroupSize, RawValue]
 
   template exclusiveSum(initVal: typed) =
@@ -228,12 +226,11 @@ proc execExclusiveAdd*(results: var SubgroupResults, commands: SubgroupCommands,
       res: exclusiveSums[threadId]
     )
 
-  when defined(debugSubgroup):
+  if showDebugOutput:
     debugSubgroupOp("ExclusiveAdd", opId, group, commands,
       "prefix sums: " & formatValues(group, valueType, exclusiveSums))
 
-proc execShuffle*(results: var SubgroupResults, commands: SubgroupCommands,
-                  group: SubgroupThreadIDs, firstThreadId, opId: uint32) =
+defineSubgroupOp(execShuffle):
   var shuffledVals: array[SubgroupSize, RawValue]
   # First gather all shuffled values into array
   for threadId in threadsInGroup(group):
@@ -258,12 +255,11 @@ proc execShuffle*(results: var SubgroupResults, commands: SubgroupCommands,
       res: shuffledVals[threadId]
     )
 
-  when defined(debugSubgroup):
+  if showDebugOutput:
     debugSubgroupOp("Shuffle", opId, group, commands,
       "shuffled: " & formatValues(group, valueType, shuffledVals))
 
-proc execShuffleXor*(results: var SubgroupResults, commands: SubgroupCommands,
-                  group: SubgroupThreadIDs, firstThreadId, opId: uint32) =
+defineSubgroupOp(execShuffleXor):
   var shuffledVals: array[SubgroupSize, RawValue]
   # First gather all shuffled values into array
   for threadId in threadsInGroup(group):
@@ -288,12 +284,11 @@ proc execShuffleXor*(results: var SubgroupResults, commands: SubgroupCommands,
       res: shuffledVals[threadId]
     )
 
-  when defined(debugSubgroup):
+  if showDebugOutput:
     debugSubgroupOp("Shuffle", opId, group, commands,
       "shuffled: " & formatValues(group, valueType, shuffledVals))
 
-proc execBallot*(results: var SubgroupResults, commands: SubgroupCommands,
-                 group: SubgroupThreadIDs, firstThreadId, opId: uint32) =
+defineSubgroupOp(execBallot):
   var ballot: uint32 = 0 # Use uint32 as the ballot mask
   # Set bits in ballot mask based on each thread's boolean value
   for threadId in threadsInGroup(group):
@@ -308,11 +303,10 @@ proc execBallot*(results: var SubgroupResults, commands: SubgroupCommands,
       res: toValue(ballot)
     )
 
-  when defined(debugSubgroup):
+  if showDebugOutput:
     debugSubgroupOp("Ballot", opId, group, commands, "ballot: " & toBin(ballot.int, SubgroupSize))
 
-proc execElect*(results: var SubgroupResults, commands: SubgroupCommands,
-                group: SubgroupThreadIDs, firstThreadId, opId: uint32) =
+defineSubgroupOp(execElect):
   for threadId in threadsInGroup(group):
     results[threadId] = SubgroupResult(
       id: opId,
@@ -320,11 +314,10 @@ proc execElect*(results: var SubgroupResults, commands: SubgroupCommands,
       bRes: threadId == firstThreadId
     )
 
-  when defined(debugSubgroup):
+  if showDebugOutput:
     debugSubgroupOp("Elect", opId, group, commands, "elected: t" & $firstThreadId)
 
-proc execAll*(results: var SubgroupResults, commands: SubgroupCommands,
-              group: SubgroupThreadIDs, firstThreadId, opId: uint32) =
+defineSubgroupOp(execAll):
   var allTrue = true
   for threadId in threadsInGroup(group):
     if not commands[threadId].bVal:
@@ -338,11 +331,10 @@ proc execAll*(results: var SubgroupResults, commands: SubgroupCommands,
       bRes: allTrue
     )
 
-  when defined(debugSubgroup):
+  if showDebugOutput:
     debugSubgroupOp("All", opId, group, commands, "all: " & $allTrue)
 
-proc execAny*(results: var SubgroupResults, commands: SubgroupCommands,
-              group: SubgroupThreadIDs, firstThreadId, opId: uint32) =
+defineSubgroupOp(execAny):
   var anyTrue = false
   for threadId in threadsInGroup(group):
     if commands[threadId].bVal:
@@ -356,11 +348,10 @@ proc execAny*(results: var SubgroupResults, commands: SubgroupCommands,
       bRes: anyTrue
     )
 
-  when defined(debugSubgroup):
+  if showDebugOutput:
     debugSubgroupOp("Any", opId, group, commands, "any: " & $anyTrue)
 
-proc execSubBarrier*(results: var SubgroupResults, commands: SubgroupCommands,
-                     group: SubgroupThreadIDs, firstThreadId, opId: uint32) =
+defineSubgroupOp(execSubBarrier):
   # For barrier, just mark that each thread participated
   for threadId in threadsInGroup(group):
     results[threadId] = SubgroupResult(
@@ -368,11 +359,10 @@ proc execSubBarrier*(results: var SubgroupResults, commands: SubgroupCommands,
       kind: subgroupBarrier
     )
 
-  when defined(debugSubgroup):
+  if showDebugOutput:
     debugSubgroupOp("SubBarrier", opId, group, commands, "subgroup barrier sync")
 
-proc execBarrier*(results: var SubgroupResults, commands: SubgroupCommands,
-                  group: SubgroupThreadIDs, firstThreadId, opId: uint32) =
+defineSubgroupOp(execBarrier):
   # For barrier, just mark that each thread participated
   for threadId in threadsInGroup(group):
     results[threadId] = SubgroupResult(
@@ -380,5 +370,5 @@ proc execBarrier*(results: var SubgroupResults, commands: SubgroupCommands,
       kind: barrier
     )
 
-  when defined(debugSubgroup):
+  if showDebugOutput:
     debugSubgroupOp("Barrier", opId, group, commands, "barrier sync")
