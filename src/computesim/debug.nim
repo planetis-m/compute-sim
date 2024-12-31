@@ -1,3 +1,4 @@
+# (c) 2024 Antonis Geralis
 import std/strutils, core
 
 proc formatValue*(t: ValueType, val: RawValue): string =

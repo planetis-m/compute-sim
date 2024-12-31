@@ -1,4 +1,10 @@
+# (c) 2024 Antonis Geralis
 import core, subgroupops
+
+proc raiseNonUniformBarrierError(id1, id2: uint32) {.noinline, noreturn.} =
+  raise newException(AssertionDefect,
+    "Invalid shader: Barrier must be uniformly executed by all threads in a workgroup. " &
+    "Found different barrier IDs: " & $id1 & " and " & $id2)
 
 type
   ThreadState = enum
@@ -13,7 +19,7 @@ proc runThreads*(threads: SubgroupThreads; b: BarrierHandle) =
     results: SubgroupResults
     minReconvergeId: uint32 = 0
     barrierId = InvalidId
-    activeThreadCount: uint32 = SubgroupSize # todo: make a parameter
+    activeThreadCount = SubgroupSize.uint32 # todo: make a parameter
     barrierThreadCount: uint32 = 0
 
   template canReconverge(): bool =
@@ -59,6 +65,8 @@ proc runThreads*(threads: SubgroupThreads; b: BarrierHandle) =
         inc barrierThreadCount
         if barrierId == InvalidId:
           barrierId = commands[threadId].id
+        elif barrierId != commands[threadId].id:
+          raiseNonUniformBarrierError(barrierId, commands[threadId].id)
       of finished:
         dec activeThreadCount
 

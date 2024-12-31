@@ -16,6 +16,7 @@
 # bool subgroupAll(bool condition);
 # bool subgroupAny(bool condition);
 
+# (c) 2024 Antonis Geralis
 import std/[fenv, strutils], core, debug
 
 proc execBroadcast*(results: var SubgroupResults, commands: SubgroupCommands,

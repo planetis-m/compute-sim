@@ -74,6 +74,7 @@
 ## | `threadIdx` | `gl_LocalInvocationID` | The index of the current thread within its block (CUDA) or work group (GLSL) |
 ## | `blockIdx * blockDim + threadIdx` | `gl_GlobalInvocationID` | The global index of the current thread (CUDA) or invocation (GLSL) |
 
+# (c) 2024 Antonis Geralis
 import std/math, threading/barrier, malebolgia
 
 import computesim/[core, vectors, transform, lockstep]

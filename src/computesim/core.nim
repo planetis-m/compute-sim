@@ -1,3 +1,4 @@
+# (c) 2024 Antonis Geralis
 import threading/barrier
 
 const

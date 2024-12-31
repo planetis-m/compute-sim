@@ -1,3 +1,4 @@
+# (c) 2024 Antonis Geralis
 type
   TVec*[N: static[int], T] = object
     data: array[N, T]

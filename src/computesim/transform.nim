@@ -1,6 +1,7 @@
+# (c) 2024 Antonis Geralis
 import std/[macros, strutils], core, vectors
 
-proc raiseInvalidSubgroupOp(kind: SubgroupOp) {.noreturn.} =
+proc raiseInvalidSubgroupOp(kind: SubgroupOp) {.noinline, noreturn.} =
   raise newException(AssertionDefect, "Invalid subgroup operation: " & $kind)
 
 template validateTwoArgOp(op: untyped) =
@@ -77,7 +78,6 @@ template ballotResult(iterArg: untyped): untyped =
   uvec4(getValue[uint32](iterArg.res), 0, 0, 0)
 
 proc genSubgroupOpCall*(op: SubgroupOp; node, id, iterArg: NimNode): NimNode =
-  result = newStmtList()
   # Generate the command part based on operation type
   let cmdPart = case op
     of subgroupBroadcast, subgroupShuffle, subgroupShuffleXor:
@@ -105,7 +105,7 @@ proc genSubgroupOpCall*(op: SubgroupOp; node, id, iterArg: NimNode): NimNode =
       newTree(nnkDiscardStmt, newEmptyNode())
     else: nil
   # Combine both parts
-  result.add quote do:
+  result = quote do:
     yield `cmdPart`
     case `iterArg`.kind
     of `op`:
