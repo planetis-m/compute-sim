@@ -3,8 +3,8 @@ import core, subgroupops
 
 proc raiseDeadlockError(threadsAtBarrier: uint32) {.noinline, noreturn.} =
   raise newException(AssertionDefect,
-    "Invalid shader: Deadlock detected - some threads terminated while others " &
-    "are still waiting at a barrier. Threads at barrier: " & $threadsAtBarrier)
+    "Invalid shader: Deadlock detected - no threads could make progress this iteration. " &
+    "Threads stuck at barrier: " & $threadsAtBarrier)
 
 proc raiseNonUniformBarrierError(id1, id2: uint32) {.noinline, noreturn.} =
   raise newException(AssertionDefect,
@@ -28,8 +28,7 @@ proc runThreads*(threads: SubgroupThreads; b: BarrierHandle) =
     barrierThreadCount: uint32 = 0
 
   template canReconverge(): bool =
-    # Not enforcing minReconvergeId < barrierId to allow debugging rather than deadlocking.
-    (allThreadsHalted and commands[threadId].id == minReconvergeId)
+    (allThreadsHalted and minReconvergeId < barrierId and commands[threadId].id == minReconvergeId)
 
   template canPassBarrier(): bool =
     (barrierThreadCount == activeThreadCount and commands[threadId].id == barrierId)
@@ -38,19 +37,21 @@ proc runThreads*(threads: SubgroupThreads; b: BarrierHandle) =
   while anyThreadsActive:
     # Run each active thread once
     for threadId in 0..<SubgroupSize:
-      if threadStates[threadId] != finished:
-        if threadStates[threadId] == running or canReconverge or canPassBarrier:
-          commands[threadId] = threads[threadId](results[threadId])
-          if finished(threads[threadId]):
-            threadStates[threadId] = finished
-          elif commands[threadId].kind == barrier:
-            threadStates[threadId] = atBarrier
-          elif commands[threadId].kind == subgroupBarrier:
-            threadStates[threadId] = atSubBarrier
-          elif commands[threadId].kind == reconverge:
-            threadStates[threadId] = halted
-          else:
-            threadStates[threadId] = running
+      var madeProgress = false
+      if threadStates[threadId] != finished and
+          threadStates[threadId] == running or canReconverge or canPassBarrier:
+        madeProgress = true
+        commands[threadId] = threads[threadId](results[threadId])
+        if finished(threads[threadId]):
+          threadStates[threadId] = finished
+        elif commands[threadId].kind == barrier:
+          threadStates[threadId] = atBarrier
+        elif commands[threadId].kind == subgroupBarrier:
+          threadStates[threadId] = atSubBarrier
+        elif commands[threadId].kind == reconverge:
+          threadStates[threadId] = halted
+        else:
+          threadStates[threadId] = running
 
     # Handle thread states
     anyThreadsActive = false
@@ -60,16 +61,6 @@ proc runThreads*(threads: SubgroupThreads; b: BarrierHandle) =
     activeThreadCount = SubgroupSize
     barrierThreadCount = 0
 
-    # First pass - handle barrier counts and checks
-    for threadId in 0..<SubgroupSize:
-      if threadStates[threadId] == atBarrier:
-        inc barrierThreadCount
-        if barrierId == InvalidId:
-          barrierId = commands[threadId].id
-        elif barrierId != commands[threadId].id:
-          raiseNonUniformBarrierError(barrierId, commands[threadId].id)
-
-    # Second pass - handle other thread states
     for threadId in 0..<SubgroupSize:
       if threadStates[threadId] != finished:
         anyThreadsActive = true
@@ -78,11 +69,17 @@ proc runThreads*(threads: SubgroupThreads; b: BarrierHandle) =
         allThreadsHalted = false
       of halted, atSubBarrier:
         minReconvergeId = min(minReconvergeId, commands[threadId].id)
-      of atBarrier: discard # already handled
+      of atBarrier:
+        inc barrierThreadCount
+        if barrierId == InvalidId:
+          barrierId = commands[threadId].id
+        elif barrierId != commands[threadId].id:
+          raiseNonUniformBarrierError(barrierId, commands[threadId].id)
       of finished:
-        if barrierThreadCount > 0: # If any threads are waiting at a barrier
-          raiseDeadlockError(barrierThreadCount)
         dec activeThreadCount
+
+    if not madeProgress:
+      raiseDeadlockError(barrierThreadCount) # No thread could execute this iteration
 
     # Group matching operations
     var
