@@ -28,6 +28,7 @@ proc runThreads*(threads: SubgroupThreads; b: BarrierHandle) =
     barrierThreadCount: uint32 = 0
 
   template canReconverge(): bool =
+    # Not enforcing minReconvergeId < barrierId to allow debugging rather than deadlocking.
     (allThreadsHalted and commands[threadId].id == minReconvergeId)
 
   template canPassBarrier(): bool =
