@@ -1,20 +1,3 @@
-# computesim
-
-A compute shader emulator for learning and debugging GPU compute shaders.
-
-## Features
-- Emulates GPU compute shader execution on CPU
-- Simulates workgroups and subgroups with lockstep execution
-- Supports GLSL subgroup operations
-- Thread state visualization and debugging
-- Works with any Nim code that follows compute shader patterns
-
-## Example
-
-```nim
-# Compile with appropriate thread pool size and optimization settings
-# -d:ThreadPoolSize=workgroupSize+1 -d:danger --threads:on --mm:arc
-
 import std/[atomics, math], computesim
 
 type
@@ -64,37 +47,3 @@ proc main() =
   echo "Reduction result: ", result, " expected: ", expected
 
 main()
-```
-
-The example demonstrates:
-- Using subgroup operations for efficient reduction
-- Automatic handling of divergent control flow
-- Atomic operations for cross-workgroup communication
-- Proper synchronization between threads
-
-## Installation
-```
-nimble install computesim
-```
-
-## Usage
-
-1. Write your shader using the `computeShader` macro which:
-   - Transforms control flow for lockstep execution
-   - Converts subgroup operations into commands
-   - Handles thread synchronization
-
-2. Configure execution:
-   - Set up workgroup dimensions
-   - Prepare data buffers and shared memory
-   - Call `runComputeOnCpu` with your shader
-
-See the examples directory for more patterns and use cases.
-
-## Limitations
-- Single wavefront/subgroup size
-- Limited subset of GLSL/compute operations
-- Performance is not representative of real GPU execution
-
-## License
-MIT

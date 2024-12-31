@@ -80,6 +80,9 @@ import std/math, threading/barrier, malebolgia
 import computesim/[core, vectors, transform, lockstep]
 export vectors, transform
 
+import std/isolation
+export isolate, extract
+
 type
   GlEnvironment* = object
     gl_GlobalInvocationID*: UVec3    # Global ID of the current invocation

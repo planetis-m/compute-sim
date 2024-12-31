@@ -2,14 +2,14 @@
 # `-d:danger --opt:none --panics:on --threads:on --tlsEmulation:off --mm:arc -d:useMalloc -g`
 # ...and debug with nim-gdb or lldb
 
-import computesim, std/[atomics, math, isolation]
+import computesim, std/[atomics, math]
 
 type
-  Buffers = tuple
+  Buffers = object
     input, output: seq[int32]
     retirementCount: Atomic[uint32]
 
-  Shared = tuple
+  Shared = object
     buffer: seq[int32]
     isLastWorkGroup: uint32
 
@@ -33,7 +33,7 @@ proc reductionShader(env: GlEnvironment, b: ptr Buffers, smem: ptr Shared, args:
     globalIdx += 2 * localSize
   smem.buffer[localIdx] = sum
 
-  barrier()
+  barrier() # was memoryBarrierShared(); barrier();
   var stride = localSize div 2
   while stride > 0:
     if localIdx < stride:
@@ -74,8 +74,8 @@ proc reductionShader(env: GlEnvironment, b: ptr Buffers, smem: ptr Shared, args:
 # Main
 const
   numElements = 256'u32
-  coarseFactor = 4'u32
-  localSize = 4'u32 # workgroupSize
+  coarseFactor = 1'u32
+  localSize = 16'u32 # workgroupSize
   segment = localSize * 2 * coarseFactor
 
 proc main =
@@ -88,7 +88,7 @@ proc main =
   for i in 0..<numElements:
     inputData[i] = int32(i)
 
-  var buffers = (
+  var buffers = Buffers(
     input: ensureMove(inputData),
     output: newSeq[int32](numWorkGroups.x + 1),
     retirementCount: default(Atomic[uint32])
@@ -96,7 +96,7 @@ proc main =
 
   # Run the compute shader on CPU, pass buffers as parameters.
   runComputeOnCpu(numWorkGroups, workGroupSize, reductionShader, addr buffers,
-    (buffer: newSeq[int32](workGroupSize.x), isLastWorkGroup: 0'u32),
+    Shared(buffer: newSeq[int32](workGroupSize.x), isLastWorkGroup: 0'u32),
     (numElements, coarseFactor))
 
   let result = buffers.output[0]
