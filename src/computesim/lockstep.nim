@@ -35,9 +35,9 @@ proc runThreads*(threads: SubgroupThreads, numActiveThreads: uint32; workgroupID
   var
     anyThreadsActive = true
     allThreadsHalted = false
-    threadStates: array[SubgroupSize, ThreadState]
-    commands: SubgroupCommands
-    results: SubgroupResults
+    threadStates = default(array[SubgroupSize, ThreadState])
+    commands = default(SubgroupCommands)
+    results = default(SubgroupResults)
     minReconvergeId: uint32 = 0
     barrierId = InvalidId
     activeThreadCount: uint32 = numActiveThreads
@@ -101,7 +101,7 @@ proc runThreads*(threads: SubgroupThreads, numActiveThreads: uint32; workgroupID
 
     # Group matching operations
     var
-      threadGroups: array[SubgroupSize, SubgroupThreadIDs]
+      threadGroups = default(array[SubgroupSize, SubgroupThreadIDs])
       numGroups: uint32 = 0
 
     # Group by operation id

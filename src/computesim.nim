@@ -104,7 +104,7 @@ const
 
 proc runSubgroup[A, B, C](env: GlEnvironment; numActiveThreads: uint32; barrier: BarrierHandle,
     compute: ThreadGenerator[A, B, C]; buffers: A; shared: ptr B; args: C) =
-  var threads: SubgroupThreads
+  var threads = default(SubgroupThreads)
   let startIdx = env.gl_SubgroupID * SubgroupSize
   var threadId: uint32 = 0
   # Initialize coordinates from startIdx
@@ -151,7 +151,6 @@ proc workGroupProc[A, B, C](
   # Create master for managing threads
   var master = createMaster(activeProducer = true)
   var remainingThreads = threadsInWorkgroup
-  var x, y, z: uint32 = 0
   master.awaitAll:
     for subgroupId in 0..<numSubgroups:
       env.gl_SubgroupID = subgroupId

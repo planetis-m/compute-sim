@@ -163,7 +163,7 @@ defineSubgroupOp(execMin):
     debugSubgroupOp("Min", opId, group, commands, "min: " & formatValue(valueType, minimum))
 
 defineSubgroupOp(execInclusiveAdd):
-  var inclusiveSums: array[SubgroupSize, RawValue]
+  var inclusiveSums = default(array[SubgroupSize, RawValue])
 
   template inclusiveSum(initVal: typed) =
     var total = initVal
@@ -197,7 +197,7 @@ defineSubgroupOp(execInclusiveAdd):
       "prefix sums: " & formatValues(group, valueType, inclusiveSums))
 
 defineSubgroupOp(execExclusiveAdd):
-  var exclusiveSums: array[SubgroupSize, RawValue]
+  var exclusiveSums = default(array[SubgroupSize, RawValue])
 
   template exclusiveSum(initVal: typed) =
     var total = initVal
@@ -231,7 +231,7 @@ defineSubgroupOp(execExclusiveAdd):
       "prefix sums: " & formatValues(group, valueType, exclusiveSums))
 
 defineSubgroupOp(execShuffle):
-  var shuffledVals: array[SubgroupSize, RawValue]
+  var shuffledVals = default(array[SubgroupSize, RawValue])
   # First gather all shuffled values into array
   for threadId in threadsInGroup(group):
     let srcThreadId = commands[threadId].dirty
@@ -260,7 +260,7 @@ defineSubgroupOp(execShuffle):
       "shuffled: " & formatValues(group, valueType, shuffledVals))
 
 defineSubgroupOp(execShuffleXor):
-  var shuffledVals: array[SubgroupSize, RawValue]
+  var shuffledVals = default(array[SubgroupSize, RawValue])
   # First gather all shuffled values into array
   for threadId in threadsInGroup(group):
     let srcThreadId = threadId xor commands[threadId].dirty
