@@ -1,6 +1,11 @@
 # (c) 2024 Antonis Geralis
 import core, subgroupops
 
+proc raiseDeadlockError(threadsAtBarrier: uint32) {.noinline, noreturn.} =
+  raise newException(AssertionDefect,
+    "Invalid shader: Deadlock detected - some threads terminated while others " &
+    "are still waiting at a barrier. Threads at barrier: " & $threadsAtBarrier)
+
 proc raiseNonUniformBarrierError(id1, id2: uint32) {.noinline, noreturn.} =
   raise newException(AssertionDefect,
     "Invalid shader: Barrier must be uniformly executed by all threads in a workgroup. " &
@@ -19,7 +24,7 @@ proc runThreads*(threads: SubgroupThreads; b: BarrierHandle) =
     results: SubgroupResults
     minReconvergeId: uint32 = 0
     barrierId = InvalidId
-    activeThreadCount = SubgroupSize.uint32 # todo: make a parameter
+    activeThreadCount: uint32 = SubgroupSize # todo: make a parameter
     barrierThreadCount: uint32 = 0
 
   template canReconverge(): bool =
@@ -46,13 +51,24 @@ proc runThreads*(threads: SubgroupThreads; b: BarrierHandle) =
           else:
             threadStates[threadId] = running
 
+    # Handle thread states
     anyThreadsActive = false
     allThreadsHalted = true
     minReconvergeId = InvalidId
-    barrierThreadCount = 0
     barrierId = InvalidId
+    activeThreadCount = SubgroupSize
+    barrierThreadCount = 0
 
-    # Handle thread states
+    # First pass - handle barrier counts and checks
+    for threadId in 0..<SubgroupSize:
+      if threadStates[threadId] == atBarrier:
+        inc barrierThreadCount
+        if barrierId == InvalidId:
+          barrierId = commands[threadId].id
+        elif barrierId != commands[threadId].id:
+          raiseNonUniformBarrierError(barrierId, commands[threadId].id)
+
+    # Second pass - handle other thread states
     for threadId in 0..<SubgroupSize:
       if threadStates[threadId] != finished:
         anyThreadsActive = true
@@ -61,13 +77,10 @@ proc runThreads*(threads: SubgroupThreads; b: BarrierHandle) =
         allThreadsHalted = false
       of halted, atSubBarrier:
         minReconvergeId = min(minReconvergeId, commands[threadId].id)
-      of atBarrier:
-        inc barrierThreadCount
-        if barrierId == InvalidId:
-          barrierId = commands[threadId].id
-        elif barrierId != commands[threadId].id:
-          raiseNonUniformBarrierError(barrierId, commands[threadId].id)
+      of atBarrier: discard # already handled
       of finished:
+        if barrierThreadCount > 0: # If any threads are waiting at a barrier
+          raiseDeadlockError(barrierThreadCount)
         dec activeThreadCount
 
     # Group matching operations
