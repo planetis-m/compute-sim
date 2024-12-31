@@ -25,7 +25,7 @@ template defineSubgroupOp(op, body: untyped) {.dirty.} =
     body
 
 defineSubgroupOp(execBroadcast):
-  var broadcastVal: RawValue
+  var broadcastVal = default(RawValue)
   # First find the source value
   let srcThreadId = commands[firstThreadId].dirty
   var found = false
@@ -73,7 +73,7 @@ defineSubgroupOp(execAdd):
       total += getValue[typeof(initVal)](commands[threadId].val)
     sum = toValue(total)
 
-  var sum: RawValue
+  var sum = default(RawValue)
   let valueType = commands[firstThreadId].t
   case valueType:
   of Int:
@@ -105,7 +105,7 @@ defineSubgroupOp(execMax):
       maxVal = max(maxVal, getValue[typeof(initVal)](commands[threadId].val))
     maximum = toValue(maxVal)
 
-  var maximum: RawValue
+  var maximum = default(RawValue)
   let valueType = commands[firstThreadId].t
   case valueType:
   of Int:
@@ -137,7 +137,7 @@ defineSubgroupOp(execMin):
       minVal = min(minVal, getValue[typeof(initVal)](commands[threadId].val))
     minimum = toValue(minVal)
 
-  var minimum: RawValue
+  var minimum = default(RawValue)
   let valueType = commands[firstThreadId].t
   case valueType:
   of Int:

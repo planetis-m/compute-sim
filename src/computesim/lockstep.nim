@@ -9,10 +9,10 @@ const
 
 template shouldShowDebugOutput(): untyped =
   when defined(debugSubgroup):
-    workgroupID.x == debugWorkgroupX.uint32 and
-    workgroupID.y == debugWorkgroupY.uint32 and
-    workgroupID.z == debugWorkgroupZ.uint32 and
-    subgroupID == debugSubgroupID.uint32
+    workgroupID.x == debugWorkgroupX and
+    workgroupID.y == debugWorkgroupY and
+    workgroupID.z == debugWorkgroupZ and
+    subgroupID == debugSubgroupID
   else:
     false
 
@@ -58,7 +58,8 @@ proc runThreads*(threads: SubgroupThreads, numActiveThreads: uint32; workgroupID
       if threadStates[threadId] != finished and
           threadStates[threadId] == running or canReconverge or canPassBarrier:
         madeProgress = true
-        commands[threadId] = threads[threadId](results[threadId])
+        {.cast(gcsafe).}:
+          commands[threadId] = threads[threadId](results[threadId])
         if finished(threads[threadId]):
           threadStates[threadId] = finished
         elif commands[threadId].kind == barrier:
@@ -112,18 +113,17 @@ proc runThreads*(threads: SubgroupThreads, numActiveThreads: uint32; workgroupID
         for groupIdx in 0..<numGroups:
           let firstThreadId = threadGroups[groupIdx][0]
           if commands[firstThreadId].id == commands[threadId].id:
-            # assert commands[firstThreadId].kind == commands[threadId].kind
             # Find first empty slot in group
             for slot in 0..<SubgroupSize:
               if threadGroups[groupIdx][slot] == InvalidId:
-                threadGroups[groupIdx][slot] = threadId.uint32
+                threadGroups[groupIdx][slot] = threadId
                 if slot + 1 < SubgroupSize:
                   threadGroups[groupIdx][slot + 1] = InvalidId
                 break
             found = true
             break
         if not found:
-          threadGroups[numGroups][0] = threadId.uint32
+          threadGroups[numGroups][0] = threadId
           threadGroups[numGroups][1] = InvalidId
           inc numGroups
 

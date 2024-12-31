@@ -61,6 +61,7 @@ type
     x: ptr Barrier
 
 proc toValue*[T](val: T): RawValue =
+  result = default(RawValue)
   cast[ptr T](addr result.data)[] = val
 
 proc getValue*[T](v: RawValue): T =

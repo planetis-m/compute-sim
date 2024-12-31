@@ -162,7 +162,8 @@ macro computeShader*(prc: untyped): untyped =
         result.body = newStmtList(genReconvergeCall(), result.body)
       result = newStmtList(result, genReconvergeCall())
 
-    of nnkIfStmt, nnkTryStmt, nnkCaseStmt:
+    elif node.kind in {nnkTryStmt, nnkCaseStmt} or (node.kind == nnkIfStmt and
+        (node.len == 0 or node[0].kind != nnkElifExpr)):
       result = copyNimTree(node)
       for i in ord(result.kind == nnkCaseStmt) ..< result.len:
         result[i] = traverseAndModify(result[i])
