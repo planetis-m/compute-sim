@@ -60,8 +60,7 @@ type
   BarrierHandle* = object
     x: ptr Barrier
 
-proc toValue*[T](val: T): RawValue =
-  result = default(RawValue)
+proc toValue*[T](val: T): RawValue {.noinit.} =
   cast[ptr T](addr result.data)[] = val
 
 proc getValue*[T](v: RawValue): T =

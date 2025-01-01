@@ -1,4 +1,5 @@
 # (c) 2024 Antonis Geralis
+from std/algorithm import fill
 import core, subgroupops, vectors
 
 const
@@ -35,14 +36,16 @@ proc runThreads*(threads: SubgroupThreads, numActiveThreads: uint32; workgroupID
   var
     anyThreadsActive = true
     allThreadsHalted = false
-    threadStates = default(array[SubgroupSize, ThreadState])
-    commands = default(SubgroupCommands)
-    results = default(SubgroupResults)
+    threadStates {.noinit.}: array[SubgroupSize, ThreadState]
+    commands {.noinit.}: SubgroupCommands
+    results {.noinit.}: SubgroupResults
     minReconvergeId: uint32 = 0
     barrierId = InvalidId
     activeThreadCount: uint32 = numActiveThreads
     barrierThreadCount: uint32 = 0
     showDebugOutput = shouldShowDebugOutput()
+
+  threadStates.fill(running)
 
   template canReconverge(): bool =
     (allThreadsHalted and minReconvergeId < barrierId and commands[threadId].id == minReconvergeId)
@@ -101,7 +104,7 @@ proc runThreads*(threads: SubgroupThreads, numActiveThreads: uint32; workgroupID
 
     # Group matching operations
     var
-      threadGroups = default(array[SubgroupSize, SubgroupThreadIDs])
+      threadGroups {.noinit.}: array[SubgroupSize, SubgroupThreadIDs]
       numGroups: uint32 = 0
 
     # Group by operation id
