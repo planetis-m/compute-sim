@@ -102,8 +102,6 @@ type
     args: C
   ): ThreadClosure {.nimcall.}
 
-  ThreadGeneratorNoShared*[A, B] = ThreadGenerator[A, tuple[], B]
-
 const
   MaxConcurrentWorkGroups {.intdefine.} = 2
 
@@ -149,6 +147,7 @@ proc workGroupProc[A, B, C](
   let threadsInWorkgroup = env.gl_WorkGroupSize.x * env.gl_WorkGroupSize.y * env.gl_WorkGroupSize.z
   let numSubgroups = ceilDiv(threadsInWorkgroup, SubgroupSize)
   env.gl_NumSubgroups = numSubgroups
+  env.gl_SubgroupSize = SubgroupSize
   # Initialize local shared memory
   var smem = smem[] # Allocated per work group
   var barrier = createBarrier(numSubgroups)
@@ -169,8 +168,7 @@ proc runComputeOnCpu*[A, B, C](
     ssbo: A, smem: B, args: C) =
   let env = GlEnvironment(
     gl_NumWorkGroups: numWorkGroups,
-    gl_WorkGroupSize: workGroupSize,
-    gl_SubgroupSize: SubgroupSize
+    gl_WorkGroupSize: workGroupSize
   )
   let totalGroups = numWorkGroups.x * numWorkGroups.y * numWorkGroups.z
   let numBatches = ceilDiv(totalGroups, MaxConcurrentWorkGroups)
@@ -194,9 +192,3 @@ proc runComputeOnCpu*[A, B, C](
             wgY = 0
             inc wgZ
         inc currentGroup
-
-proc runComputeOnCpu*[A, B](
-    numWorkGroups, workGroupSize: UVec3,
-    compute: ThreadGeneratorNoShared[A, B],
-    ssbo: A, args: B) {.inline.} =
-  runComputeOnCpu(numWorkGroups, workGroupSize, compute, ssbo, (), args)

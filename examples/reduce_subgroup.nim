@@ -5,7 +5,7 @@ type
     input: seq[int32]
     sum: Atomic[int32]
 
-proc reduce(env: GlEnvironment; buffers: ptr Buffers; numElements: uint32) {.computeShader.} =
+proc reduce(env: GlEnvironment; buffers: ptr Buffers; smem: ptr int32; numElements: uint32) {.computeShader.} =
   let gid = env.gl_GlobalInvocationID.x
   let value = if gid < numElements: buffers.input[gid] else: 0
 
@@ -39,6 +39,7 @@ proc main() =
     workGroupSize = workGroupSize,
     compute = reduce,
     ssbo = addr buffers,
+    smem = 0'i32, # unused
     args = NumElements
   )
 
