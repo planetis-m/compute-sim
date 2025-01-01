@@ -127,6 +127,28 @@ macro computeShader*(prc: untyped): untyped =
     quote do:
       yield SubgroupCommand(id: `id`, kind: reconverge)
 
+  # Create template declarations for GlEnvironment fields
+  let envSym = genSym(nskParam, "env")
+  let envTemplates = newNimNode(nnkStmtList)
+
+  # Define templates for each GlEnvironment field
+  let envFields = [
+    "gl_GlobalInvocationID",
+    "gl_LocalInvocationID",
+    "gl_WorkGroupID",
+    "gl_WorkGroupSize",
+    "gl_NumWorkGroups",
+    "gl_NumSubgroups",
+    "gl_SubgroupSize",
+    "gl_SubgroupID",
+    "gl_SubgroupInvocationID"
+  ]
+
+  for field in envFields:
+    let fieldIdent = ident(field)
+    envTemplates.add quote do:
+      template `fieldIdent`(): untyped {.used.} = `envSym`.`fieldIdent`
+
   # Transform AST to handle divergent control flow and subgroup operations
   # Inserts reconvergence points after control flow blocks
   proc traverseAndModify(node: NimNode): NimNode =
@@ -178,7 +200,8 @@ macro computeShader*(prc: untyped): untyped =
   let iterArg = ident"iterArg"
   let traversedBody = traverseAndModify(prc.body)
   result = quote do:
-    proc `procName`(): ThreadClosure =
+    proc `procName`(`envSym`: GlEnvironment): ThreadClosure =
+      `envTemplates`
       iterator (`iterArg`: SubgroupResult): SubgroupCommand =
         `traversedBody`
 

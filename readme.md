@@ -22,15 +22,15 @@ type
     input: seq[int32]
     sum: Atomic[int32]
 
-proc reduce(env: GlEnvironment; buffers: ptr Buffers; numElements: uint32) {.computeShader.} =
-  let gid = env.gl_GlobalInvocationID.x
+proc reduce(buffers: ptr Buffers; numElements: uint32) {.computeShader.} =
+  let gid = gl_GlobalInvocationID.x
   let value = if gid < numElements: buffers.input[gid] else: 0
 
   # First reduce within subgroup using efficient subgroup operation
   let sum = subgroupAdd(value)
 
   # Only one thread per subgroup needs to add to global sum
-  if env.gl_SubgroupInvocationID == 0:
+  if gl_SubgroupInvocationID == 0:
     atomicInc buffers.sum, sum
 
 const

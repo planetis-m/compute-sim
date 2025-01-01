@@ -17,13 +17,13 @@ type
     n: uint32
     coarseFactor: uint32
 
-proc reductionShader(env: GlEnvironment, b: ptr Buffers, smem: ptr Shared, args: Args) {.computeShader.} =
+proc reductionShader(b: ptr Buffers, smem: ptr Shared, args: Args) {.computeShader.} =
   let (n, coarseFactor) = args
 
-  let localIdx = env.gl_LocalInvocationID.x
-  let gridSize = env.gl_NumWorkGroups.x
-  let localSize = env.gl_WorkGroupSize.x
-  var globalIdx = env.gl_WorkGroupID.x * localSize * 2 * coarseFactor + localIdx
+  let localIdx = gl_LocalInvocationID.x
+  let gridSize = gl_NumWorkGroups.x
+  let localSize = gl_WorkGroupSize.x
+  var globalIdx = gl_WorkGroupID.x * localSize * 2 * coarseFactor + localIdx
 
   var sum: int32 = 0
   for tile in 0 ..< coarseFactor:
@@ -43,7 +43,7 @@ proc reductionShader(env: GlEnvironment, b: ptr Buffers, smem: ptr Shared, args:
     stride = stride div 2
 
   if localIdx == 0:
-    b.output[env.gl_WorkGroupID.x] = smem.buffer[0]
+    b.output[gl_WorkGroupID.x] = smem.buffer[0]
 
   if gridSize > 1:
     subgroupBarrier() # was memoryBarrierBuffer();
