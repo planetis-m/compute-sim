@@ -1,2 +1,2 @@
 --define:debugSubgroup
-switch("define", "debugSubgroupID:2")
+switch("define", "debugSubgroupID:1")

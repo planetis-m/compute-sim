@@ -1,6 +1,6 @@
 import std/math, computesim
 
-proc cont(output: ptr seq[int32]; numElements: uint32) {.computeShader.} =
+proc calculate(output: ptr seq[int32]; numElements: uint32) {.computeShader.} =
   let tid = gl_GlobalInvocationID.x
   var value: int32 = 0
   # Loop from 1 to 2
@@ -13,8 +13,8 @@ proc cont(output: ptr seq[int32]; numElements: uint32) {.computeShader.} =
   output[tid] = value
 
 const
-  NumElements = 1024'u32
-  WorkGroupSize = 256'u32
+  NumElements = 64'u32
+  WorkGroupSize = 16'u32 # Force underutilization of hardware subgroups
 
 proc main() =
   # Set up compute dimensions
@@ -28,10 +28,15 @@ proc main() =
   runComputeOnCpu(
     numWorkGroups = numWorkGroups,
     workGroupSize = workGroupSize,
-    compute = cont,
+    compute = calculate,
     ssbo = addr output,
     args = NumElements
   )
+
+  assert output == @[2'i32, 1, 2, 2, 1, 2, 2, 1, 10, 10, 10, 10, 10, 10, 10, 10,
+    17, 19, 19, 17, 19, 19, 17, 19, 26, 25, 26, 26, 25, 26, 26, 25,
+    34, 34, 34, 34, 34, 34, 34, 34, 41, 43, 43, 41, 43, 43, 41, 43,
+    50, 49, 50, 50, 49, 50, 50, 49, 58, 58, 58, 58, 58, 58, 58, 58]
 
 # Debug Output:
 # - SubgroupID 0
@@ -45,4 +50,5 @@ proc main() =
 # [BroadcastFirst #1] inputs {t1: 19, t2: 20, t4: 22, t5: 23, t7: 25} | broadcast: 19
 # Output Buffer:
 # [2, 1, 2, 2, 1, 2, 2, 1, 10, 10, 10, 10, 10, 10, 10, 10, 17, 19, 19, 17, 19, 19, 17, 19, ...
+# - Matches GLSL shader output.
 main()
