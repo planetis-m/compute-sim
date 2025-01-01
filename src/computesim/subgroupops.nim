@@ -360,7 +360,7 @@ defineSubgroupOp(execSubBarrier):
     )
 
   if showDebugOutput:
-    debugSubgroupOp("SubBarrier", opId, group, commands, "subgroup barrier sync")
+    debugSubgroupOp("SubBarrier", opId, group, commands, "subgroup sync")
 
 defineSubgroupOp(execBarrier):
   # For barrier, just mark that each thread participated
@@ -371,4 +371,4 @@ defineSubgroupOp(execBarrier):
     )
 
   if showDebugOutput:
-    debugSubgroupOp("Barrier", opId, group, commands, "workgroup barrier sync")
+    debugSubgroupOp("Barrier", opId, group, commands, "workgroup sync")

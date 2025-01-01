@@ -113,6 +113,25 @@ proc genSubgroupOpCall*(op: SubgroupOp; node, id, iterArg: NimNode): NimNode =
     else:
       raiseInvalidSubgroupOp(`op`)
 
+proc generateEnvTemplates(envSym: NimNode): NimNode =
+  result = newNimNode(nnkStmtList)
+  # Define templates for each GlEnvironment field
+  let envFields = [
+    "gl_GlobalInvocationID",
+    "gl_LocalInvocationID",
+    "gl_WorkGroupID",
+    "gl_WorkGroupSize",
+    "gl_NumWorkGroups",
+    "gl_NumSubgroups",
+    "gl_SubgroupSize",
+    "gl_SubgroupID",
+    "gl_SubgroupInvocationID"
+  ]
+  for field in envFields:
+    let fieldIdent = ident(field)
+    result.add quote do:
+      template `fieldIdent`(): untyped {.used.} = `envSym`.`fieldIdent`
+
 macro computeShader*(prc: untyped): untyped =
   expectKind(prc, {nnkProcDef, nnkFuncDef})
 
@@ -126,28 +145,6 @@ macro computeShader*(prc: untyped): untyped =
     let id = newYieldId()
     quote do:
       yield SubgroupCommand(id: `id`, kind: reconverge)
-
-  # Create template declarations for GlEnvironment fields
-  let envSym = genSym(nskParam, "env")
-  let envTemplates = newNimNode(nnkStmtList)
-
-  # Define templates for each GlEnvironment field
-  let envFields = [
-    "gl_GlobalInvocationID",
-    "gl_LocalInvocationID",
-    "gl_WorkGroupID",
-    "gl_WorkGroupSize",
-    "gl_NumWorkGroups",
-    "gl_NumSubgroups",
-    "gl_SubgroupSize",
-    "gl_SubgroupID",
-    "gl_SubgroupInvocationID"
-  ]
-
-  for field in envFields:
-    let fieldIdent = ident(field)
-    envTemplates.add quote do:
-      template `fieldIdent`(): untyped {.used.} = `envSym`.`fieldIdent`
 
   # Transform AST to handle divergent control flow and subgroup operations
   # Inserts reconvergence points after control flow blocks
@@ -199,6 +196,10 @@ macro computeShader*(prc: untyped): untyped =
   let procName = prc.name
   let iterArg = ident"iterArg"
   let traversedBody = traverseAndModify(prc.body)
+  # Create template declarations for GlEnvironment fields
+  let envSym = genSym(nskParam, "env")
+  let envTemplates = generateEnvTemplates(envSym)
+
   result = quote do:
     proc `procName`(`envSym`: GlEnvironment): ThreadClosure =
       `envTemplates`
