@@ -371,4 +371,4 @@ defineSubgroupOp(execBarrier):
     )
 
   if showDebugOutput:
-    debugSubgroupOp("Barrier", opId, group, commands, "barrier sync")
+    debugSubgroupOp("Barrier", opId, group, commands, "workgroup barrier sync")
