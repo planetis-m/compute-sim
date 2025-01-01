@@ -26,7 +26,6 @@
 ##
 ## ```nim
 ## proc computeFunction[A, B, C](
-##   env: GlEnvironment,
 ##   buffers: A,     # Storage buffer (typically ptr T or Locker[T])
 ##   shared: ptr B,  # Shared memory
 ##   args: C         # Additional arguments
@@ -44,7 +43,6 @@
 ##     factor: int32
 ##
 ## proc myComputeShader(
-##     env: GlEnvironment,
 ##     buffers: ptr Buffers,
 ##     shared: ptr Shared,
 ##     args: Args) {.computeShader.} =
