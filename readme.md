@@ -62,7 +62,7 @@ proc main() =
 
   let result = buffers.sum.load(moRelaxed)
   let expected = int32(NumElements * (NumElements - 1)) div 2
-  echo "Reduction result: ", result, " expected: ", expected
+  echo "Reduction result: ", result, ", expected: ", expected
 
 main()
 ```

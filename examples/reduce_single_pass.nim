@@ -2,7 +2,7 @@
 # `-d:danger --opt:none --panics:on --threads:on --tlsEmulation:off --mm:arc -d:useMalloc -g`
 # ...and debug with nim-gdb or lldb
 
-import computesim, std/[atomics, math]
+import std/[atomics, math], computesim
 
 type
   Buffers = object
@@ -46,7 +46,7 @@ proc reductionShader(env: GlEnvironment, b: ptr Buffers, smem: ptr Shared, args:
     b.output[env.gl_WorkGroupID.x] = smem.buffer[0]
 
   if gridSize > 1:
-    barrier() # was memoryBarrierBuffer();
+    subgroupBarrier() # was memoryBarrierBuffer();
     if localIdx == 0:
       let ticket = fetchAdd(b.retirementCount, 1)
       smem.isLastWorkGroup = uint32(ticket == gridSize - 1)
@@ -58,7 +58,7 @@ proc reductionShader(env: GlEnvironment, b: ptr Buffers, smem: ptr Shared, args:
         sum += b.output[i]
       smem.buffer[localIdx] = sum
 
-      barrier()
+      barrier() # was memoryBarrierShared(); barrier();
       var stride = localSize div 2
       while stride > 0:
         if localIdx < stride:
@@ -73,19 +73,19 @@ proc reductionShader(env: GlEnvironment, b: ptr Buffers, smem: ptr Shared, args:
 
 # Main
 const
-  numElements = 256'u32
-  coarseFactor = 1'u32
-  localSize = 16'u32 # workgroupSize
-  segment = localSize * 2 * coarseFactor
+  NumElements = 1024'u32
+  CoarseFactor = 4'u32
+  WorkGroupSize = 16'u32
+  Segment = WorkGroupSize * 2 * CoarseFactor
 
 proc main =
   # Set the number of work groups and the size of each work group
-  let numWorkGroups = uvec3(ceilDiv(numElements, segment), 1, 1)
-  let workGroupSize = uvec3(localSize, 1, 1)
+  let numWorkGroups = uvec3(ceilDiv(NumElements, Segment), 1, 1)
+  let workGroupSize = uvec3(WorkGroupSize, 1, 1)
 
   # Fill the input buffer
-  var inputData = newSeq[int32](numElements)
-  for i in 0..<numElements:
+  var inputData = newSeq[int32](NumElements)
+  for i in 0..<NumElements:
     inputData[i] = int32(i)
 
   var buffers = Buffers(
@@ -95,12 +95,14 @@ proc main =
   )
 
   # Run the compute shader on CPU, pass buffers as parameters.
-  runComputeOnCpu(numWorkGroups, workGroupSize, reductionShader, addr buffers,
-    Shared(buffer: newSeq[int32](workGroupSize.x), isLastWorkGroup: 0'u32),
-    (numElements, coarseFactor))
+  runComputeOnCpu(numWorkGroups, workGroupSize, reductionShader,
+    ssbo = addr buffers,
+    smem = Shared(buffer: newSeq[int32](workGroupSize.x), isLastWorkGroup: 0'u32),
+    args = (NumElements, CoarseFactor)
+  )
 
   let result = buffers.output[0]
-  let expected = (numElements - 1)*numElements div 2
+  let expected = (NumElements - 1)*NumElements div 2
   echo "Reduction result: ", result, ", expected: ", expected
 
 main()
