@@ -96,5 +96,24 @@ See the examples directory for more patterns and use cases.
 - Limited subset of GLSL/compute operations
 - Performance is not representative of real GPU execution
 
+## Compile-time Defines
+
+### Thread Management
+- `ThreadPoolSize` - Required. Must be at least `ceilDiv(workgroupSize, SubgroupSize)+1`
+- `SubgroupSize` - Size of each subgroup/wavefront (default: 8)
+- `MaxConcurrentWorkGroups` - Maximum concurrent workgroups (default: 2)
+
+### Debug Options
+With `-d:debugSubgroup`, these control which workgroup/subgroup to debug:
+- `debugWorkgroupX/Y/Z` - Workgroup coordinates to debug (default: 0)
+- `debugSubgroupID` - Subgroup ID to debug (default: 0)
+
+```nim
+# Example: Configure thread pool and groups
+nim c -d:ThreadPoolSize=8 -d:SubgroupSize=4 myshader.nim
+
+# Example: Enable debugging for specific group
+nim c -d:debugSubgroup -d:debugWorkgroupX=1 myshader.nim
+
 ## License
 MIT

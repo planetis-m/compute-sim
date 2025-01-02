@@ -4,11 +4,11 @@
 ## It organizes work into workgroups and invocations, similar to how compute shaders operate
 ## on GPUs.
 ##
-## .. warning:: The thread pool size must be at least MaxConcurrentWorkGroups *
-##    (ceilDiv(workgroupSizeX*workgroupSizeY*workgroupSizeZ, SubgroupSize) + 1).
+## .. warning:: The thread pool size must be at least *MaxConcurrentWorkGroups *
+##    (ceilDiv(workgroupSizeX * workgroupSizeY * workgroupSizeZ, SubgroupSize) + 1)*.
 ##    Compile with: `-d:ThreadPoolSize=N` where N meets this requirement.
 ##
-## .. warning:: Using `barrier()` within conditional branches leads to undefined
+## .. warning:: Using `barrier()` within conditional branches may lead to undefined
 ##    behavior. The emulator is modeled using a single barrier that must be accessible
 ##    from all threads within a workgroup.
 ##
