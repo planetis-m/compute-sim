@@ -75,8 +75,8 @@
 # (c) 2024 Antonis Geralis
 import std/math, threading/barrier, malebolgia
 
-import computesim/[core, vectors, transform, lockstep]
-export vectors, transform
+import computesim/[core, vectors, transform, lockstep, subgroupinterface]
+export vectors, transform, subgroupinterface
 
 import std/isolation
 export isolate, extract

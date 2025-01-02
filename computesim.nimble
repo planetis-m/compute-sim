@@ -19,9 +19,15 @@ const
 task docs, "Generate documentation":
   # https://nim-lang.github.io/Nim/docgen.html
   withDir(PkgDir):
-    let tmp = "computesim"
-    let doc = DocsDir / (tmp & ".html")
-    let src = "src" / (tmp & ".nim")
-    # Generate the docs for {src}
-    exec("nim doc --verbosity:0 --git.url:" & ProjectUrl &
-        " --git.devel:master --git.commit:master --out:" & doc & " " & src)
+    let modules = [
+      "computesim",
+      "computesim/subgroupinterface",
+      "computesim/vectors",
+      "computesim/transform"
+    ]
+    for tmp in modules:
+      let doc = DocsDir / (tmp.lastPathPart & ".html")
+      let src = "src" / (tmp & ".nim")
+      # Generate the docs for {src}
+      exec("nim doc --verbosity:0 --git.url:" & ProjectUrl &
+          " --git.devel:master --git.commit:master --out:" & doc & " " & src)

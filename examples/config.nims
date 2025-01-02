@@ -1,2 +1,2 @@
 --path:"../src"
---debugger:"native"
+# --debugger:"native"
