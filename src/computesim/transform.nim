@@ -190,7 +190,13 @@ macro computeShader*(prc: untyped): untyped =
     else:
       result = copyNimNode(node)
       for child in node:
-        result.add(traverseAndModify(child))
+        let transformed = traverseAndModify(child)
+        # If both are statement lists, add children directly to avoid nesting
+        if result.kind == nnkStmtList and transformed.kind == nnkStmtList:
+          echo transformed.repr
+          copyChildrenTo(transformed, result)
+        else:
+          result.add(transformed)
 
   # Create the iterator that implements the divergent control flow
   let procName = prc.name
