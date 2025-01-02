@@ -1,5 +1,5 @@
 # Package
-version       = "1.0.1"
+version       = "1.0.2"
 author        = "Antonis Geralis"
 description   = "A compute shader emulator for learning and debugging GPU compute shaders."
 license       = "MIT"
@@ -21,7 +21,7 @@ task docs, "Generate documentation":
   withDir(PkgDir):
     let modules = [
       "computesim",
-      "computesim/subgroupinterface",
+      "computesim/api",
       "computesim/vectors",
       "computesim/transform"
     ]

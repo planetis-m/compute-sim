@@ -1,15 +1,16 @@
-# Compile with at least `-d:ThreadPoolSize=MaxConcurrentWorkGroups*
-# (workgroupSizeX*workgroupSizeY*workgroupSizeZ+1)`
-
 ## ## Description
 ##
 ## `runComputeOnCpu` is a function that simulates a GPU-like compute environment on the CPU.
 ## It organizes work into workgroups and invocations, similar to how compute shaders operate
 ## on GPUs.
 ##
-## ## Warning
-## Using `barrier()` within conditional branches leads to undefined behavior. The emulator is
-## modeled using a single barrier that must be accessible from all threads within a workgroup.
+## .. warning:: The thread pool size must be at least MaxConcurrentWorkGroups *
+##    (ceilDiv(workgroupSizeX*workgroupSizeY*workgroupSizeZ, SubgroupSize) + 1).
+##    Compile with: `-d:ThreadPoolSize=N` where N meets this requirement.
+##
+## .. warning:: Using `barrier()` within conditional branches leads to undefined
+##    behavior. The emulator is modeled using a single barrier that must be accessible
+##    from all threads within a workgroup.
 ##
 ## ## Parameters
 ##
@@ -75,8 +76,8 @@
 # (c) 2024 Antonis Geralis
 import std/math, threading/barrier, malebolgia
 
-import computesim/[core, vectors, transform, lockstep, subgroupinterface]
-export vectors, transform, subgroupinterface
+import computesim/[core, vectors, transform, lockstep, api]
+export vectors, transform, api
 
 import std/isolation
 export isolate, extract

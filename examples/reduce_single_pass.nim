@@ -1,5 +1,5 @@
-# Compile with at least `-d:ThreadPoolSize=workgroupSize+1` and
-# `-d:danger --opt:none --panics:on --threads:on --tlsEmulation:off --mm:arc -d:useMalloc -g`
+# Compile with at least `-d:ThreadPoolSize=ceilDiv(workgroupSize, SubgroupSize)+1` and
+# `-d:danger --opt:none --panics:on --threads:on --mm:arc -d:useMalloc -g`
 # ...and debug with nim-gdb or lldb
 
 import std/[atomics, math], computesim

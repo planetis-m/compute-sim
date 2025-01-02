@@ -13,7 +13,7 @@ A compute shader emulator for learning and debugging GPU compute shaders.
 
 ```nim
 # Compile with appropriate thread pool size and optimization settings
-# -d:ThreadPoolSize=workgroupSize+1 -d:danger --threads:on --mm:arc
+# -d:ThreadPoolSize=ceilDiv(workgroupSize, SubgroupSize)+1 -d:danger --threads:on --mm:arc
 
 import std/[atomics, math], computesim
 
