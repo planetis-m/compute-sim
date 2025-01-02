@@ -6,7 +6,7 @@ license       = "MIT"
 
 # Dependencies
 requires "nim >= 2.2.0"
-requires "threading"
+requires "threading#head"
 requires "malebolgia#head"
 
 import os

@@ -48,7 +48,7 @@ proc `[]`*[N, T](v: TVec[N, T], i: int): T {.inline.} = v.data[i]
 proc `[]=`*[N, T](v: var TVec[N, T], i: int, val: T) {.inline.} = v.data[i] = val
 
 # Template for generating 2D vector constructors
-template defineVec2Constructors*(Vec2Type, Vec3Type, Vec4Type: typedesc,
+template defineVec2Constructors(Vec2Type, Vec3Type, Vec4Type: typedesc,
                                  baseType: typedesc, constructorName: untyped) {.dirty.} =
   proc constructorName*(x, y: baseType): Vec2Type =
     ## Constructs Vec2 from two components
@@ -67,7 +67,7 @@ template defineVec2Constructors*(Vec2Type, Vec3Type, Vec4Type: typedesc,
     Vec2Type(data: [v.x, v.y])
 
 # Template for generating 3D vector constructors
-template defineVec3Constructors*(Vec2Type, Vec3Type, Vec4Type: typedesc,
+template defineVec3Constructors(Vec2Type, Vec3Type, Vec4Type: typedesc,
                                  baseType: typedesc, constructorName: untyped) {.dirty.} =
   proc constructorName*(x, y, z: baseType): Vec3Type =
     ## Constructs Vec3 from three components
@@ -86,7 +86,7 @@ template defineVec3Constructors*(Vec2Type, Vec3Type, Vec4Type: typedesc,
     Vec3Type(data: [v.x, v.y, v.z])
 
 # Template for generating 4D vector constructors
-template defineVec4Constructors*(Vec2Type, Vec3Type, Vec4Type: typedesc,
+template defineVec4Constructors(Vec2Type, Vec3Type, Vec4Type: typedesc,
                                  baseType: typedesc, constructorName: untyped) {.dirty.} =
   proc constructorName*(x, y, z, w: baseType): Vec4Type =
     ## Constructs Vec4 from four components

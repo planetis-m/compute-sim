@@ -1,9 +1,11 @@
 --path:"../src"
+--cc:"clang"
 --gc:"arc"
+--panics:on
 --threads:on
 --define:"release"
 --define:"useMalloc"
---cc:"clang"
+--forceBuild:on
 when not defined(windows):
   --debugger:"native"
   --define:"noSignalHandler"
