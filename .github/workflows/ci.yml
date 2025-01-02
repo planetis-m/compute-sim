@@ -1,0 +1,43 @@
+name: Nim CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  test-linux:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: jiro4989/setup-nim-action@v2
+      with:
+        nim-version: 'stable'
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Run tests
+      run: |
+        nimble test
+
+  test-windows:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: jiro4989/setup-nim-action@v2
+      with:
+        nim-version: 'stable'
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Run tests
+      run: |
+        nimble test
+
+  test-macos:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: jiro4989/setup-nim-action@v2
+      with:
+        nim-version: 'stable'
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Run tests
+      run: nimble test
