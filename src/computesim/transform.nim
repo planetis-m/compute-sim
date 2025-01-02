@@ -77,7 +77,7 @@ template scalarOpResult(iterArg, cmdVal: untyped): untyped =
 template ballotResult(iterArg: untyped): untyped =
   uvec4(getValue[uint32](iterArg.res), 0, 0, 0)
 
-proc genSubgroupOpCall*(op: SubgroupOp; node, id, iterArg: NimNode): NimNode =
+proc genSubgroupOpCall(op: SubgroupOp; node, id, iterArg: NimNode): NimNode =
   # Generate the command part based on operation type
   let cmdPart = case op
     of subgroupBroadcast, subgroupShuffle, subgroupShuffleXor:
