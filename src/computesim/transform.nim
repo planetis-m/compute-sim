@@ -112,6 +112,8 @@ proc genSubgroupOpCall*(op: SubgroupOp; node, id, iterArg: NimNode): NimNode =
       `resultPart`
     else:
       raiseInvalidSubgroupOp(`op`)
+  result[0].copyLineInfo(node)
+  result[1].copyLineInfo(node)
 
 proc generateEnvTemplates(envSym: NimNode): NimNode =
   result = newNimNode(nnkStmtList)
@@ -193,7 +195,6 @@ macro computeShader*(prc: untyped): untyped =
         let transformed = traverseAndModify(child)
         # If both are statement lists, add children directly to avoid nesting
         if result.kind == nnkStmtList and transformed.kind == nnkStmtList:
-          echo transformed.repr
           copyChildrenTo(transformed, result)
         else:
           result.add(transformed)
