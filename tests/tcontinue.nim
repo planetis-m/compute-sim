@@ -14,7 +14,7 @@ proc calculate(output: ptr seq[int32]; numElements: uint32) {.computeShader.} =
 
 const
   NumElements = 64'u32
-  WorkGroupSize = 16'u32 # Force underutilization of hardware subgroups
+  WorkGroupSize = 32'u32 # Force underutilization of hardware subgroups
 
 proc main() =
   # Set up compute dimensions

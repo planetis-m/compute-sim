@@ -17,8 +17,8 @@ template shouldShowDebugOutput(): untyped =
   else:
     false
 
-proc raiseDeadlockError(workgroupID: UVec3; subgroupID, activeThreads,
-                        threadsAtBarrier: uint32) {.noinline, noreturn.} =
+proc raiseDeadlockError(workgroupID: UVec3; subgroupID, threadsAtBarrier,
+                        activeThreads: uint32) {.noinline, noreturn.} =
   raise newException(AssertionDefect,
     "Invalid shader: Deadlock detected in workgroup " & $workgroupID & ", subgroup " & $subgroupID & ". " &
     $threadsAtBarrier & " of " & $activeThreads & " active threads are waiting at barrier.")
@@ -101,7 +101,7 @@ proc runThreads*(threads: SubgroupThreads, numActiveThreads: uint32; workgroupID
         dec activeThreadCount
 
     if not madeProgress: # No thread could execute this iteration
-      raiseDeadlockError(workgroupID, subgroupID, activeThreadCount, barrierThreadCount)
+      raiseDeadlockError(workgroupID, subgroupID, barrierThreadCount, activeThreadCount)
 
     # Group matching operations
     var

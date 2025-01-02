@@ -83,15 +83,15 @@ export isolate, extract
 
 type
   GlEnvironment* = object
-    gl_GlobalInvocationID*: UVec3    # Global ID of the current invocation
-    gl_LocalInvocationID*: UVec3     # Local ID within the workgroup
-    gl_WorkGroupID*: UVec3           # ID of the current workgroup
-    gl_WorkGroupSize*: UVec3         # Size of the workgroup (x, y, z)
-    gl_NumWorkGroups*: UVec3         # Total number of workgroups (x, y, z)
-    gl_NumSubgroups*: uint32         # Number of subgroups in the workgroup
-    gl_SubgroupSize*: uint32         # Size of each subgroup
-    gl_SubgroupID*: uint32           # ID of the current subgroup [0..gl_NumSubgroups)
-    gl_SubgroupInvocationID*: uint32 # ID of the invocation within the subgroup [0..gl_SubgroupSize)
+    gl_GlobalInvocationID*: UVec3    ## Global ID of the current invocation
+    gl_LocalInvocationID*: UVec3     ## Local ID within the workgroup
+    gl_WorkGroupID*: UVec3           ## ID of the current workgroup
+    gl_WorkGroupSize*: UVec3         ## Size of the workgroup (x, y, z)
+    gl_NumWorkGroups*: UVec3         ## Total number of workgroups (x, y, z)
+    gl_NumSubgroups*: uint32         ## Number of subgroups in the workgroup
+    gl_SubgroupSize*: uint32         ## Size of each subgroup
+    gl_SubgroupID*: uint32           ## ID of the current subgroup [0..gl_NumSubgroups)
+    gl_SubgroupInvocationID*: uint32 ## ID of the invocation within the subgroup [0..gl_SubgroupSize)
 
   ThreadGenerator*[A, B, C] = proc (
     env: GlEnvironment,
