@@ -136,12 +136,20 @@ Using <tt class="docutils literal"><span class="pre"><span class="Identifier">ba
 <li><tt class="docutils literal"><span class="pre"><span class="Identifier">args</span><span class="Punctuation">:</span> <span class="Identifier">C</span></span></tt> Additional arguments passed to the compute shader.</li>
 </ul>
 
-<h2><a class="toc-backref" id="compute-function-signature" href="#compute-function-signature">Compute Function Signature</a></h2><p>The compute shader procedure should have the following signature:</p>
+<h2><a class="toc-backref" id="compute-function-signature" href="#compute-function-signature">Compute Function Signature</a></h2><p>The compute shader procedure can be written in two ways:</p>
+<ol class="simple"><li>With shared memory:</li>
+</ol>
 <p><pre class="listing"><span class="Keyword">proc</span> <span class="Identifier">computeFunction</span><span class="Punctuation">[</span><span class="Identifier">A</span><span class="Punctuation">,</span> <span class="Identifier">B</span><span class="Punctuation">,</span> <span class="Identifier">C</span><span class="Punctuation">]</span><span class="Punctuation">(</span>
-  <span class="Identifier">buffers</span><span class="Punctuation">:</span> <span class="Identifier">A</span><span class="Punctuation">,</span>     <span class="Comment"># Storage buffer (typically ptr T or Locker[T])</span>
-  <span class="Identifier">shared</span><span class="Punctuation">:</span> <span class="Keyword">ptr</span> <span class="Identifier">B</span><span class="Punctuation">,</span>  <span class="Comment"># Shared memory</span>
+  <span class="Identifier">buffers</span><span class="Punctuation">:</span> <span class="Identifier">A</span><span class="Punctuation">,</span>     <span class="Comment"># Storage buffer (typically ptr T)</span>
+  <span class="Identifier">shared</span><span class="Punctuation">:</span> <span class="Keyword">ptr</span> <span class="Identifier">B</span><span class="Punctuation">,</span>  <span class="Comment"># Shared memory for workgroup-local data</span>
   <span class="Identifier">args</span><span class="Punctuation">:</span> <span class="Identifier">C</span>         <span class="Comment"># Additional arguments</span>
-<span class="Punctuation">)</span> <span class="Punctuation">{</span><span class="Operator">.</span><span class="Identifier">nimcall</span><span class="Operator">.</span><span class="Punctuation">}</span></pre></p>
+<span class="Punctuation">)</span> <span class="Punctuation">{</span><span class="Operator">.</span><span class="Identifier">computeShader</span><span class="Operator">.</span><span class="Punctuation">}</span></pre></p>
+<ol class="simple" start="2"><li>Without shared memory:</li>
+</ol>
+<p><pre class="listing"><span class="Keyword">proc</span> <span class="Identifier">computeFunction</span><span class="Punctuation">[</span><span class="Identifier">A</span><span class="Punctuation">,</span> <span class="Identifier">C</span><span class="Punctuation">]</span><span class="Punctuation">(</span>
+  <span class="Identifier">buffers</span><span class="Punctuation">:</span> <span class="Identifier">A</span><span class="Punctuation">,</span>     <span class="Comment"># Storage buffer (typically ptr T)</span>
+  <span class="Identifier">args</span><span class="Punctuation">:</span> <span class="Identifier">C</span>         <span class="Comment"># Additional arguments</span>
+<span class="Punctuation">)</span> <span class="Punctuation">{</span><span class="Operator">.</span><span class="Identifier">computeShader</span><span class="Operator">.</span><span class="Punctuation">}</span></pre></p>
 
 <h2><a class="toc-backref" id="example" href="#example">Example</a></h2><p><pre class="listing"><span class="Keyword">type</span>
   <span class="Identifier">Buffers</span> <span class="Operator">=</span> <span class="Keyword">object</span>
@@ -199,8 +207,8 @@ Using <tt class="docutils literal"><span class="pre"><span class="Identifier">ba
   <dd>
     
     
-    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim.nim#L86" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim.nim#L86" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim.nim#L97" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim.nim#L97" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -210,8 +218,8 @@ Using <tt class="docutils literal"><span class="pre"><span class="Identifier">ba
   <dd>
     
     
-    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim.nim#L97" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim.nim#L97" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim.nim#L108" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim.nim#L108" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -221,8 +229,8 @@ Using <tt class="docutils literal"><span class="pre"><span class="Identifier">ba
   <dd>
     
     
-    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim.nim#L104" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim.nim#L104" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim.nim#L115" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim.nim#L115" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -240,8 +248,8 @@ Using <tt class="docutils literal"><span class="pre"><span class="Identifier">ba
   <dd>
     
     
-    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim.nim#L169" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim.nim#L169" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim.nim#L180" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim.nim#L180" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -261,8 +269,8 @@ Using <tt class="docutils literal"><span class="pre"><span class="Identifier">ba
   <dd>
     
     
-    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim.nim#L201" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim.nim#L201" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim.nim#L212" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim.nim#L212" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -278,7 +286,7 @@ Using <tt class="docutils literal"><span class="pre"><span class="Identifier">ba
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2025-01-02 23:36:42 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2025-01-03 10:47:44 UTC</small>
       </div>
     </div>
   </div>

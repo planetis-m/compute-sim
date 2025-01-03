@@ -23,14 +23,25 @@
 ##
 ## ## Compute Function Signature
 ##
-## The compute shader procedure should have the following signature:
+## The compute shader procedure can be written in two ways:
+##
+## 1. With shared memory:
 ##
 ## ```nim
 ## proc computeFunction[A, B, C](
-##   buffers: A,     # Storage buffer (typically ptr T or Locker[T])
-##   shared: ptr B,  # Shared memory
+##   buffers: A,     # Storage buffer (typically ptr T)
+##   shared: ptr B,  # Shared memory for workgroup-local data
 ##   args: C         # Additional arguments
-## ) {.nimcall.}
+## ) {.computeShader.}
+## ```
+##
+## 2. Without shared memory:
+##
+## ```nim
+## proc computeFunction[A, C](
+##   buffers: A,     # Storage buffer (typically ptr T)
+##   args: C         # Additional arguments
+## ) {.computeShader.}
 ## ```
 ##
 ## ## Example
