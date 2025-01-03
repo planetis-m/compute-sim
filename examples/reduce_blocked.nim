@@ -25,9 +25,8 @@ proc reductionShader(b: ptr Buffers, smem: ptr Shared, args: Args) {.computeShad
   # sequentially. Here, each thread reads two values with a fixed stride between them.
   var sum: int32 = 0
   for tile in 0 ..< coarseFactor:
-    # todo: use arithmetic to mask out invalid accesses instead
-    sum += (if globalIdx + localSize < n: b.input[globalIdx] +
-      (if globalIdx + localSize < n: b.input[globalIdx + localSize] else: 0) else: 0)
+    sum += int32(globalIdx < n) * b.input[globalIdx] +
+        int32(globalIdx + localSize < n) * b.input[globalIdx + localSize]
     globalIdx += 2 * localSize
   smem[localIdx] = sum
 
