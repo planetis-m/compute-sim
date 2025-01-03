@@ -1,4 +1,4 @@
-# Compile with at least `-d:ThreadPoolSize=ceilDiv(workgroupSize, SubgroupSize)+1` and
+# Compile with at least `-d:ThreadPoolSize=MaxConcurrentWorkGroups*(ceilDiv(workgroupSize, SubgroupSize)+1)` and
 # `-d:danger --opt:none --panics:on --threads:on --mm:arc -d:useMalloc -g`
 # ...and debug with nim-gdb or lldb
 

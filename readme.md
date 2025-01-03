@@ -13,7 +13,8 @@ A compute shader emulator for learning and debugging GPU compute shaders.
 
 ```nim
 # Compile with appropriate thread pool size and optimization settings
-# -d:ThreadPoolSize=ceilDiv(workgroupSize, SubgroupSize)+1 -d:danger --threads:on --mm:arc
+# -d:ThreadPoolSize=MaxConcurrentWorkGroups*(ceilDiv(workgroupSize, SubgroupSize)+1)
+# -d:danger --threads:on --mm:arc
 
 import std/[atomics, math], computesim
 
@@ -99,7 +100,7 @@ See the examples directory for more patterns and use cases.
 ## Compile-time Defines
 
 ### Thread Management
-- `ThreadPoolSize` - Required. Must be at least `ceilDiv(workgroupSize, SubgroupSize)+1`
+- `ThreadPoolSize` - Required. Must be at least `MaxConcurrentWorkGroups*(ceilDiv(workgroupSize, SubgroupSize)+1)`
 - `SubgroupSize` - Size of each subgroup/wavefront (default: 8)
 - `MaxConcurrentWorkGroups` - Maximum concurrent workgroups (default: 2)
 
@@ -114,6 +115,7 @@ nim c -d:ThreadPoolSize=8 -d:SubgroupSize=4 myshader.nim
 
 # Example: Enable debugging for specific group
 nim c -d:debugSubgroup -d:debugWorkgroupX=1 myshader.nim
+```
 
 ## License
 MIT
