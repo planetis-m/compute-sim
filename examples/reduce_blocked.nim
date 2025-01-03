@@ -17,15 +17,17 @@ proc reductionShader(b: ptr Buffers, smem: ptr Shared, args: Args) {.computeShad
   let (n, coarseFactor) = args
 
   let localIdx = gl_LocalInvocationID.x
-  let gridSize = gl_NumWorkGroups.x
   let localSize = gl_WorkGroupSize.x
   var globalIdx = gl_WorkGroupID.x * localSize * 2 * coarseFactor + localIdx
 
+  # Memory coalescing occurs when threads in the same subgroup access adjacent memory
+  # locations simultaneously - not when a single thread accesses different locations
+  # sequentially. Here, each thread reads two values with a fixed stride between them.
   var sum: int32 = 0
   for tile in 0 ..< coarseFactor:
-    # echo "ThreadId ", localIdx, " indices: ", globalIdx, " + ", globalIdx + localSize
-    sum += b.input[globalIdx] +
-      (if globalIdx + localSize < n: b.input[globalIdx + localSize] else: 0)
+    # todo: use arithmetic to mask out invalid accesses instead
+    sum += (if globalIdx + localSize < n: b.input[globalIdx] +
+      (if globalIdx + localSize < n: b.input[globalIdx + localSize] else: 0) else: 0)
     globalIdx += 2 * localSize
   smem[localIdx] = sum
 

@@ -42,7 +42,7 @@ proc runThreads*(threads: SubgroupThreads, numActiveThreads: uint32; workgroupID
     results {.noinit.}: SubgroupResults
     minReconvergeId: uint32 = 0
     barrierId = InvalidId
-    activeThreadCount: uint32 = numActiveThreads
+    activeThreadCount = numActiveThreads
     barrierThreadCount: uint32 = 0
     showDebugOutput = shouldShowDebugOutput()
 
