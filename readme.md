@@ -97,6 +97,13 @@ See the examples directory for more patterns and use cases.
 - Limited subset of GLSL/compute operations
 - Performance is not representative of real GPU execution
 
+> [!WARNING]
+> ### Workgroup Scheduling
+> While this emulator runs workgroups using CPU threads, real GPU compute shaders have no fairness guarantees between workgroups. This means your code might work correctly in this CPU emulator but fail on real GPU hardware where workgroups can execute in any order and with varying levels of parallelism. Do not rely on any assumptions about workgroup execution order or scheduling that might be true in this CPU emulator but not guaranteed on actual GPUs.
+>
+> ### Memory Barriers
+> The emulator does not support GLSL memory barrier operations (memoryBarrier, memoryBarrierBuffer, memoryBarrierShared, memoryBarrierImage, groupMemoryBarrier). When porting compute shaders, you must replace all memory barrier calls with subgroupBarrier() calls. Be aware that while this substitution works for testing in the emulator, real GPU hardware requires proper memory barriers for correct memory ordering and visibility.
+
 ## Compile-time Defines
 
 ### Thread Management

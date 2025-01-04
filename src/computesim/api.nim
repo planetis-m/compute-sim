@@ -1,7 +1,7 @@
 import vectors
 
 const
-  SubgroupOpError = "This function can only be used inside a template marked with {.computeShader.}"
+  SubgroupOpError = "This function can only be used inside a proc marked with {.computeShader.}"
 
 template subgroupBroadcast*[T](value: T; id: uint32): T =
   ## Broadcasts value from thread with specified id to all threads in subgroup
