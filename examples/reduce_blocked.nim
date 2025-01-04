@@ -1,3 +1,4 @@
+# See https://betterprogramming.pub/optimizing-parallel-reduction-in-metal-for-apple-m1-8e8677b49b01
 # Compile with at least `-d:ThreadPoolSize=MaxConcurrentWorkGroups*(ceilDiv(workgroupSize, SubgroupSize)+1)` and
 # `-d:danger --opt:none --panics:on --threads:on --mm:arc -d:useMalloc -g`
 # ...and debug with nim-gdb or lldb
@@ -49,7 +50,6 @@ proc reductionShader(b: ptr Buffers, smem: ptr Shared, args: Args) {.computeShad
     smem[localIdx] += smem[localIdx + 2]
     subgroupBarrier() # subgroupMemoryBarrierShared();
     smem[localIdx] += smem[localIdx + 1]
-    subgroupBarrier() # subgroupMemoryBarrierShared();
 
   if localIdx == 0:
     b.output[gl_WorkGroupID.x] = smem[0]
