@@ -28,8 +28,9 @@ proc reductionShader(b: ptr Buffers, smem: ptr Shared, args: Args) {.computeShad
   var sum: int32 = 0
   for tile in 0 ..< coarseFactor:
     # echo "ThreadId ", localIdx, " indices: ", globalIdx, " + ", globalIdx + localSize
-    sum += int32(globalIdx < n) * b.input[globalIdx] +
-      int32(globalIdx + localSize < n) * b.input[globalIdx + localSize]
+    # todo: use arithmetic to mask out invalid accesses instead
+    sum += (if globalIdx < n: b.input[globalIdx] else: 0) +
+        (if globalIdx + localSize < n: b.input[globalIdx + localSize] else: 0)
     globalIdx += 2 * localSize
   smem.buffer[localIdx] = sum
 
@@ -75,7 +76,7 @@ proc reductionShader(b: ptr Buffers, smem: ptr Shared, args: Args) {.computeShad
 const
   NumElements = 1024'u32
   CoarseFactor = 4'u32
-  WorkGroupSize = 16'u32
+  WorkGroupSize = 16'u32 # must be a power of two!
   Segment = WorkGroupSize * 2 * CoarseFactor
 
 proc main =
