@@ -170,6 +170,7 @@ proc runThreads*(threads: SubgroupThreads, numActiveThreads: uint32; workgroupID
         execSubgroupOp(execSubBarrier)
       of barrier:
         # Wait for all threads in workgroup (outside subgroup) using barrier sync
+        # Note: Will deadlock silently if any subgroups have already completed
         wait b
         execSubgroupOp(execBarrier)
       else:
