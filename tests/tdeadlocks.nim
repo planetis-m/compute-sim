@@ -19,7 +19,7 @@ proc deadlock(dummy1, dummy2: uint32) {.computeShader.} =
       barrier() # While others hit this one
 
   # Case 4: Unsafe some threads complete before barrier
-  when true:
+  when false:
     if gl_SubgroupInvocationID > 4:
       return # These threads try to exit early
     else:
