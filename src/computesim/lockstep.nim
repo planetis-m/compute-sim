@@ -156,6 +156,10 @@ proc runThreads*(threads: SubgroupThreads, numActiveThreads: uint32; workgroupID
         execSubgroupOp(execShuffle)
       of subgroupShuffleXor:
         execSubgroupOp(execShuffleXor)
+      of subgroupShuffleDown:
+        execSubgroupOp(execShuffleDown)
+      of subgroupShuffleUp:
+        execSubgroupOp(execShuffleUp)
       of subgroupBallot:
         execSubgroupOp(execBallot)
       of subgroupElect:

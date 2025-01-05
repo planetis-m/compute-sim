@@ -35,6 +35,10 @@ proc getSubgroupOp(node: NimNode): SubgroupOp =
     validateTwoArgOp(subgroupShuffle)
   of "subgroupshufflexor":
     validateTwoArgOp(subgroupShuffleXor)
+  of "subgroupshuffledown":
+    validateTwoArgOp(subgroupShuffleDown)
+  of "subgroupshuffleup":
+    validateTwoArgOp(subgroupShuffleUp)
   of "subgroupbroadcastfirst":
     validateOneArgOp(subgroupBroadcastFirst)
   of "subgroupadd":
@@ -80,7 +84,8 @@ template ballotResult(iterArg: untyped): untyped =
 proc genSubgroupOpCall(op: SubgroupOp; node, id, iterArg: NimNode): NimNode =
   # Generate the command part based on operation type
   let cmdPart = case op
-    of subgroupBroadcast, subgroupShuffle, subgroupShuffleXor:
+    of subgroupBroadcast, subgroupShuffle, subgroupShuffleXor,
+        subgroupShuffleDown, subgroupShuffleUp:
       getAst(binaryOpCommand(id, newLit(op), node[1], node[2]))
     of subgroupBroadcastFirst, subgroupAdd, subgroupMin, subgroupMax,
         subgroupInclusiveAdd, subgroupExclusiveAdd:
@@ -94,8 +99,9 @@ proc genSubgroupOpCall(op: SubgroupOp; node, id, iterArg: NimNode): NimNode =
   # Generate the result handling part
   let resultPart = case op
     of subgroupBroadcast, subgroupShuffle, subgroupShuffleXor,
-       subgroupBroadcastFirst, subgroupAdd, subgroupMin, subgroupMax,
-       subgroupInclusiveAdd, subgroupExclusiveAdd:
+        subgroupShuffleDown, subgroupShuffleUp,
+        subgroupBroadcastFirst, subgroupAdd, subgroupMin, subgroupMax,
+        subgroupInclusiveAdd, subgroupExclusiveAdd:
       getAst(scalarOpResult(iterArg, node[1]))
     of subgroupAll, subgroupAny, subgroupElect:
       newTree(nnkDotExpr, iterArg, ident"bRes")

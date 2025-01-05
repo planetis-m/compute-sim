@@ -39,6 +39,14 @@ template subgroupShuffleXor*[T](value: T; mask: uint32): T =
   ## Returns value from thread with id equal to current_id XOR mask
   {.error: SubgroupOpError.}
 
+template subgroupShuffleDown*[T](value: T; delta: uint32): T =
+  ## Returns value from thread with index current_id + delta
+  {.error: SubgroupOpError.}
+
+template subgroupShuffleUp*[T](value: T; delta: uint32): T =
+  ## Returns value from thread with index current_id - delta
+  {.error: SubgroupOpError.}
+
 template subgroupBallot*(condition: bool): UVec4 =
   ## Returns bitmap of which threads have condition true
   {.error: SubgroupOpError.}

@@ -288,6 +288,58 @@ defineSubgroupOp(execShuffleXor):
     debugSubgroupOp("Shuffle", opId, group, commands,
       "shuffled: " & formatValues(group, valueType, shuffledVals))
 
+defineSubgroupOp(execShuffleDown):
+  var shuffledVals {.noinit.}: array[SubgroupSize, RawValue]
+  for threadId in threadsInGroup(group):
+    let srcThreadId = threadId + commands[threadId].dirty
+    var found = false
+    for validId in threadsInGroup(group):
+      if validId == srcThreadId:
+        found = true
+        break
+    shuffledVals[threadId] = commands[if found: srcThreadId else: threadId].val
+
+  let valueType = commands[firstThreadId].t
+  for threadId in threadsInGroup(group):
+    results[threadId] = SubgroupResult(
+      id: opId,
+      kind: subgroupShuffleDown,
+      t: valueType,
+      res: shuffledVals[threadId]
+    )
+
+  if showDebugOutput:
+    debugSubgroupOp("ShuffleDown", opId, group, commands,
+      "shuffled: " & formatValues(group, valueType, shuffledVals))
+
+defineSubgroupOp(execShuffleUp):
+  var shuffledVals {.noinit.}: array[SubgroupSize, RawValue]
+  for threadId in threadsInGroup(group):
+    # Convert to signed for safe subtraction
+    let srcThreadId = if threadId >= commands[threadId].dirty:
+      threadId - commands[threadId].dirty
+    else:
+      threadId
+    var found = false
+    for validId in threadsInGroup(group):
+      if validId == srcThreadId:
+        found = true
+        break
+    shuffledVals[threadId] = commands[if found: srcThreadId else: threadId].val
+
+  let valueType = commands[firstThreadId].t
+  for threadId in threadsInGroup(group):
+    results[threadId] = SubgroupResult(
+      id: opId,
+      kind: subgroupShuffleUp,
+      t: valueType,
+      res: shuffledVals[threadId]
+    )
+
+  if showDebugOutput:
+    debugSubgroupOp("ShuffleUp", opId, group, commands,
+      "shuffled: " & formatValues(group, valueType, shuffledVals))
+
 defineSubgroupOp(execBallot):
   var ballot: uint32 = 0 # Use uint32 as the ballot mask
   # Set bits in ballot mask based on each thread's boolean value

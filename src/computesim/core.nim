@@ -23,6 +23,8 @@ type
     subgroupExclusiveAdd
     subgroupShuffle
     subgroupShuffleXor
+    subgroupShuffleDown
+    subgroupShuffleUp
     subgroupBallot
     subgroupElect
     subgroupAll
@@ -35,7 +37,8 @@ type
     case kind*: SubgroupOp
     of subgroupBroadcastFirst, subgroupAdd, subgroupMin, subgroupMax,
         subgroupInclusiveAdd, subgroupExclusiveAdd,
-        subgroupBroadcast, subgroupShuffle, subgroupShuffleXor:
+        subgroupBroadcast, subgroupShuffle, subgroupShuffleXor,
+        subgroupShuffleDown, subgroupShuffleUp:
       dirty*: uint32
       t*: ValueType
       val*: RawValue
@@ -49,7 +52,8 @@ type
     case kind*: SubgroupOp
     of subgroupBroadcastFirst, subgroupAdd, subgroupMin, subgroupMax,
         subgroupInclusiveAdd, subgroupExclusiveAdd, subgroupBallot,
-        subgroupBroadcast, subgroupShuffle, subgroupShuffleXor:
+        subgroupBroadcast, subgroupShuffle, subgroupShuffleXor,
+        subgroupShuffleDown, subgroupShuffleUp:
       t*: ValueType
       res*: RawValue
     of subgroupElect, subgroupAll, subgroupAny:

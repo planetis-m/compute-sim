@@ -42,7 +42,8 @@ proc formatThreadValues(group: SubgroupThreadIDs, commands: SubgroupCommands): s
   let opKind = commands[firstThreadId].kind
   case opKind
   of subgroupBroadcast, subgroupBroadcastFirst, subgroupAdd, subgroupMin, subgroupMax,
-      subgroupInclusiveAdd, subgroupExclusiveAdd, subgroupShuffle, subgroupShuffleXor:
+      subgroupInclusiveAdd, subgroupExclusiveAdd, subgroupShuffle, subgroupShuffleXor,
+      subgroupShuffleDown, subgroupShuffleUp:
     formatValuedThreads(group, commands)
   of subgroupBallot, subgroupAll, subgroupAny:
     formatBoolThreads(group, commands)
