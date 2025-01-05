@@ -10,3 +10,4 @@ when not defined(windows):
   --passc:"-fsanitize=thread -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer"
   --passl:"-fsanitize=thread -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer"
 switch("define", "ThreadPoolSize=10")
+#--define:debugSubgroup

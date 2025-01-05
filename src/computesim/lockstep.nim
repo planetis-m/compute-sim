@@ -17,23 +17,16 @@ template shouldShowDebugOutput(): untyped =
   else:
     false
 
-proc raiseNonUniformBarrierEarlyExit(workgroupID: UVec3; subgroupID: uint32) {.noinline, noreturn.} =
+proc raiseDeadlockError(workgroupID: UVec3; subgroupID, threadsAtBarrier,
+                        activeThreads: uint32) {.noinline, noreturn.} =
   raise newException(AssertionDefect,
-    "Invalid shader: Non-uniform barrier execution in workgroup " & $workgroupID &
-    ", subgroup " & $subgroupID & ". All threads in a subgroup must execute the same barrier.")
+    "Invalid shader: Deadlock detected in workgroup " & $workgroupID & ", subgroup " & $subgroupID & ". " &
+    $threadsAtBarrier & " of " & $activeThreads & " active threads are waiting at barrier.")
 
-proc raiseNonUniformBarrierDivergence(workgroupID: UVec3; subgroupID, threadsAtBarrier,
-                                      activeThreads: uint32) {.noinline, noreturn.} =
-  raise newException(AssertionDefect,
-    "Invalid shader: Non-uniform barrier execution in workgroup " & $workgroupID &
-    ", subgroup " & $subgroupID & ". " & $threadsAtBarrier & " of " & $activeThreads &
-    " threads are at a barrier while others are on a different path.")
-
-proc raiseNonUniformBarrierIds(workgroupID: UVec3; subgroupID, id1, id2: uint32) {.noinline, noreturn.} =
+proc raiseNonUniformBarrierError(workgroupID: UVec3; subgroupID, id1, id2: uint32) {.noinline, noreturn.} =
   raise newException(AssertionDefect,
     "Invalid shader: Barrier must be uniformly executed by all threads in workgroup " &
-    $workgroupID & ", subgroup " & $subgroupID & ". Found different barrier IDs: " &
-    $id1 & " and " & $id2)
+    $workgroupID & ", subgroup " & $subgroupID & ". Found different barrier IDs: " & $id1 & " and " & $id2)
 
 type
   ThreadState = enum
@@ -49,7 +42,6 @@ proc runThreads*(threads: SubgroupThreads, numActiveThreads: uint32; workgroupID
     results {.noinit.}: SubgroupResults
     minReconvergeId: uint32 = 0
     barrierId = InvalidId
-    activeThreadCount = numActiveThreads
     barrierThreadCount: uint32 = 0
     showDebugOutput = shouldShowDebugOutput()
 
@@ -59,7 +51,7 @@ proc runThreads*(threads: SubgroupThreads, numActiveThreads: uint32; workgroupID
     (allThreadsHalted and minReconvergeId < barrierId and commands[threadId].id == minReconvergeId)
 
   template canPassBarrier(): bool =
-    (barrierThreadCount == activeThreadCount and commands[threadId].id == barrierId)
+    (barrierThreadCount == numActiveThreads and commands[threadId].id == barrierId)
 
   # Run until all threads are done
   while anyThreadsActive:
@@ -87,7 +79,6 @@ proc runThreads*(threads: SubgroupThreads, numActiveThreads: uint32; workgroupID
     allThreadsHalted = true
     minReconvergeId = InvalidId
     barrierId = InvalidId
-    activeThreadCount = numActiveThreads
     barrierThreadCount = 0
 
     for threadId in 0..<numActiveThreads:
@@ -103,12 +94,12 @@ proc runThreads*(threads: SubgroupThreads, numActiveThreads: uint32; workgroupID
         if barrierId == InvalidId:
           barrierId = commands[threadId].id
         elif barrierId != commands[threadId].id:
-          raiseNonUniformBarrierIds(workgroupID, subgroupID, barrierId, commands[threadId].id)
+          raiseNonUniformBarrierError(workgroupID, subgroupID, barrierId, commands[threadId].id)
       of finished:
-        dec activeThreadCount
+        discard
 
     if not madeProgress: # No thread could execute this iteration
-      raiseNonUniformBarrierDivergence(workgroupID, subgroupID, barrierThreadCount, activeThreadCount)
+      raiseDeadlockError(workgroupID, subgroupID, barrierThreadCount, numActiveThreads)
 
     # Group matching operations
     var
@@ -176,8 +167,6 @@ proc runThreads*(threads: SubgroupThreads, numActiveThreads: uint32; workgroupID
       of subgroupBarrier:
         execSubgroupOp(execSubBarrier)
       of barrier:
-        if activeThreadCount != numActiveThreads:
-          raiseNonUniformBarrierEarlyExit(workgroupID, subgroupID)
         # Wait for all threads in workgroup (outside subgroup) using barrier sync
         # Note: Will deadlock silently if any subgroups have already completed
         wait b
