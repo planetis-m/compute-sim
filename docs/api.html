@@ -114,6 +114,14 @@
   <li><a class="reference" href="#subgroupShuffle.t%2CT%2Cuint32" title="subgroupShuffle[T](value: T; id: uint32): T">subgroupShuffle[T](value: T; id: uint32): T</a></li>
 
 </ul>
+<ul class="simple nested-toc-section">subgroupShuffleDown
+  <li><a class="reference" href="#subgroupShuffleDown.t%2CT%2Cuint32" title="subgroupShuffleDown[T](value: T; delta: uint32): T">subgroupShuffleDown[T](value: T; delta: uint32): T</a></li>
+
+</ul>
+<ul class="simple nested-toc-section">subgroupShuffleUp
+  <li><a class="reference" href="#subgroupShuffleUp.t%2CT%2Cuint32" title="subgroupShuffleUp[T](value: T; delta: uint32): T">subgroupShuffleUp[T](value: T; delta: uint32): T</a></li>
+
+</ul>
 <ul class="simple nested-toc-section">subgroupShuffleXor
   <li><a class="reference" href="#subgroupShuffleXor.t%2CT%2Cuint32" title="subgroupShuffleXor[T](value: T; mask: uint32): T">subgroupShuffleXor[T](value: T; mask: uint32): T</a></li>
 
@@ -148,8 +156,8 @@
   <dd>
     
     Synchronizes all threads within the current workgroup
-    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L62" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L62" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L70" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L70" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -174,8 +182,8 @@
   <dd>
     
     Returns true if condition is true for all active threads
-    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L50" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L50" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L58" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L58" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -187,8 +195,8 @@
   <dd>
     
     Returns true if condition is true for any active thread
-    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L54" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L54" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L62" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L62" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -200,8 +208,8 @@
   <dd>
     
     Returns bitmap of which threads have condition true
-    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L42" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L42" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L50" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L50" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -213,8 +221,8 @@
   <dd>
     
     Synchronizes all threads within the current subgroup
-    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L58" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L58" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L66" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L66" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -252,8 +260,8 @@
   <dd>
     
     Returns true for exactly one active thread in subgroup
-    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L46" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L46" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L54" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L54" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -324,6 +332,32 @@
 </div>
 
 </div>
+<div id="subgroupShuffleDown-templates-all">
+  <div id="subgroupShuffleDown.t,T,uint32">
+  <dt><pre><span class="Keyword">template</span> <a href="#subgroupShuffleDown.t%2CT%2Cuint32"><span class="Identifier">subgroupShuffleDown</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">value</span><span class="Other">:</span> <span class="Identifier">T</span><span class="Other">;</span> <span class="Identifier">delta</span><span class="Other">:</span> <span class="Identifier">uint32</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">T</span></pre></dt>
+  <dd>
+    
+    Returns value from thread with index current_id + delta
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L42" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L42" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+
+  </dd>
+</div>
+
+</div>
+<div id="subgroupShuffleUp-templates-all">
+  <div id="subgroupShuffleUp.t,T,uint32">
+  <dt><pre><span class="Keyword">template</span> <a href="#subgroupShuffleUp.t%2CT%2Cuint32"><span class="Identifier">subgroupShuffleUp</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">value</span><span class="Other">:</span> <span class="Identifier">T</span><span class="Other">;</span> <span class="Identifier">delta</span><span class="Other">:</span> <span class="Identifier">uint32</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">T</span></pre></dt>
+  <dd>
+    
+    Returns value from thread with index current_id - delta
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L46" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L46" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+
+  </dd>
+</div>
+
+</div>
 <div id="subgroupShuffleXor-templates-all">
   <div id="subgroupShuffleXor.t,T,uint32">
   <dt><pre><span class="Keyword">template</span> <a href="#subgroupShuffleXor.t%2CT%2Cuint32"><span class="Identifier">subgroupShuffleXor</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">]</span><span class="Other">(</span><span class="Identifier">value</span><span class="Other">:</span> <span class="Identifier">T</span><span class="Other">;</span> <span class="Identifier">mask</span><span class="Other">:</span> <span class="Identifier">uint32</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">T</span></pre></dt>
@@ -347,7 +381,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2025-01-02 23:21:54 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2025-01-05 11:00:21 UTC</small>
       </div>
     </div>
   </div>
