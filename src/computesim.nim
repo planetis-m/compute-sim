@@ -104,6 +104,11 @@ type
     gl_SubgroupSize*: uint32         ## Size of each subgroup
     gl_SubgroupID*: uint32           ## ID of the current subgroup [0..gl_NumSubgroups)
     gl_SubgroupInvocationID*: uint32 ## ID of the invocation within the subgroup [0..gl_SubgroupSize)
+    gl_SubgroupEqMask*: UVec4        ## Mask of invocations with equal index
+    gl_SubgroupGeMask*: UVec4        ## Mask of invocations with greater or equal index
+    gl_SubgroupGtMask*: UVec4        ## Mask of invocations with greater index
+    gl_SubgroupLeMask*: UVec4        ## Mask of invocations with less or equal index
+    gl_SubgroupLtMask*: UVec4        ## Mask of invocations with less index
 
   ThreadGenerator*[A, B, C] = proc (
     env: GlEnvironment,
@@ -138,6 +143,8 @@ proc runSubgroup[A, B, C](env: GlEnvironment; numActiveThreads: uint32; barrier:
       env.gl_WorkGroupID.y * env.gl_WorkGroupSize.y + y,
       env.gl_WorkGroupID.z * env.gl_WorkGroupSize.z + z
     )
+    # Use precalculated subgroup masks
+    initSubgroupMasks(SubgroupMasks[threadId])
     env.gl_SubgroupInvocationID = threadId
     threads[threadId] = compute(env, buffers, shared, args)
     # Update coordinates

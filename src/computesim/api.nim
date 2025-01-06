@@ -1,4 +1,4 @@
-import vectors
+import std/bitops, core, vectors
 
 const
   SubgroupOpError = "This function can only be used inside a proc marked with {.computeShader.}"
@@ -50,6 +50,11 @@ template subgroupShuffleUp*[T](value: T; delta: uint32): T =
 template subgroupBallot*(condition: bool): UVec4 =
   ## Returns bitmap of which threads have condition true
   {.error: SubgroupOpError.}
+
+proc subgroupBallotBitCount*(ballot: UVec4): uint32 =
+  ## Returns the number of set bits in a ballot value, only counting
+  ## bits up to gl_SubgroupSize
+  uint32(countSetBits(ballot.x and SubgroupFullMask))
 
 template subgroupElect*(): bool =
   ## Returns true for exactly one active thread in subgroup
