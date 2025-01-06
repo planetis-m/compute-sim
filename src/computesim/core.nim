@@ -3,6 +3,25 @@ import threading/barrier, vectors
 
 const
   SubgroupSize* {.intdefine.} = 8
+  SubgroupFullMask* = (1'u32 shl SubgroupSize) - 1'u32
+  # Precalculated masks for each possible invocation ID
+  SubgroupMasks* = block:
+    var masks: array[SubgroupSize, tuple[eq, ge, gt, le, lt: uint32]]
+    for invocationId in 0 ..< SubgroupSize:
+      let invocationMask = 1'u32 shl invocationId
+      let ltMask = (invocationMask - 1'u32) and SubgroupFullMask
+      let leMask = ltMask or invocationMask
+      let gtMask = not leMask and SubgroupFullMask
+      let geMask = gtMask or invocationMask
+
+      masks[invocationId] = (
+        eq: invocationMask,
+        ge: geMask,
+        gt: gtMask,
+        le: leMask,
+        lt: ltMask
+      )
+    masks
 
 type
   ValueType* = enum
@@ -106,27 +125,6 @@ iterator threadsInGroup*(group: SubgroupThreadIDs): uint32 =
   for member in group.items:
     if member == InvalidId: break
     yield member
-
-const
-  SubgroupFullMask* = (1'u32 shl SubgroupSize) - 1'u32
-  # Precalculated masks for each possible invocation ID
-  SubgroupMasks* = block:
-    var masks: array[SubgroupSize, tuple[eq, ge, gt, le, lt: uint32]]
-    for invocationId in 0'u32 ..< SubgroupSize:
-      let invocationMask = 1'u32 shl invocationId
-      let ltMask = (invocationMask - 1'u32) and SubgroupFullMask
-      let leMask = ltMask or invocationMask
-      let gtMask = not leMask and SubgroupFullMask
-      let geMask = gtMask or invocationMask
-
-      masks[invocationId] = (
-        eq: invocationMask,
-        ge: geMask,
-        gt: gtMask,
-        le: leMask,
-        lt: ltMask
-      )
-    masks
 
 template initSubgroupMasks*(masks: untyped) =
   # Get the precalculated subgroup masks for the given invocation ID

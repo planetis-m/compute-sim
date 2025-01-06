@@ -51,10 +51,27 @@ template subgroupBallot*(condition: bool): UVec4 =
   ## Returns bitmap of which threads have condition true
   {.error: SubgroupOpError.}
 
-proc subgroupBallotBitCount*(ballot: UVec4): uint32 =
+func subgroupBallotBitCount*(ballot: UVec4): uint32 =
   ## Returns the number of set bits in a ballot value, only counting
   ## bits up to gl_SubgroupSize
-  uint32(countSetBits(ballot.x and SubgroupFullMask))
+  uint32(countSetBits(masked(ballot.x, SubgroupFullMask)))
+
+func subgroupBallotBitExtract*(value: UVec4, index: uint32): bool =
+  ## Returns true if the bit at position index is set in value
+  ## Only valid for indices less than gl_SubgroupSize
+  testBit(value.x, index and (SubgroupSize - 1))
+
+func subgroupBallotFindLSB*(value: UVec4): uint32 {.inline.} =
+  ## Returns the index of the least significant 1 bit in value
+  ## Only considers the bottom gl_SubgroupSize bits
+  let mask = masked(value.x, SubgroupFullMask)
+  if mask == 0: high(uint32) else: uint32(countTrailingZeroBits(mask))
+
+func subgroupBallotFindMSB*(value: UVec4): uint32 {.inline.} =
+  ## Returns the index of the most significant 1 bit in value
+  ## Only considers the bottom gl_SubgroupSize bits
+  let mask = masked(value.x, SubgroupFullMask)
+  if mask == 0: high(uint32) else: uint32(fastLog2(mask))
 
 template subgroupElect*(): bool =
   ## Returns true for exactly one active thread in subgroup
