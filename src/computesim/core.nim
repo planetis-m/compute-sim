@@ -29,6 +29,7 @@ type
     subgroupElect
     subgroupAll
     subgroupAny
+    subgroupAllEqual
     subgroupBarrier
     barrier
 
@@ -38,7 +39,7 @@ type
     of subgroupBroadcastFirst, subgroupAdd, subgroupMin, subgroupMax,
         subgroupInclusiveAdd, subgroupExclusiveAdd,
         subgroupBroadcast, subgroupShuffle, subgroupShuffleXor,
-        subgroupShuffleDown, subgroupShuffleUp:
+        subgroupShuffleDown, subgroupShuffleUp, subgroupAllEqual:
       dirty*: uint32
       t*: ValueType
       val*: RawValue
@@ -56,7 +57,7 @@ type
         subgroupShuffleDown, subgroupShuffleUp:
       t*: ValueType
       res*: RawValue
-    of subgroupElect, subgroupAll, subgroupAny:
+    of subgroupElect, subgroupAll, subgroupAny, subgroupAllEqual:
       bRes*: bool
     of subgroupBarrier, barrier, reconverge, invalid:
       discard

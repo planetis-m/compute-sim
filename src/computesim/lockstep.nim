@@ -8,8 +8,8 @@ const
   debugWorkgroupZ {.intdefine.} = 0
   debugSubgroupID {.intdefine.} = 0
 
-template shouldShowDebugOutput(): untyped =
-  when defined(debugSubgroup):
+template shouldShowDebugOutput(debug: untyped) =
+  let debug = when defined(debugSubgroup):
     workgroupID.x == debugWorkgroupX and
     workgroupID.y == debugWorkgroupY and
     workgroupID.z == debugWorkgroupZ and
@@ -43,8 +43,8 @@ proc runThreads*(threads: SubgroupThreads, numActiveThreads: uint32; workgroupID
     minReconvergeId: uint32 = 0
     barrierId = InvalidId
     barrierThreadCount: uint32 = 0
-    showDebugOutput = shouldShowDebugOutput()
 
+  shouldShowDebugOutput(showDebugOutput)
   threadStates.fill(running)
 
   template canReconverge(): bool =

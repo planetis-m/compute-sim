@@ -63,6 +63,10 @@ template subgroupAny*(condition: bool): bool =
   ## Returns true if condition is true for any active thread
   {.error: SubgroupOpError.}
 
+template subgroupAllEqual*[T](value: T): bool =
+  ## Returns true if value is equal across all active threads in subgroup
+  {.error: SubgroupOpError.}
+
 template subgroupBarrier*() =
   ## Synchronizes all threads within the current subgroup
   {.error: SubgroupOpError.}

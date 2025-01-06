@@ -43,7 +43,7 @@ proc formatThreadValues(group: SubgroupThreadIDs, commands: SubgroupCommands): s
   case opKind
   of subgroupBroadcast, subgroupBroadcastFirst, subgroupAdd, subgroupMin, subgroupMax,
       subgroupInclusiveAdd, subgroupExclusiveAdd, subgroupShuffle, subgroupShuffleXor,
-      subgroupShuffleDown, subgroupShuffleUp:
+      subgroupShuffleDown, subgroupShuffleUp, subgroupAllEqual:
     formatValuedThreads(group, commands)
   of subgroupBallot, subgroupAll, subgroupAny:
     formatBoolThreads(group, commands)

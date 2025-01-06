@@ -11,6 +11,9 @@
 # T subgroupShuffle(T value, uint id);
 # T subgroupShuffleXor(T value, uint mask);
 
+# T subgroupShuffleDown(T value, uint delta);
+# T subgroupShuffleUp(T value, uint delta);
+
 # uvec4 subgroupBallot(bool condition);
 # bool subgroupElect();
 # bool subgroupAll(bool condition);
@@ -285,7 +288,7 @@ defineSubgroupOp(execShuffleXor):
     )
 
   if showDebugOutput:
-    debugSubgroupOp("Shuffle", opId, group, commands,
+    debugSubgroupOp("ShuffleXor", opId, group, commands,
       "shuffled: " & formatValues(group, valueType, shuffledVals))
 
 defineSubgroupOp(execShuffleDown):
@@ -402,6 +405,38 @@ defineSubgroupOp(execAny):
 
   if showDebugOutput:
     debugSubgroupOp("Any", opId, group, commands, "any: " & $anyTrue)
+
+defineSubgroupOp(execAllEqual):
+  var allEqual = true
+  template compareValues(t: untyped) =
+    let firstVal = getValue[t](commands[firstThreadId].val)
+    for threadId in threadsInGroup(group):
+      if getValue[t](commands[threadId].val) != firstVal:
+        allEqual = false
+        break
+
+  let valueType = commands[firstThreadId].t
+  case valueType:
+  of Bool:
+    compareValues(bool)
+  of Int:
+    compareValues(int32)
+  of Uint:
+    compareValues(uint32)
+  of Float:
+    compareValues(float32)
+  of Double:
+    compareValues(float64)
+
+  for threadId in threadsInGroup(group):
+    results[threadId] = SubgroupResult(
+      id: opId,
+      kind: subgroupAllEqual,
+      bRes: allEqual
+    )
+
+  if showDebugOutput:
+    debugSubgroupOp("AllEqual", opId, group, commands, "allEqual: " & $allEqual)
 
 defineSubgroupOp(execSubBarrier):
   # For barrier, just mark that each thread participated

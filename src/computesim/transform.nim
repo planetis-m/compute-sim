@@ -57,6 +57,8 @@ proc getSubgroupOp(node: NimNode): SubgroupOp =
     validateBoolOp(subgroupAll)
   of "subgroupany":
     validateBoolOp(subgroupAny)
+  of "subgroupallequal":
+    validateOneArgOp(subgroupAllEqual)
   of "subgroupelect":
     validateNoArgOp(subgroupElect)
   of "subgroupbarrier":
@@ -88,7 +90,7 @@ proc genSubgroupOpCall(op: SubgroupOp; node, id, iterArg: NimNode): NimNode =
         subgroupShuffleDown, subgroupShuffleUp:
       getAst(binaryOpCommand(id, newLit(op), node[1], node[2]))
     of subgroupBroadcastFirst, subgroupAdd, subgroupMin, subgroupMax,
-        subgroupInclusiveAdd, subgroupExclusiveAdd:
+        subgroupInclusiveAdd, subgroupExclusiveAdd, subgroupAllEqual:
       getAst(unaryOpCommand(id, newLit(op), node[1]))
     of subgroupBallot, subgroupAll, subgroupAny:
       getAst(boolOpCommand(id, newLit(op), node[1]))
@@ -103,7 +105,7 @@ proc genSubgroupOpCall(op: SubgroupOp; node, id, iterArg: NimNode): NimNode =
         subgroupBroadcastFirst, subgroupAdd, subgroupMin, subgroupMax,
         subgroupInclusiveAdd, subgroupExclusiveAdd:
       getAst(scalarOpResult(iterArg, node[1]))
-    of subgroupAll, subgroupAny, subgroupElect:
+    of subgroupAll, subgroupAny, subgroupElect, subgroupAllEqual:
       newTree(nnkDotExpr, iterArg, ident"bRes")
     of subgroupBallot:
       getAst(ballotResult(iterArg))
