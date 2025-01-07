@@ -104,11 +104,6 @@ type
     gl_SubgroupSize*: uint32         ## Size of each subgroup
     gl_SubgroupID*: uint32           ## ID of the current subgroup [0..gl_NumSubgroups)
     gl_SubgroupInvocationID*: uint32 ## ID of the invocation within the subgroup [0..gl_SubgroupSize)
-    gl_SubgroupEqMask*: uint32       ## Mask of invocations with equal index (UVec4)
-    gl_SubgroupGeMask*: uint32       ## Mask of invocations with greater or equal index (UVec4)
-    gl_SubgroupGtMask*: uint32       ## Mask of invocations with greater index (UVec4)
-    gl_SubgroupLeMask*: uint32       ## Mask of invocations with less or equal index (UVec4)
-    gl_SubgroupLtMask*: uint32       ## Mask of invocations with less index (UVec4)
 
   ThreadGenerator*[A, B, C] = proc (
     env: GlEnvironment,

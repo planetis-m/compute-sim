@@ -72,12 +72,7 @@
   gl_NumSubgroups*: uint32   ## Number of subgroups in the workgroup
   gl_SubgroupSize*: uint32   ## Size of each subgroup
   gl_SubgroupID*: uint32     ## ID of the current subgroup [0..gl_NumSubgroups)
-  gl_SubgroupInvocationID*: uint32 ## ID of the invocation within the subgroup [0..gl_SubgroupSize)
-  gl_SubgroupEqMask*: UVec4  ## Mask of invocations with equal index
-  gl_SubgroupGeMask*: UVec4  ## Mask of invocations with greater or equal index
-  gl_SubgroupGtMask*: UVec4  ## Mask of invocations with greater index
-  gl_SubgroupLeMask*: UVec4  ## Mask of invocations with less or equal index
-  gl_SubgroupLtMask*: UVec4  ## Mask of invocations with less index">GlEnvironment</a></li>
+  gl_SubgroupInvocationID*: uint32 ## ID of the invocation within the subgroup [0..gl_SubgroupSize)">GlEnvironment</a></li>
 <li><a class="reference" href="#ThreadGenerator" title="ThreadGenerator[A; B; C] = proc (env: GlEnvironment; buffers: A; shared: ptr B;
                                  args: C): ThreadClosure {.nimcall.}">ThreadGenerator</a></li>
 <li><a class="reference" href="#ThreadGeneratorNoShared" title="ThreadGeneratorNoShared[A; C] = proc (env: GlEnvironment; buffers: A; args: C): ThreadClosure {.
@@ -208,12 +203,7 @@ Using <tt class="docutils literal"><span class="pre"><span class="Identifier">ba
   <span class="Identifier">gl_NumSubgroups</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint32</span>   <span class="Comment">## Number of subgroups in the workgroup</span>
   <span class="Identifier">gl_SubgroupSize</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint32</span>   <span class="Comment">## Size of each subgroup</span>
   <span class="Identifier">gl_SubgroupID</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint32</span>     <span class="Comment">## ID of the current subgroup [0..gl_NumSubgroups)</span>
-  <span class="Identifier">gl_SubgroupInvocationID</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint32</span> <span class="Comment">## ID of the invocation within the subgroup [0..gl_SubgroupSize)</span>
-  <span class="Identifier">gl_SubgroupEqMask</span><span class="Operator">*</span><span class="Other">:</span> <a href="vectors.html#UVec4"><span class="Identifier">UVec4</span></a>  <span class="Comment">## Mask of invocations with equal index</span>
-  <span class="Identifier">gl_SubgroupGeMask</span><span class="Operator">*</span><span class="Other">:</span> <a href="vectors.html#UVec4"><span class="Identifier">UVec4</span></a>  <span class="Comment">## Mask of invocations with greater or equal index</span>
-  <span class="Identifier">gl_SubgroupGtMask</span><span class="Operator">*</span><span class="Other">:</span> <a href="vectors.html#UVec4"><span class="Identifier">UVec4</span></a>  <span class="Comment">## Mask of invocations with greater index</span>
-  <span class="Identifier">gl_SubgroupLeMask</span><span class="Operator">*</span><span class="Other">:</span> <a href="vectors.html#UVec4"><span class="Identifier">UVec4</span></a>  <span class="Comment">## Mask of invocations with less or equal index</span>
-  <span class="Identifier">gl_SubgroupLtMask</span><span class="Operator">*</span><span class="Other">:</span> <a href="vectors.html#UVec4"><span class="Identifier">UVec4</span></a>  <span class="Comment">## Mask of invocations with less index</span></pre></dt>
+  <span class="Identifier">gl_SubgroupInvocationID</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint32</span> <span class="Comment">## ID of the invocation within the subgroup [0..gl_SubgroupSize)</span></pre></dt>
   <dd>
     
     
@@ -228,8 +218,8 @@ Using <tt class="docutils literal"><span class="pre"><span class="Identifier">ba
   <dd>
     
     
-    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim.nim#L113" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim.nim#L113" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim.nim#L108" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim.nim#L108" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -239,8 +229,8 @@ Using <tt class="docutils literal"><span class="pre"><span class="Identifier">ba
   <dd>
     
     
-    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim.nim#L120" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim.nim#L120" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim.nim#L115" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim.nim#L115" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -258,8 +248,8 @@ Using <tt class="docutils literal"><span class="pre"><span class="Identifier">ba
   <dd>
     
     
-    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim.nim#L187" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim.nim#L187" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim.nim#L180" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim.nim#L180" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -279,8 +269,8 @@ Using <tt class="docutils literal"><span class="pre"><span class="Identifier">ba
   <dd>
     
     
-    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim.nim#L219" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim.nim#L219" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim.nim#L212" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim.nim#L212" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -296,7 +286,7 @@ Using <tt class="docutils literal"><span class="pre"><span class="Identifier">ba
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2025-01-06 21:35:32 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2025-01-07 00:58:31 UTC</small>
       </div>
     </div>
   </div>
