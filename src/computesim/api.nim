@@ -3,6 +3,26 @@ import std/bitops, core, vectors
 const
   SubgroupOpError = "This function can only be used inside a proc marked with {.computeShader.}"
 
+template gl_SubgroupEqMask*(): UVec4 =
+  ## Returns a mask where only the bit at the current invocation's index is set
+  uvec4(SubgroupMasks[gl_SubgroupInvocationID].eq, 0, 0, 0)
+
+template gl_SubgroupGeMask*(): UVec4 =
+  ## Returns a mask where bits at and above the current invocation's index are set
+  uvec4(SubgroupMasks[gl_SubgroupInvocationID].ge, 0, 0, 0)
+
+template gl_SubgroupGtMask*(): UVec4 =
+  ## Returns a mask where bits above the current invocation's index are set
+  uvec4(SubgroupMasks[gl_SubgroupInvocationID].gt, 0, 0, 0)
+
+template gl_SubgroupLeMask*(): UVec4 =
+  ## Returns a mask where bits at and below the current invocation's index are set
+  uvec4(SubgroupMasks[gl_SubgroupInvocationID].le, 0, 0, 0)
+
+template gl_SubgroupLtMask*(): UVec4 =
+  ## Returns a mask where bits below the current invocation's index are set
+  uvec4(SubgroupMasks[gl_SubgroupInvocationID].lt, 0, 0, 0)
+
 template subgroupBroadcast*[T](value: T; id: uint32): T =
   ## Broadcasts value from thread with specified id to all threads in subgroup
   {.error: SubgroupOpError.}
@@ -59,7 +79,7 @@ func subgroupBallotBitCount*(ballot: UVec4): uint32 =
 func subgroupBallotBitExtract*(value: UVec4, index: uint32): bool =
   ## Returns true if the bit at position index is set in value
   ## Only valid for indices less than gl_SubgroupSize
-  testBit(value.x, index and (SubgroupSize - 1))
+  testBit(value.x, masked(index, SubgroupSize - 1))
 
 func subgroupBallotFindLSB*(value: UVec4): uint32 {.inline.} =
   ## Returns the index of the least significant 1 bit in value

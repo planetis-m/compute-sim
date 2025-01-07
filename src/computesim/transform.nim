@@ -136,11 +136,6 @@ proc generateEnvTemplates(envSym: NimNode): NimNode =
     "gl_SubgroupSize",
     "gl_SubgroupID",
     "gl_SubgroupInvocationID",
-    "gl_SubgroupEqMask",
-    "gl_SubgroupGeMask",
-    "gl_SubgroupGtMask",
-    "gl_SubgroupLeMask",
-    "gl_SubgroupLtMask",
   ]
   for field in envFields:
     let fieldIdent = ident(field)
