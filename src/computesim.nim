@@ -109,12 +109,6 @@ type
     args: C
   ): ThreadClosure {.nimcall.}
 
-  ThreadGeneratorNoShared*[A, C] = proc (
-    env: GlEnvironment,
-    buffers: A,
-    args: C
-  ): ThreadClosure {.nimcall.}
-
 const
   MaxConcurrentWorkGroups {.intdefine.} = 2
 
@@ -206,19 +200,17 @@ proc runCompute[A, B, C](
             inc wgZ
         inc currentGroup
 
-template runComputeOnCpu*[A, B, C](
+template runComputeOnCpu*(
     numWorkGroups, workGroupSize: UVec3,
-    compute: ThreadGenerator[A, B, C],
-    ssbo: A, smem: B, args: C) =
+    compute, ssbo, smem, args: untyped) =
   bind isolate, extract
   runCompute(numWorkGroups, workGroupSize, compute, ssbo, smem, args)
 
-template runComputeOnCpu*[A, C](
+template runComputeOnCpu*(
     numWorkGroups, workGroupSize: UVec3,
-    compute: ThreadGeneratorNoShared[A, C],
-    ssbo: A, args: C) =
+    compute, ssbo, args: untyped) =
   bind isolate, extract
   proc wrapCompute(env: GlEnvironment,
-      buffers: A, shared: ptr int32, argsInner: C): ThreadClosure {.nimcall.} =
+      buffers: typeof(ssbo), shared: ptr int32, argsInner: typeof(args)): ThreadClosure {.nimcall.} =
     compute(env, buffers, argsInner)
   runCompute(numWorkGroups, workGroupSize, wrapCompute, ssbo, 0, args)
