@@ -5,7 +5,8 @@
 --define:"release"
 --define:"useMalloc"
 --define:"ThreadPoolSize=10"
-#--define:debugSubgroup
+--define:debugSubgroup
+switch("define", "debugSubgroupID:1")
 
 when not defined(windows):
   --debugger:"native"

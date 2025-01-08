@@ -85,13 +85,10 @@
 ## | `blockIdx * blockDim + threadIdx` | `gl_GlobalInvocationID` | The global index of the current thread (CUDA) or invocation (GLSL) |
 
 # (c) 2024 Antonis Geralis
-import std/math, threading/barrier, malebolgia
+import std/[isolation, math], threading/barrier, malebolgia
 
 import computesim/[core, vectors, transform, lockstep, api]
 export vectors, transform, api
-
-import std/isolation
-export isolate, extract
 
 type
   GlEnvironment* = object
@@ -121,7 +118,7 @@ type
 const
   MaxConcurrentWorkGroups {.intdefine.} = 2
 
-proc runSubgroup[A, B, C](env: GlEnvironment; numActiveThreads: uint32; barrier: BarrierHandle,
+proc subgroupProc[A, B, C](env: GlEnvironment; numActiveThreads: uint32; barrier: BarrierHandle,
     compute: ThreadGenerator[A, B, C]; buffers: A; shared: ptr B; args: C) =
   var threads = default(SubgroupThreads)
   let startIdx = env.gl_SubgroupID * SubgroupSize
@@ -174,10 +171,10 @@ proc workGroupProc[A, B, C](
       env.gl_SubgroupID = subgroupId
       # Calculate number of active threads in this subgroup
       let threadsInSubgroup = min(remainingThreads, SubgroupSize)
-      master.spawn runSubgroup(env, threadsInSubgroup, barrier.getHandle(), compute, ssbo, addr smem, args)
+      master.spawn subgroupProc(env, threadsInSubgroup, barrier.getHandle(), compute, ssbo, addr smem, args)
       dec remainingThreads, threadsInSubgroup
 
-proc runComputeOnCpu*[A, B, C](
+proc runCompute[A, B, C](
     numWorkGroups, workGroupSize: UVec3,
     compute: ThreadGenerator[A, B, C],
     ssbo: A, smem: B, args: C) =
@@ -209,11 +206,19 @@ proc runComputeOnCpu*[A, B, C](
             inc wgZ
         inc currentGroup
 
+template runComputeOnCpu*[A, B, C](
+    numWorkGroups, workGroupSize: UVec3,
+    compute: ThreadGenerator[A, B, C],
+    ssbo: A, smem: B, args: C) =
+  bind isolate, extract
+  runCompute(numWorkGroups, workGroupSize, compute, ssbo, smem, args)
+
 template runComputeOnCpu*[A, C](
     numWorkGroups, workGroupSize: UVec3,
     compute: ThreadGeneratorNoShared[A, C],
     ssbo: A, args: C) =
+  bind isolate, extract
   proc wrapCompute(env: GlEnvironment,
       buffers: A, shared: ptr int32, argsInner: C): ThreadClosure {.nimcall.} =
     compute(env, buffers, argsInner)
-  runComputeOnCpu(numWorkGroups, workGroupSize, wrapCompute, ssbo, 0, args)
+  runCompute(numWorkGroups, workGroupSize, wrapCompute, ssbo, 0, args)
