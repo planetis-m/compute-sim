@@ -216,4 +216,4 @@ template runComputeOnCpu*[A, C](
   proc wrapCompute(env: GlEnvironment,
       buffers: A, shared: ptr int32, argsInner: C): ThreadClosure {.nimcall.} =
     compute(env, buffers, argsInner)
-  runComputeOnCpu(numWorkGroups, workGroupSize, wrapCompute, ssbo, 0'i32, args)
+  runComputeOnCpu(numWorkGroups, workGroupSize, wrapCompute, ssbo, 0, args)

@@ -15,9 +15,10 @@ jobs:
       with:
         nim-version: 'stable'
         repo-token: ${{ secrets.GITHUB_TOKEN }}
-    - name: Run tests
-      run: |
-        nimble test
+    - name: Run tests with Thread Sanitizer
+      run: nimble test
+    - name: Run tests with Address Sanitizer
+      run: nimble test -d:asan
 
   test-windows:
     runs-on: windows-latest
@@ -27,9 +28,10 @@ jobs:
       with:
         nim-version: 'stable'
         repo-token: ${{ secrets.GITHUB_TOKEN }}
-    - name: Run tests
-      run: |
-        nimble test
+    - name: Run tests with Thread Sanitizer
+      run: nimble test
+    - name: Run tests with Address Sanitizer
+      run: nimble test -d:asan
 
   test-macos:
     runs-on: macos-latest
@@ -39,5 +41,7 @@ jobs:
       with:
         nim-version: 'stable'
         repo-token: ${{ secrets.GITHUB_TOKEN }}
-    - name: Run tests
+    - name: Run tests with Thread Sanitizer
       run: nimble test
+    - name: Run tests with Address Sanitizer
+      run: nimble test -d:asan
