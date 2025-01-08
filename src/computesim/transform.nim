@@ -84,9 +84,9 @@ template ballotResult(iterArg: untyped): untyped =
   uvec4(getValue[uint32](iterArg.res), 0, 0, 0)
 
 const
-  NotUseful = 0
-  Optimizable = 1
-  SomeBarrier = 2
+  NotUseful = 0xFEAD0000
+  Optimizable = 0xFEAD0001
+  SomeBarrier = 0xFEAD0002
 
 proc genSubgroupOpCall(op: SubgroupOp; node, id, iterArg: NimNode): NimNode =
   # Generate the command part based on operation type
@@ -199,6 +199,10 @@ macro computeShader*(prc: untyped): untyped =
       if op != invalid:
         return genSubgroupOpCall(op, node, newYieldId(), ident"iterArg")
 
+    template flatAdd(res: NimNode, genCall: untyped) =
+      res = newStmtList(res)
+      copyChildrenTo(genCall, res)
+
     case node.kind
     of nnkForStmt, nnkWhileStmt:
       result = copyNimTree(node)
@@ -222,16 +226,14 @@ macro computeShader*(prc: untyped): untyped =
         let transformed = genReconvergeCall()
         copyChildrenTo(result.body, transformed)
         result.body = transformed
-      result = newStmtList(result)
-      copyChildrenTo(genReconvergeCall(), result)
+      flatAdd(result, genReconvergeCall())
 
     elif node.kind in {nnkTryStmt, nnkCaseStmt} or (node.kind == nnkIfStmt and
         (node.len == 0 or node[0].kind != nnkElifExpr)):
       result = copyNimTree(node)
       for i in ord(result.kind == nnkCaseStmt) ..< result.len:
         result[i] = traverseAndModify(result[i])
-      result = newStmtList(result)
-      copyChildrenTo(genReconvergeCall(), result)
+      flatAdd(result, genReconvergeCall())
     else:
       result = copyNimNode(node)
       for child in node:
