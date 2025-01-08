@@ -83,6 +83,11 @@ template scalarOpResult(iterArg, cmdVal: untyped): untyped =
 template ballotResult(iterArg: untyped): untyped =
   uvec4(getValue[uint32](iterArg.res), 0, 0, 0)
 
+const
+  NotUseful = 0
+  Optimizable = 1
+  SomeBarrier = 2
+
 proc genSubgroupOpCall(op: SubgroupOp; node, id, iterArg: NimNode): NimNode =
   # Generate the command part based on operation type
   let cmdPart = case op
@@ -112,16 +117,20 @@ proc genSubgroupOpCall(op: SubgroupOp; node, id, iterArg: NimNode): NimNode =
     of subgroupBarrier, barrier:
       newTree(nnkDiscardStmt, newEmptyNode())
     else: nil
+  # Choose appropriate sentinel based on operation type
+  let sentinel = if op in {barrier, subgroupBarrier}: SomeBarrier
+                 else: NotUseful
   # Combine both parts
   result = quote do:
+    discard `sentinel`
     yield `cmdPart`
     case `iterArg`.kind
     of `op`:
       `resultPart`
     else:
       raiseInvalidSubgroupOp(`op`)
-  result[0].copyLineInfo(node)
   result[1].copyLineInfo(node)
+  result[2].copyLineInfo(node)
 
 proc generateEnvTemplates(envSym: NimNode): NimNode =
   result = newNimNode(nnkStmtList)
@@ -142,6 +151,27 @@ proc generateEnvTemplates(envSym: NimNode): NimNode =
     result.add quote do:
       template `fieldIdent`(): untyped {.used.} = `envSym`.`fieldIdent`
 
+template isDiscard(n: NimNode, val: int): bool =
+  n.kind == nnkDiscardStmt and n[0].kind == nnkIntLit and n[0].intVal == val
+
+proc optimizeReconvergePoints*(node: NimNode): NimNode =
+  if node.kind == nnkStmtList:
+    result = newNimNode(nnkStmtList)
+    var i = 0
+    while i < node.len:
+      if i < node.len - 3 and
+         isDiscard(node[i], Optimizable) and
+         isDiscard(node[i+2], SomeBarrier):
+        result.add node[i+2..i+3] # keep barrier
+        inc i, 4
+      else:
+        result.add optimizeReconvergePoints(node[i])
+        inc i
+  else:
+    result = copyNimNode(node)
+    for child in node:
+      result.add optimizeReconvergePoints(child)
+
 macro computeShader*(prc: untyped): untyped =
   expectKind(prc, {nnkProcDef, nnkFuncDef})
 
@@ -154,6 +184,7 @@ macro computeShader*(prc: untyped): untyped =
   proc genReconvergeCall(): NimNode =
     let id = newYieldId()
     quote do:
+      discard `Optimizable`
       yield SubgroupCommand(id: `id`, kind: reconverge)
 
   # Transform AST to handle divergent control flow and subgroup operations
@@ -188,15 +219,19 @@ macro computeShader*(prc: untyped): untyped =
       let hasContinue = checkForContinue(loopBody)
       result.body = traverseAndModify(loopBody)
       if hasContinue:
-        result.body = newStmtList(genReconvergeCall(), result.body)
-      result = newStmtList(result, genReconvergeCall())
+        let transformed = genReconvergeCall()
+        copyChildrenTo(result.body, transformed)
+        result.body = transformed
+      result = newStmtList(result)
+      copyChildrenTo(genReconvergeCall(), result)
 
     elif node.kind in {nnkTryStmt, nnkCaseStmt} or (node.kind == nnkIfStmt and
         (node.len == 0 or node[0].kind != nnkElifExpr)):
       result = copyNimTree(node)
       for i in ord(result.kind == nnkCaseStmt) ..< result.len:
         result[i] = traverseAndModify(result[i])
-      result = newStmtList(result, genReconvergeCall())
+      result = newStmtList(result)
+      copyChildrenTo(genReconvergeCall(), result)
     else:
       result = copyNimNode(node)
       for child in node:
@@ -210,7 +245,9 @@ macro computeShader*(prc: untyped): untyped =
   # Create the iterator that implements the divergent control flow
   let procName = prc.name
   let iterArg = ident"iterArg"
-  let traversedBody = traverseAndModify(prc.body)
+  var traversedBody = traverseAndModify(prc.body)
+  # Apply optimization to remove unnecessary reconverge points
+  traversedBody = optimizeReconvergePoints(traversedBody)
   # Create template declarations for GlEnvironment fields
   let envSym = genSym(nskParam, "env")
   let envTemplates = generateEnvTemplates(envSym)
