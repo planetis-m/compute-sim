@@ -56,9 +56,42 @@
 </li>
 <li>
   <details open>
+    <summary><a class="reference reference-toplevel" href="#7" id="57">Types</a></summary>
+    <ul class="simple simple-toc-section">
+      <li><a class="reference" href="#AtomicInt" title="AtomicInt = int32 | uint32">AtomicInt</a></li>
+
+    </ul>
+  </details>
+</li>
+<li>
+  <details open>
     <summary><a class="reference reference-toplevel" href="#12" id="62">Procs</a></summary>
     <ul class="simple simple-toc-section">
-      <ul class="simple nested-toc-section">subgroupBallotBitCount
+      <ul class="simple nested-toc-section">atomicAdd
+  <li><a class="reference" href="#atomicAdd%2CT%2CT" title="atomicAdd[T: AtomicInt](mem: var T; data: T): T">atomicAdd[T: AtomicInt](mem: var T; data: T): T</a></li>
+
+</ul>
+<ul class="simple nested-toc-section">atomicAnd
+  <li><a class="reference" href="#atomicAnd%2CT%2CT" title="atomicAnd[T: AtomicInt](mem: var T; data: T): T">atomicAnd[T: AtomicInt](mem: var T; data: T): T</a></li>
+
+</ul>
+<ul class="simple nested-toc-section">atomicCompSwap
+  <li><a class="reference" href="#atomicCompSwap%2CT%2CT%2CT" title="atomicCompSwap[T: AtomicInt](mem: var T; compare, data: T): T">atomicCompSwap[T: AtomicInt](mem: var T; compare, data: T): T</a></li>
+
+</ul>
+<ul class="simple nested-toc-section">atomicExchange
+  <li><a class="reference" href="#atomicExchange%2CT%2CT" title="atomicExchange[T: AtomicInt](mem: var T; data: T): T">atomicExchange[T: AtomicInt](mem: var T; data: T): T</a></li>
+
+</ul>
+<ul class="simple nested-toc-section">atomicOr
+  <li><a class="reference" href="#atomicOr%2CT%2CT" title="atomicOr[T: AtomicInt](mem: var T; data: T): T">atomicOr[T: AtomicInt](mem: var T; data: T): T</a></li>
+
+</ul>
+<ul class="simple nested-toc-section">atomicXor
+  <li><a class="reference" href="#atomicXor%2CT%2CT" title="atomicXor[T: AtomicInt](mem: var T; data: T): T">atomicXor[T: AtomicInt](mem: var T; data: T): T</a></li>
+
+</ul>
+<ul class="simple nested-toc-section">subgroupBallotBitCount
   <li><a class="reference" href="#subgroupBallotBitCount%2CUVec4" title="subgroupBallotBitCount(ballot: UVec4): uint32">subgroupBallotBitCount(ballot: UVec4): uint32</a></li>
 
 </ul>
@@ -195,10 +228,104 @@
     <a class="reference external" href="core.html">core</a>, <a class="reference external" href="vectors.html">vectors</a>
   </dl>
 </div>
+<div class="section" id="7">
+  <h1><a class="toc-backref" href="#7">Types</a></h1>
+  <dl class="item">
+    <div id="AtomicInt">
+  <dt><pre><a href="api.html#AtomicInt"><span class="Identifier">AtomicInt</span></a> <span class="Other">=</span> <span class="Identifier">int32</span> <span class="Operator">|</span> <span class="Identifier">uint32</span></pre></dt>
+  <dd>
+    
+    Type class for atomic integer operations
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L124" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L124" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+
+  </dd>
+</div>
+
+  </dl>
+</div>
 <div class="section" id="12">
   <h1><a class="toc-backref" href="#12">Procs</a></h1>
   <dl class="item">
-    <div id="subgroupBallotBitCount-procs-all">
+    <div id="atomicAdd-procs-all">
+  <div id="atomicAdd,T,T">
+  <dt><pre><span class="Keyword">proc</span> <a href="#atomicAdd%2CT%2CT"><span class="Identifier">atomicAdd</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">:</span> <a href="api.html#AtomicInt"><span class="Identifier">AtomicInt</span></a><span class="Other">]</span><span class="Other">(</span><span class="Identifier">mem</span><span class="Other">:</span> <span class="Keyword">var</span> <span class="Identifier">T</span><span class="Other">;</span> <span class="Identifier">data</span><span class="Other">:</span> <span class="Identifier">T</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">T</span> {.<span class="Identifier">inline</span><span class="Other">,</span> <span class="Identifier">discardable</span>.}</pre></dt>
+  <dd>
+    
+    Performs atomic addition on mem with data. Returns the original value stored in mem.
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L128" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L128" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+
+  </dd>
+</div>
+
+</div>
+<div id="atomicAnd-procs-all">
+  <div id="atomicAnd,T,T">
+  <dt><pre><span class="Keyword">proc</span> <a href="#atomicAnd%2CT%2CT"><span class="Identifier">atomicAnd</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">:</span> <a href="api.html#AtomicInt"><span class="Identifier">AtomicInt</span></a><span class="Other">]</span><span class="Other">(</span><span class="Identifier">mem</span><span class="Other">:</span> <span class="Keyword">var</span> <span class="Identifier">T</span><span class="Other">;</span> <span class="Identifier">data</span><span class="Other">:</span> <span class="Identifier">T</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">T</span> {.<span class="Identifier">inline</span><span class="Other">,</span> <span class="Identifier">discardable</span>.}</pre></dt>
+  <dd>
+    
+    Performs atomic AND on mem with data. Returns the original value stored in mem.
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L133" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L133" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+
+  </dd>
+</div>
+
+</div>
+<div id="atomicCompSwap-procs-all">
+  <div id="atomicCompSwap,T,T,T">
+  <dt><pre><span class="Keyword">proc</span> <a href="#atomicCompSwap%2CT%2CT%2CT"><span class="Identifier">atomicCompSwap</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">:</span> <a href="api.html#AtomicInt"><span class="Identifier">AtomicInt</span></a><span class="Other">]</span><span class="Other">(</span><span class="Identifier">mem</span><span class="Other">:</span> <span class="Keyword">var</span> <span class="Identifier">T</span><span class="Other">;</span> <span class="Identifier">compare</span><span class="Other">,</span> <span class="Identifier">data</span><span class="Other">:</span> <span class="Identifier">T</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">T</span> {.<span class="Identifier">discardable</span>.}</pre></dt>
+  <dd>
+    
+    Performs an atomic comparison of compare with the contents of mem. If the content of mem is equal to compare, then the content of data is written into mem, otherwise the content of mem is unmodified. Returns the original content of mem regardless of the outcome of the comparison.
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L154" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L154" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+
+  </dd>
+</div>
+
+</div>
+<div id="atomicExchange-procs-all">
+  <div id="atomicExchange,T,T">
+  <dt><pre><span class="Keyword">proc</span> <a href="#atomicExchange%2CT%2CT"><span class="Identifier">atomicExchange</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">:</span> <a href="api.html#AtomicInt"><span class="Identifier">AtomicInt</span></a><span class="Other">]</span><span class="Other">(</span><span class="Identifier">mem</span><span class="Other">:</span> <span class="Keyword">var</span> <span class="Identifier">T</span><span class="Other">;</span> <span class="Identifier">data</span><span class="Other">:</span> <span class="Identifier">T</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">T</span> {.<span class="Identifier">inline</span><span class="Other">,</span> <span class="Identifier">discardable</span>.}</pre></dt>
+  <dd>
+    
+    Atomically stores data into mem and returns the original value.
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L148" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L148" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+
+  </dd>
+</div>
+
+</div>
+<div id="atomicOr-procs-all">
+  <div id="atomicOr,T,T">
+  <dt><pre><span class="Keyword">proc</span> <a href="#atomicOr%2CT%2CT"><span class="Identifier">atomicOr</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">:</span> <a href="api.html#AtomicInt"><span class="Identifier">AtomicInt</span></a><span class="Other">]</span><span class="Other">(</span><span class="Identifier">mem</span><span class="Other">:</span> <span class="Keyword">var</span> <span class="Identifier">T</span><span class="Other">;</span> <span class="Identifier">data</span><span class="Other">:</span> <span class="Identifier">T</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">T</span> {.<span class="Identifier">inline</span><span class="Other">,</span> <span class="Identifier">discardable</span>.}</pre></dt>
+  <dd>
+    
+    Performs atomic OR on mem with data. Returns the original value stored in mem.
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L138" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L138" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+
+  </dd>
+</div>
+
+</div>
+<div id="atomicXor-procs-all">
+  <div id="atomicXor,T,T">
+  <dt><pre><span class="Keyword">proc</span> <a href="#atomicXor%2CT%2CT"><span class="Identifier">atomicXor</span></a><span class="Other">[</span><span class="Identifier">T</span><span class="Other">:</span> <a href="api.html#AtomicInt"><span class="Identifier">AtomicInt</span></a><span class="Other">]</span><span class="Other">(</span><span class="Identifier">mem</span><span class="Other">:</span> <span class="Keyword">var</span> <span class="Identifier">T</span><span class="Other">;</span> <span class="Identifier">data</span><span class="Other">:</span> <span class="Identifier">T</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">T</span> {.<span class="Identifier">inline</span><span class="Other">,</span> <span class="Identifier">discardable</span>.}</pre></dt>
+  <dd>
+    
+    Performs atomic XOR on mem with data. Returns the original value stored in mem.
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L143" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L143" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+
+  </dd>
+</div>
+
+</div>
+<div id="subgroupBallotBitCount-procs-all">
   <div id="subgroupBallotBitCount,UVec4">
   <dt><pre><span class="Keyword">func</span> <a href="#subgroupBallotBitCount%2CUVec4"><span class="Identifier">subgroupBallotBitCount</span></a><span class="Other">(</span><span class="Identifier">ballot</span><span class="Other">:</span> <a href="vectors.html#UVec4"><span class="Identifier">UVec4</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">uint32</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
     <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
@@ -228,7 +355,7 @@
 </div>
 <div id="subgroupBallotFindLSB-procs-all">
   <div id="subgroupBallotFindLSB,UVec4">
-  <dt><pre><span class="Keyword">func</span> <a href="#subgroupBallotFindLSB%2CUVec4"><span class="Identifier">subgroupBallotFindLSB</span></a><span class="Other">(</span><span class="Identifier">value</span><span class="Other">:</span> <a href="vectors.html#UVec4"><span class="Identifier">UVec4</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">uint32</span> {.<span class="Identifier">inline</span><span class="Other">,</span> <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+  <dt><pre><span class="Keyword">func</span> <a href="#subgroupBallotFindLSB%2CUVec4"><span class="Identifier">subgroupBallotFindLSB</span></a><span class="Other">(</span><span class="Identifier">value</span><span class="Other">:</span> <a href="vectors.html#UVec4"><span class="Identifier">UVec4</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">uint32</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
     <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
@@ -242,7 +369,7 @@
 </div>
 <div id="subgroupBallotFindMSB-procs-all">
   <div id="subgroupBallotFindMSB,UVec4">
-  <dt><pre><span class="Keyword">func</span> <a href="#subgroupBallotFindMSB%2CUVec4"><span class="Identifier">subgroupBallotFindMSB</span></a><span class="Other">(</span><span class="Identifier">value</span><span class="Other">:</span> <a href="vectors.html#UVec4"><span class="Identifier">UVec4</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">uint32</span> {.<span class="Identifier">inline</span><span class="Other">,</span> <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+  <dt><pre><span class="Keyword">func</span> <a href="#subgroupBallotFindMSB%2CUVec4"><span class="Identifier">subgroupBallotFindMSB</span></a><span class="Other">(</span><span class="Identifier">value</span><span class="Other">:</span> <a href="vectors.html#UVec4"><span class="Identifier">UVec4</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">uint32</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
     <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
@@ -569,7 +696,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2025-01-07 00:58:31 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2025-01-08 23:20:52 UTC</small>
       </div>
     </div>
   </div>

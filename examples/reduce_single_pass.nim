@@ -2,12 +2,12 @@
 # `-d:danger --opt:none --panics:on --threads:on --mm:arc -d:useMalloc -g`
 # ...and debug with nim-gdb or lldb
 
-import std/[atomics, math], computesim
+import std/math, computesim
 
 type
   Buffers = object
     input, output: seq[int32]
-    retirementCount: Atomic[uint32]
+    retirementCount: uint32
 
   Shared = object
     buffer: seq[int32]
@@ -49,7 +49,7 @@ proc reductionShader(b: ptr Buffers, smem: ptr Shared, args: Args) {.computeShad
   if gridSize > 1:
     subgroupBarrier() # was memoryBarrierBuffer();
     if localIdx == 0:
-      let ticket = fetchAdd(b.retirementCount, 1)
+      let ticket = atomicAdd(b.retirementCount, 1)
       smem.isLastWorkGroup = uint32(ticket == gridSize - 1)
     barrier() # was memoryBarrierShared(); barrier();
     # The last block sums the results of all other blocks
@@ -70,7 +70,7 @@ proc reductionShader(b: ptr Buffers, smem: ptr Shared, args: Args) {.computeShad
       if localIdx == 0:
         b.output[0] = smem.buffer[0]
         # reset retirement count so that next run succeeds
-        b.retirementCount.store(0)
+        b.retirementCount = 0
 
 # Main
 const
@@ -92,7 +92,7 @@ proc main =
   var buffers = Buffers(
     input: ensureMove(inputData),
     output: newSeq[int32](numWorkGroups.x + 1),
-    retirementCount: default(Atomic[uint32])
+    retirementCount: 0
   )
 
   # Run the compute shader on CPU, pass buffers as parameters.
