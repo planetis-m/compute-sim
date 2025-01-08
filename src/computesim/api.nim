@@ -81,13 +81,13 @@ func subgroupBallotBitExtract*(value: UVec4, index: uint32): bool =
   ## Only valid for indices less than gl_SubgroupSize
   testBit(value.x, masked(index, SubgroupSize - 1))
 
-func subgroupBallotFindLSB*(value: UVec4): uint32 {.inline.} =
+func subgroupBallotFindLSB*(value: UVec4): uint32 =
   ## Returns the index of the least significant 1 bit in value
   ## Only considers the bottom gl_SubgroupSize bits
   let mask = masked(value.x, SubgroupFullMask)
   if mask == 0: high(uint32) else: uint32(countTrailingZeroBits(mask))
 
-func subgroupBallotFindMSB*(value: UVec4): uint32 {.inline.} =
+func subgroupBallotFindMSB*(value: UVec4): uint32 =
   ## Returns the index of the most significant 1 bit in value
   ## Only considers the bottom gl_SubgroupSize bits
   let mask = masked(value.x, SubgroupFullMask)
@@ -120,33 +120,38 @@ template barrier*() =
 # GLSL-style atomic operations implementation using sysatomics
 # Memory model is sequentially consistent as per GLSL spec.
 
+type
+  AtomicInt* = int32|uint32 ## Type class for atomic integer operations
+
 {.push inline, discardable.}
 
-proc atomicAdd*[T: int32|uint32](mem: var T, data: T): T =
+proc atomicAdd*[T: AtomicInt](mem: var T, data: T): T =
   ## Performs atomic addition on mem with data.
   ## Returns the original value stored in mem.
   atomicFetchAdd(addr mem, data, ATOMIC_SEQ_CST)
 
-proc atomicAnd*[T: int32|uint32](mem: var T, data: T): T =
+proc atomicAnd*[T: AtomicInt](mem: var T, data: T): T =
   ## Performs atomic AND on mem with data.
   ## Returns the original value stored in mem.
   atomicFetchAnd(addr mem, data, ATOMIC_SEQ_CST)
 
-proc atomicOr*[T: int32|uint32](mem: var T, data: T): T =
+proc atomicOr*[T: AtomicInt](mem: var T, data: T): T =
   ## Performs atomic OR on mem with data.
   ## Returns the original value stored in mem.
   atomicFetchOr(addr mem, data, ATOMIC_SEQ_CST)
 
-proc atomicXor*[T: int32|uint32](mem: var T, data: T): T =
+proc atomicXor*[T: AtomicInt](mem: var T, data: T): T =
   ## Performs atomic XOR on mem with data.
   ## Returns the original value stored in mem.
   atomicFetchXor(addr mem, data, ATOMIC_SEQ_CST)
 
-proc atomicExchange*[T: int32|uint32](mem: var T, data: T): T =
+proc atomicExchange*[T: AtomicInt](mem: var T, data: T): T =
   ## Atomically stores data into mem and returns the original value.
   atomicExchangeN(addr mem, data, ATOMIC_SEQ_CST)
 
-proc atomicCompSwap*[T: int32|uint32](mem: var T, compare, data: T): T =
+{.pop.}
+
+proc atomicCompSwap*[T: AtomicInt](mem: var T, compare, data: T): T {.discardable.} =
   ## Performs an atomic comparison of compare with the contents of mem.
   ## If the content of mem is equal to compare, then the content of data
   ## is written into mem, otherwise the content of mem is unmodified.
@@ -155,5 +160,3 @@ proc atomicCompSwap*[T: int32|uint32](mem: var T, compare, data: T): T =
   discard atomicCompareExchangeN(addr mem, addr compareVar, data,
     weak = false, ATOMIC_SEQ_CST, ATOMIC_SEQ_CST)
   compareVar
-
-{.pop.}
