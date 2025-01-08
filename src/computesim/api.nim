@@ -116,3 +116,48 @@ template subgroupBarrier*() =
 template barrier*() =
   ## Synchronizes all threads within the current workgroup
   {.error: SubgroupOpError.}
+
+# GLSL-style atomic operations implementation using sysatomics
+
+{.push inline, discardable.}
+
+proc atomicAdd*[T: int32|uint32](mem: var T, data: T): T =
+  ## Performs atomic addition on mem with data.
+  ## Returns the original value stored in mem.
+  ## Memory model is sequentially consistent as per GLSL spec.
+  atomicFetchAdd(addr mem, data, ATOMIC_SEQ_CST)
+
+proc atomicAnd*[T: int32|uint32](mem: var T, data: T): T =
+  ## Performs atomic AND on mem with data.
+  ## Returns the original value stored in mem.
+  ## Memory model is sequentially consistent as per GLSL spec.
+  atomicFetchAnd(addr mem, data, ATOMIC_SEQ_CST)
+
+proc atomicOr*[T: int32|uint32](mem: var T, data: T): T =
+  ## Performs atomic OR on mem with data.
+  ## Returns the original value stored in mem.
+  ## Memory model is sequentially consistent as per GLSL spec.
+  atomicFetchOr(addr mem, data, ATOMIC_SEQ_CST)
+
+proc atomicXor*[T: int32|uint32](mem: var T, data: T): T =
+  ## Performs atomic XOR on mem with data.
+  ## Returns the original value stored in mem.
+  ## Memory model is sequentially consistent as per GLSL spec.
+  atomicFetchXor(addr mem, data, ATOMIC_SEQ_CST)
+
+proc atomicExchange*[T: int32|uint32](mem: var T, data: T): T =
+  ## Atomically stores data into mem and returns the original value.
+  ## Memory model is sequentially consistent as per GLSL spec.
+  atomicExchangeN(addr mem, data, ATOMIC_SEQ_CST)
+
+proc atomicCompSwap*[T: int32|uint32](mem: var T, expected, desired: T): T =
+  ## Atomically compares the value at mem with expected,
+  ## and if equal, stores desired into mem.
+  ## Returns the original value stored in mem.
+  ## Memory model is sequentially consistent as per GLSL spec.
+  var expectedVar = expected
+  discard atomicCompareExchangeN(addr mem, addr expectedVar, desired,
+    weak = false, ATOMIC_SEQ_CST, ATOMIC_SEQ_CST)
+  expectedVar
+
+{.pop.}

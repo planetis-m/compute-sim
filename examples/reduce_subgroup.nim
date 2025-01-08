@@ -2,12 +2,12 @@
 # `-d:danger --opt:none --panics:on --threads:on --mm:arc -d:useMalloc -g`
 # ...and debug with nim-gdb or lldb
 
-import std/[atomics, math], computesim
+import std/math, computesim
 
 type
   Buffers = object
     input: seq[int32]
-    sum: Atomic[int32]
+    atomicSum: int32
 
 proc reduce(buffers: ptr Buffers; numElements: uint32) {.computeShader.} =
   let gid = gl_GlobalInvocationID.x
@@ -18,7 +18,7 @@ proc reduce(buffers: ptr Buffers; numElements: uint32) {.computeShader.} =
 
   # Only one thread per subgroup needs to add to global sum
   if gl_SubgroupInvocationID == 0:
-    atomicInc buffers.sum, sum
+    atomicAdd buffers.atomicSum, sum
 
 const
   NumElements = 1024'u32
@@ -32,7 +32,7 @@ proc main() =
   # Initialize buffers
   var buffers = Buffers(
     input: newSeq[int32](NumElements),
-    sum: default(Atomic[int32])
+    atomicSum: 0
   )
   for i in 0..<NumElements:
     buffers.input[i] = int32(i)
@@ -46,7 +46,7 @@ proc main() =
     args = NumElements
   )
 
-  let result = buffers.sum.load(moRelaxed)
+  let result = buffers.atomicSum
   let expected = int32(NumElements * (NumElements - 1)) div 2
   echo "Reduction result: ", result, ", expected: ", expected
 
