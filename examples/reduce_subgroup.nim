@@ -4,7 +4,7 @@
 
 import std/math, computesim
 
-proc reduce(input: seq[int32], atomicSum: ptr int32; numElements: uint32) {.computeShader.} =
+proc reduce(input: seq[int32], atomicSum: var int32; numElements: uint32) {.computeShader.} =
   let gid = gl_GlobalInvocationID.x
   let value = if gid < numElements: input[gid] else: 0
 
@@ -13,7 +13,7 @@ proc reduce(input: seq[int32], atomicSum: ptr int32; numElements: uint32) {.comp
 
   # Only one thread per subgroup needs to add to global sum
   if gl_SubgroupInvocationID == 0:
-    atomicAdd atomicSum[], sum
+    atomicAdd atomicSum, sum
 
 const
   NumElements = 1024'u32

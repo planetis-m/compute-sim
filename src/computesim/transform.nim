@@ -4,6 +4,37 @@ import std/[macros, strutils], core, vectors
 proc raiseInvalidSubgroupOp(kind: SubgroupOp) {.noinline, noreturn.} =
   raise newException(AssertionDefect, "Invalid subgroup operation: " & $kind)
 
+type
+  PReadOnly[T] = distinct ptr T
+
+proc `[]`[T](p: PReadOnly[T]): lent T = cast[ptr T](p)[]
+
+proc transformParameters(params: NimNode): tuple[extraParams: seq[NimNode], templates: NimNode] =
+  var extraParams: seq[NimNode] = @[]
+  let templates = newStmtList()
+  # Process each parameter after the return type
+  for i in 1..<params.len:
+    let param = params[i]
+    expectKind param, nnkIdentDefs
+    let paramType = param[^2]
+    for j in 0..<param.len-2:
+      let name = param[j]
+      # Generate a new symbol for the parameter
+      let genSym = genSym(nskParam, name.strVal)
+      # Create the pointer type for the parameter
+      let ptrType = newTree(nnkPtrTy,
+          if paramType.kind == nnkVarTy: paramType[0] else: paramType)
+      extraParams.add newIdentDefs(genSym, ptrType)
+      # Create the template for this parameter
+      let templateNode = if paramType.kind == nnkVarTy:
+        quote do:
+          template `name`: untyped = `genSym`[]
+      else:
+        quote do:
+          template `name`: untyped = PReadOnly(`genSym`)[]
+      templates.add templateNode
+  (extraParams, templates)
+
 template validateTwoArgOp(op: untyped) =
   if node.len != 3:
     error($op & " expects exactly two arguments", node)
@@ -275,12 +306,14 @@ macro computeShader*(prc: untyped): untyped =
   # Create template declarations for GlEnvironment fields
   let envSym = genSym(nskParam, "env")
   let envTemplates = generateEnvTemplates(envSym)
+  let (newParams, paramTemplates) = transformParameters(prc.params)
 
   result = quote do:
     proc `procName`(`envSym`: GlEnvironment): ThreadClosure =
       `envTemplates`
+      `paramTemplates`
       iterator (`iterArg`: SubgroupResult): SubgroupCommand =
         `traversedBody`
 
   # Now inject the parameters and pragmas from original proc
-  result.params.add prc.params[1..^1]
+  result.params.add newParams

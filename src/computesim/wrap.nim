@@ -1,7 +1,6 @@
 import std/macros, core
 
 proc wrapComputeImpl(compute, buffer, shared, params: NimNode): NimNode =
-  echo params.treerepr
   let envSym = genSym(nskParam, "env")
   let bufferSym = genSym(nskParam, "buffer")
   let sharedSym = genSym(nskParam, "shared")
@@ -11,16 +10,12 @@ proc wrapComputeImpl(compute, buffer, shared, params: NimNode): NimNode =
     if node != nil: node.getTypeInst
     else: quote do: `default`
 
-  let bufferType = makeTypeExpr(buffer, ptr int32)
-  let sharedType = makeTypeExpr(shared, ptr int32)
+  let bufferType = makeTypeExpr(buffer, int32)
+  let sharedType = makeTypeExpr(shared, int32)
   let paramsType = makeTypeExpr(params, int32)
 
-  # Get formal parameters
-  let formalParams = compute.getTypeInst()[0] # [0] gets the params
-  var currentParam = 2 # Skip first param (env)
-
   let call = newTree(nnkCall, compute, envSym)
-  proc addArgsFromType(node, param: NimNode) =
+  proc addArgsFromType(node, param: NimNode, isAddr = false) =
     # need to now the compute parameter types!
     if node != nil:
       var typ = node.getTypeInst
@@ -28,24 +23,18 @@ proc wrapComputeImpl(compute, buffer, shared, params: NimNode): NimNode =
         typ = typ[0]
         if typ.typeKind == ntyTuple:
           for i in 0..<typ.len:
-            call.add quote do: `param`[`i`]
-            let paramType = formalParams[currentParam][^2]
-            if paramType.typeKind == ntyPtr:
-              call.add quote do: addr `param`[`i`]
-            else:
-              call.add quote do: `param`[`i`]
-            inc currentParam
+            call.add quote do: addr `param`[`i`]
         else:
           call.add param
       else:
         if typ.typeKind == ntyTuple:
           for i in 0..<typ.len:
-            call.add quote do: `param`[`i`]
+            call.add quote do: addr `param`[`i`]
         else:
-          call.add param
+          call.add quote do: addr `param`
 
   addArgsFromType(buffer, bufferSym)
-  addArgsFromType(shared, sharedSym)
+  addArgsFromType(shared, sharedSym, isAddr = true)
   addArgsFromType(params, paramsSym)
 
   result = quote do:
