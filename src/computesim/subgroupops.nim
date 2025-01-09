@@ -437,7 +437,7 @@ defineSubgroupOp(execSubgroupMemoryBarrier):
     )
 
   if showDebugOutput:
-    debugSubgroupOp("SubgroupMemoryBarrier", opId, group, commands, "memory sync")
+    debugSubgroupOp("SubMemBarrier", opId, group, commands, "subgroup memory sync")
 
 defineSubgroupOp(execBarrier):
   # For barrier, just mark that each thread participated
@@ -459,7 +459,7 @@ defineSubgroupOp(execMemoryBarrier):
     )
 
   if showDebugOutput:
-    debugSubgroupOp("MemoryBarrier", opId, group, commands, "memory sync")
+    debugSubgroupOp("MemBarrier", opId, group, commands, "memory sync")
 
 defineSubgroupOp(execGroupMemoryBarrier):
   # For group memory barrier, just mark that each thread participated
@@ -470,4 +470,4 @@ defineSubgroupOp(execGroupMemoryBarrier):
     )
 
   if showDebugOutput:
-    debugSubgroupOp("GroupMemoryBarrier", opId, group, commands, "workgroup memory sync")
+    debugSubgroupOp("GroupMemBarrier", opId, group, commands, "workgroup memory sync")
