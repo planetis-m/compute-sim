@@ -162,7 +162,8 @@ proc optimizeReconvergePoints*(node: NimNode): NimNode =
       if i < node.len - 3 and
           isDiscard(node[i], Optimizable) and
           isDiscard(node[i+2], SomeBarrier):
-        result.add node[i+2..i+3] # keep barrier
+        result.add node[i+2] # keep barrier
+        result.add node[i+3]
         inc i, 4
       else:
         result.add optimizeReconvergePoints(node[i])

@@ -1,24 +1,3 @@
-# T subgroupBroadcast(T value, uint id)
-# T subgroupBroadcastFirst(T value);
-
-# T subgroupAdd(T value);
-# T subgroupMin(T value);
-# T subgroupMax(T value);
-
-# T subgroupInclusiveAdd(T value);
-# T subgroupExclusiveAdd(T value);
-
-# T subgroupShuffle(T value, uint id);
-# T subgroupShuffleXor(T value, uint mask);
-
-# T subgroupShuffleDown(T value, uint delta);
-# T subgroupShuffleUp(T value, uint delta);
-
-# uvec4 subgroupBallot(bool condition);
-# bool subgroupElect();
-# bool subgroupAll(bool condition);
-# bool subgroupAny(bool condition);
-
 # (c) 2024 Antonis Geralis
 import std/[fenv, strutils], core, debug, vectors
 

@@ -9,12 +9,11 @@ type
   Buffers = object
     input, output: seq[int32]
 
-  Shared = seq[int32]
   Args = tuple
     n: uint32
     coarseFactor: uint32
 
-proc reductionShader(b: ptr Buffers, smem: ptr Shared, args: Args) {.computeShader.} =
+proc reductionShader(b: ptr Buffers, smem: ptr seq[int32], args: Args) {.computeShader.} =
   let (n, coarseFactor) = args
 
   let localIdx = gl_LocalInvocationID.x

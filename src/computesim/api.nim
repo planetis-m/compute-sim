@@ -81,6 +81,20 @@ func subgroupBallotBitExtract*(value: UVec4, index: uint32): bool =
   ## Only valid for indices less than gl_SubgroupSize
   testBit(value.x, masked(index, SubgroupSize - 1))
 
+template subgroupInverseBallot*(value: UVec4): bool =
+  ## Returns true if the bit at this invocation's index in value is set
+  subgroupBallotBitExtract(value, gl_SubgroupInvocationID)
+
+template subgroupBallotInclusiveBitCount*(value: UVec4): uint32 =
+  ## Returns the number of bits set in value up to the current invocation's index (inclusive)
+  ## Only counts bits up to gl_SubgroupSize
+  uint32(countSetBits(masked(value.x, SubgroupMasks[gl_SubgroupInvocationID].le)))
+
+template subgroupBallotExclusiveBitCount*(value: UVec4): uint32 =
+  ## Returns the number of bits set in value up to the current invocation's index (exclusive)
+  ## Only counts bits up to gl_SubgroupSize
+  uint32(countSetBits(masked(value.x, SubgroupMasks[gl_SubgroupInvocationID].lt)))
+
 func subgroupBallotFindLSB*(value: UVec4): uint32 =
   ## Returns the index of the least significant 1 bit in value
   ## Only considers the bottom gl_SubgroupSize bits
