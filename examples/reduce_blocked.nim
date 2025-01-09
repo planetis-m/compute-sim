@@ -31,13 +31,15 @@ proc reductionShader(b: ptr Buffers, smem: ptr seq[int32], args: Args) {.compute
     globalIdx += 2 * localSize
   smem[localIdx] = sum
 
-  barrier() # was memoryBarrierShared(); barrier();
+  memoryBarrier() # shared
+  barrier()
   var stride = localSize div 2
   while stride > 8:
     if localIdx < stride:
       # echo "Final reduction ", localIdx, " + ", localIdx + stride
       smem[localIdx] += smem[localIdx + stride]
-    barrier() # was memoryBarrierShared(); barrier();
+    memoryBarrier() # shared
+    barrier()
     stride = stride div 2
 
   # Final reduction within each subgroup

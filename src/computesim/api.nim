@@ -136,6 +136,17 @@ template subgroupMemoryBarrier*() =
   ## are properly ordered as seen by other invocations.
   {.error: SubgroupOpError.}
 
+template memoryBarrier*() =
+  ## Performs a memory barrier across all memory operations in the shader.
+  ## This ensures memory operations from all invocations before the barrier
+  ## are visible to all other invocations before operations after the barrier.
+  {.error: SubgroupOpError.}
+
+template groupMemoryBarrier*() =
+  ## Performs a memory barrier across all memory operations within the workgroup.
+  ## Similar to memoryBarrier() but only synchronizes within the current workgroup.
+  {.error: SubgroupOpError.}
+
 # GLSL-style atomic operations implementation using sysatomics
 # Memory model is sequentially consistent as per GLSL spec.
 

@@ -67,6 +67,10 @@ proc getSubgroupOp(node: NimNode): SubgroupOp =
     validateNoArgOp(subgroupMemoryBarrier)
   of "barrier":
     validateNoArgOp(barrier)
+  of "memorybarrier":
+    validateNoArgOp(memoryBarrier)
+  of "groupmemorybarrier":
+    validateNoArgOp(groupMemoryBarrier)
   else:
     result = invalid
 
@@ -88,7 +92,10 @@ template ballotResult(iterArg: untyped): untyped =
 const
   NotUseful = 0xFEAD0000
   Optimizable = 0xFEAD0001
-  SomeBarrier = 0xFEAD0002
+  SubOptimizable = 0xFEAD0002
+  GroupOptimizable = 0xFEAD0003
+  Barrier = 0xFEAD0004
+  SubBarrier = 0xFEAD0005
 
 proc genSubgroupOpCall(op: SubgroupOp; node, id, iterArg: NimNode): NimNode =
   # Generate the command part based on operation type
@@ -101,7 +108,8 @@ proc genSubgroupOpCall(op: SubgroupOp; node, id, iterArg: NimNode): NimNode =
       getAst(unaryOpCommand(id, newLit(op), node[1]))
     of subgroupBallot, subgroupAll, subgroupAny:
       getAst(boolOpCommand(id, newLit(op), node[1]))
-    of subgroupElect, subgroupBarrier, subgroupMemoryBarrier, barrier:
+    of subgroupElect, subgroupBarrier, subgroupMemoryBarrier, barrier,
+        memoryBarrier, groupMemoryBarrier:
       quote do:
         SubgroupCommand(id: `id`, kind: `op`)
     else: nil # cannot happen
@@ -116,14 +124,17 @@ proc genSubgroupOpCall(op: SubgroupOp; node, id, iterArg: NimNode): NimNode =
       newTree(nnkDotExpr, iterArg, ident"bRes")
     of subgroupBallot:
       getAst(ballotResult(iterArg))
-    of subgroupBarrier, subgroupMemoryBarrier, barrier:
+    of subgroupBarrier, subgroupMemoryBarrier, barrier, memoryBarrier,
+        groupMemoryBarrier:
       newTree(nnkDiscardStmt, newEmptyNode())
     else: nil
   # Choose appropriate sentinel based on operation type
   let sentinel =
     case op
-    of barrier, subgroupBarrier: SomeBarrier
-    of subgroupMemoryBarrier: Optimizable
+    of barrier: Barrier
+    of subgroupBarrier: SubBarrier
+    of subgroupMemoryBarrier: SubOptimizable
+    of memoryBarrier, groupMemoryBarrier: GroupOptimizable
     else: NotUseful
   # Combine both parts
   result = quote do:
@@ -164,12 +175,17 @@ proc optimizeReconvergePoints*(node: NimNode): NimNode =
     result = newNimNode(nnkStmtList)
     var i = 0
     while i < node.len:
-      if i < node.len - 3 and
-          isDiscard(node[i], Optimizable) and
-          isDiscard(node[i+2], SomeBarrier):
-        result.add node[i+2] # keep barrier
-        result.add node[i+3]
-        inc i, 4
+      if i < node.len - 4 and
+          ((isDiscard(node[i], Optimizable) and
+          isDiscard(node[i+2], Barrier) or isDiscard(node[i+2], SubBarrier))):
+        result.add node[i+2..i+4] # keep barrier
+        inc i, 5
+      elif i < node.len - 5 and
+          ((isDiscard(node[i], SubOptimizable) and
+          isDiscard(node[i+3], Barrier) or isDiscard(node[i+3], SubBarrier)) or
+          (isDiscard(node[i], GroupOptimizable) and isDiscard(node[i+3], Barrier))):
+        result.add node[i+3..i+5] # keep barrier
+        inc i, 6
       else:
         result.add optimizeReconvergePoints(node[i])
         inc i
@@ -269,3 +285,4 @@ macro computeShader*(prc: untyped): untyped =
   # Now inject the parameters and pragmas from original proc
   result.params.add prc.params[1..^1]
   result.pragma = prc.pragma
+  echo result.treerepr

@@ -52,6 +52,8 @@ type
     subgroupBarrier
     subgroupMemoryBarrier
     barrier
+    memoryBarrier
+    groupMemoryBarrier
 
   SubgroupCommand* = object
     id*: uint32
@@ -65,7 +67,8 @@ type
       val*: RawValue
     of subgroupBallot, subgroupAll, subgroupAny:
       bVal*: bool
-    of subgroupElect, subgroupBarrier, barrier, subgroupMemoryBarrier, reconverge, invalid:
+    of subgroupElect, subgroupBarrier, subgroupMemoryBarrier, barrier,
+        memoryBarrier, groupMemoryBarrier, reconverge, invalid:
       discard
 
   SubgroupResult* = object
@@ -79,7 +82,8 @@ type
       res*: RawValue
     of subgroupElect, subgroupAll, subgroupAny, subgroupAllEqual:
       bRes*: bool
-    of subgroupBarrier, barrier, subgroupMemoryBarrier, reconverge, invalid:
+    of subgroupBarrier, subgroupMemoryBarrier, barrier, memoryBarrier,
+        groupMemoryBarrier, reconverge, invalid:
       discard
 
   BarrierHandle* = object

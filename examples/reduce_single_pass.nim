@@ -34,37 +34,41 @@ proc reductionShader(b: ptr Buffers, smem: ptr Shared, args: Args) {.computeShad
     globalIdx += 2 * localSize
   smem.buffer[localIdx] = sum
 
-  barrier() # was memoryBarrierShared(); barrier();
+  memoryBarrier() # shared
+  barrier()
   var stride = localSize div 2
   while stride > 0:
     if localIdx < stride:
       # echo "Final reduction ", localIdx, " + ", localIdx + stride
       smem.buffer[localIdx] += smem.buffer[localIdx + stride]
-    barrier() # was memoryBarrierShared(); barrier();
+    memoryBarrier() # shared
+    barrier()
     stride = stride div 2
 
   if localIdx == 0:
     b.output[gl_WorkGroupID.x] = smem.buffer[0]
 
   if gridSize > 1:
-    subgroupBarrier() # was memoryBarrierBuffer();
+    memoryBarrier() # buffer
     if localIdx == 0:
       let ticket = atomicAdd(b.retirementCount, 1)
       smem.isLastWorkGroup = uint32(ticket == gridSize - 1)
-    barrier() # was memoryBarrierShared(); barrier();
+    memoryBarrier() # shared
+    barrier()
     # The last block sums the results of all other blocks
     if smem.isLastWorkGroup != 0:
       var sum: int32 = 0
       for i in countup(localIdx, gridSize, localSize):
         sum += b.output[i]
       smem.buffer[localIdx] = sum
-
-      barrier() # was memoryBarrierShared(); barrier();
+      memoryBarrier() # shared
+      barrier()
       var stride = localSize div 2
       while stride > 0:
         if localIdx < stride:
           smem.buffer[localIdx] += smem.buffer[localIdx + stride]
-        barrier() # was memoryBarrierShared(); barrier();
+        memoryBarrier() # shared
+        barrier()
         stride = stride div 2
 
       if localIdx == 0:

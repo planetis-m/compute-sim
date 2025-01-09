@@ -67,7 +67,8 @@ proc runThreads*(threads: SubgroupThreads, numActiveThreads: uint32; workgroupID
           threadStates[threadId] = finished
         elif commands[threadId].kind == barrier:
           threadStates[threadId] = atBarrier
-        elif commands[threadId].kind in {subgroupBarrier, subgroupMemoryBarrier}:
+        elif commands[threadId].kind in
+            {subgroupBarrier, subgroupMemoryBarrier, memoryBarrier, groupMemoryBarrier}:
           threadStates[threadId] = atSubBarrier
         elif commands[threadId].kind == reconverge:
           threadStates[threadId] = halted
@@ -177,5 +178,11 @@ proc runThreads*(threads: SubgroupThreads, numActiveThreads: uint32; workgroupID
         # Note: Will deadlock silently if any subgroups have already completed
         wait b
         execSubgroupOp(execBarrier)
+      of memoryBarrier:
+        fence() # Full memory fence for all memory operations
+        execSubgroupOp(execMemoryBarrier)
+      of groupMemoryBarrier:
+        fence()
+        execSubgroupOp(execGroupMemoryBarrier)
       else:
         discard
