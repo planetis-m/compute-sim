@@ -4,22 +4,9 @@
 
 import std/math, computesim
 
-type
-  Buffers = object
-    input, output: seq[int32]
-    retirementCount: uint32
-
-  Shared = object
-    buffer: seq[int32]
-    isLastWorkGroup: uint32
-
-  Args = tuple
-    n: uint32
-    coarseFactor: uint32
-
-proc reductionShader(b: ptr Buffers, smem: ptr Shared, args: Args) {.computeShader.} =
-  let (n, coarseFactor) = args
-
+proc reductionShader(input: seq[int32]; output: var seq[int32], retirementCount: var uint32,
+                     buffer: var seq[int32], isLastWorkGroup: var uint32,
+                     n, coarseFactor: uint32) {.computeShader.} =
   let localIdx = gl_LocalInvocationID.x
   let gridSize = gl_NumWorkGroups.x
   let localSize = gl_WorkGroupSize.x
@@ -29,10 +16,10 @@ proc reductionShader(b: ptr Buffers, smem: ptr Shared, args: Args) {.computeShad
   for tile in 0 ..< coarseFactor:
     # echo "ThreadId ", localIdx, " indices: ", globalIdx, " + ", globalIdx + localSize
     # todo: use arithmetic to mask out invalid accesses instead
-    sum += (if globalIdx < n: b.input[globalIdx] else: 0) +
-        (if globalIdx + localSize < n: b.input[globalIdx + localSize] else: 0)
+    sum += (if globalIdx < n: input[globalIdx] else: 0) +
+        (if globalIdx + localSize < n: input[globalIdx + localSize] else: 0)
     globalIdx += 2 * localSize
-  smem.buffer[localIdx] = sum
+  buffer[localIdx] = sum
 
   memoryBarrier() # shared
   barrier()
@@ -40,41 +27,41 @@ proc reductionShader(b: ptr Buffers, smem: ptr Shared, args: Args) {.computeShad
   while stride > 0:
     if localIdx < stride:
       # echo "Final reduction ", localIdx, " + ", localIdx + stride
-      smem.buffer[localIdx] += smem.buffer[localIdx + stride]
+      buffer[localIdx] += buffer[localIdx + stride]
     memoryBarrier() # shared
     barrier()
     stride = stride div 2
 
   if localIdx == 0:
-    b.output[gl_WorkGroupID.x] = smem.buffer[0]
+    output[gl_WorkGroupID.x] = buffer[0]
 
   if gridSize > 1:
     memoryBarrier() # buffer
     if localIdx == 0:
-      let ticket = atomicAdd(b.retirementCount, 1)
-      smem.isLastWorkGroup = uint32(ticket == gridSize - 1)
+      let ticket = atomicAdd(retirementCount, 1)
+      isLastWorkGroup = uint32(ticket == gridSize - 1)
     memoryBarrier() # shared
     barrier()
     # The last block sums the results of all other blocks
-    if smem.isLastWorkGroup != 0:
+    if isLastWorkGroup != 0:
       var sum: int32 = 0
       for i in countup(localIdx, gridSize, localSize):
-        sum += b.output[i]
-      smem.buffer[localIdx] = sum
+        sum += output[i]
+      buffer[localIdx] = sum
       memoryBarrier() # shared
       barrier()
       var stride = localSize div 2
       while stride > 0:
         if localIdx < stride:
-          smem.buffer[localIdx] += smem.buffer[localIdx + stride]
+          buffer[localIdx] += buffer[localIdx + stride]
         memoryBarrier() # shared
         barrier()
         stride = stride div 2
 
       if localIdx == 0:
-        b.output[0] = smem.buffer[0]
+        output[0] = buffer[0]
         # reset retirement count so that next run succeeds
-        b.retirementCount = 0
+        retirementCount = 0
 
 # Main
 const
@@ -93,16 +80,16 @@ proc main =
   for i in 0..<NumElements:
     inputData[i] = int32(i)
 
-  var buffers = Buffers(
+  var buffers = (
     input: ensureMove(inputData),
     output: newSeq[int32](numWorkGroups.x + 1),
-    retirementCount: 0
+    retirementCount: 0'u32
   )
 
   # Run the compute shader on CPU, pass buffers as parameters.
   runComputeOnCpu(numWorkGroups, workGroupSize, reductionShader,
     ssbo = addr buffers,
-    smem = Shared(buffer: newSeq[int32](workGroupSize.x), isLastWorkGroup: 0'u32),
+    smem = (newSeq[int32](workGroupSize.x), 0'u32),
     args = (NumElements, CoarseFactor)
   )
 

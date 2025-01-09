@@ -4,6 +4,11 @@ import std/[macros, strutils], core, vectors
 proc raiseInvalidSubgroupOp(kind: SubgroupOp) {.noinline, noreturn.} =
   raise newException(AssertionDefect, "Invalid subgroup operation: " & $kind)
 
+type
+  PReadOnly[T] = distinct ptr T
+
+proc `[]`[T](p: PReadOnly[T]): lent T = cast[ptr T](p)[]
+
 template validateTwoArgOp(op: untyped) =
   if node.len != 3:
     error($op & " expects exactly two arguments", node)

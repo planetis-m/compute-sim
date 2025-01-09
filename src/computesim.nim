@@ -85,9 +85,9 @@
 ## | `blockIdx * blockDim + threadIdx` | `gl_GlobalInvocationID` | The global index of the current thread (CUDA) or invocation (GLSL) |
 
 # (c) 2024 Antonis Geralis
-import std/[isolation, math], threading/barrier, malebolgia
+import std/math, threading/barrier, malebolgia
 
-import computesim/[core, vectors, transform, lockstep, api]
+import computesim/[core, vectors, transform, lockstep, api, wrap]
 export vectors, transform, api
 
 type
@@ -202,15 +202,20 @@ proc runCompute[A, B, C](
 
 template runComputeOnCpu*(
     numWorkGroups, workGroupSize: UVec3,
-    compute, ssbo, smem, args: typed) =
-  bind isolate, extract
-  runCompute(numWorkGroups, workGroupSize, compute, ssbo, smem, args)
+    compute, ssbo: typed) =
+  dispatchCompute(runCompute, compute, ssbo)
+
+template runComputeOnCpu*(
+    numWorkGroups, workGroupSize: UVec3,
+    compute, ssbo, shared: typed) =
+  dispatchCompute(runCompute, compute, ssbo, smem = shared)
+
+template runComputeOnCpu*(
+    numWorkGroups, workGroupSize: UVec3,
+    compute, ssbo, shared, args: typed) =
+  dispatchCompute(runCompute, compute, ssbo, shared, args)
 
 template runComputeOnCpu*(
     numWorkGroups, workGroupSize: UVec3,
     compute, ssbo, args: typed) =
-  bind isolate, extract
-  proc wrapCompute(env: GlEnvironment,
-      buffers: typeof(ssbo), shared: ptr int32, argsInner: typeof(args)): ThreadClosure {.nimcall.} =
-    compute(env, buffers, argsInner)
-  runCompute(numWorkGroups, workGroupSize, wrapCompute, ssbo, 0, args)
+  dispatchCompute(runCompute, compute, ssbo, params = args)

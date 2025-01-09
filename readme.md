@@ -18,21 +18,16 @@ A compute shader emulator for learning and debugging GPU compute shaders.
 
 import std/math, computesim
 
-type
-  Buffers = object
-    input: seq[int32]
-    atomicSum: int32
-
-proc reduce(buffers: ptr Buffers; numElements: uint32) {.computeShader.} =
+proc reduce(input: seq[int32], atomicSum: var int32; numElements: uint32) {.computeShader.} =
   let gid = gl_GlobalInvocationID.x
-  let value = if gid < numElements: buffers.input[gid] else: 0
+  let value = if gid < numElements: input[gid] else: 0
 
   # First reduce within subgroup using efficient subgroup operation
   let sum = subgroupAdd(value)
 
   # Only one thread per subgroup needs to add to global sum
   if gl_SubgroupInvocationID == 0:
-    atomicAdd buffers.atomicSum, sum
+    atomicAdd atomicSum, sum
 
 const
   NumElements = 1024'u32
@@ -44,9 +39,9 @@ proc main() =
   let workGroupSize = uvec3(WorkGroupSize, 1, 1)
 
   # Initialize buffers
-  var buffers = Buffers(
+  var buffers = (
     input: newSeq[int32](NumElements),
-    atomicSum: 0
+    atomicSum: 0'i32
   )
   for i in 0..<NumElements:
     buffers.input[i] = int32(i)

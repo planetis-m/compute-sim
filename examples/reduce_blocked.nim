@@ -5,17 +5,8 @@
 
 import std/math, computesim
 
-type
-  Buffers = object
-    input, output: seq[int32]
-
-  Args = tuple
-    n: uint32
-    coarseFactor: uint32
-
-proc reductionShader(b: ptr Buffers, smem: ptr seq[int32], args: Args) {.computeShader.} =
-  let (n, coarseFactor) = args
-
+proc reductionShader(input: seq[int32], output, smem: var seq[int32],
+                     n, coarseFactor: uint32) {.computeShader.} =
   let localIdx = gl_LocalInvocationID.x
   let localSize = gl_WorkGroupSize.x
   var globalIdx = gl_WorkGroupID.x * localSize * 2 * coarseFactor + localIdx
@@ -26,8 +17,8 @@ proc reductionShader(b: ptr Buffers, smem: ptr seq[int32], args: Args) {.compute
   var sum: int32 = 0
   for tile in 0 ..< coarseFactor:
     # todo: use arithmetic to mask out invalid accesses instead
-    sum += (if globalIdx < n: b.input[globalIdx] else: 0) +
-        (if globalIdx + localSize < n: b.input[globalIdx + localSize] else: 0)
+    sum += (if globalIdx < n: input[globalIdx] else: 0) +
+        (if globalIdx + localSize < n: input[globalIdx + localSize] else: 0)
     globalIdx += 2 * localSize
   smem[localIdx] = sum
 
@@ -53,7 +44,7 @@ proc reductionShader(b: ptr Buffers, smem: ptr seq[int32], args: Args) {.compute
     sum += subgroupShuffleDown(sum, 1)
 
   if localIdx == 0:
-    b.output[gl_WorkGroupID.x] = sum
+    output[gl_WorkGroupID.x] = sum
 
 # Main
 const
@@ -72,7 +63,7 @@ proc main =
   for i in 0..<NumElements:
     inputData[i] = int32(i)
 
-  var buffers = Buffers(
+  var buffers = (
     input: ensureMove(inputData),
     output: newSeq[int32](numWorkGroups.x)
   )
