@@ -38,10 +38,10 @@ template y*(v: TVec): untyped = v.data[1]
 template z*(v: TVec): untyped = v.data[2]
 template w*(v: TVec): untyped = v.data[3]
 
-template `x=`*(v: TVec; val: untyped) = v.data[0] = val
-template `y=`*(v: TVec; val: untyped) = v.data[1] = val
-template `z=`*(v: TVec; val: untyped) = v.data[2] = val
-template `w=`*(v: TVec; val: untyped) = v.data[3] = val
+template `x=`*(v: TVec; val: typed) = v.data[0] = val
+template `y=`*(v: TVec; val: typed) = v.data[1] = val
+template `z=`*(v: TVec; val: typed) = v.data[2] = val
+template `w=`*(v: TVec; val: typed) = v.data[3] = val
 
 # Array access
 proc `[]`*[N, T](v: TVec[N, T], i: int): T {.inline.} = v.data[i]

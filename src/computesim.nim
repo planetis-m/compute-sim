@@ -202,13 +202,13 @@ proc runCompute[A, B, C](
 
 template runComputeOnCpu*(
     numWorkGroups, workGroupSize: UVec3,
-    compute, ssbo, smem, args: untyped) =
+    compute, ssbo, smem, args: typed) =
   bind isolate, extract
   runCompute(numWorkGroups, workGroupSize, compute, ssbo, smem, args)
 
 template runComputeOnCpu*(
     numWorkGroups, workGroupSize: UVec3,
-    compute, ssbo, args: untyped) =
+    compute, ssbo, args: typed) =
   bind isolate, extract
   proc wrapCompute(env: GlEnvironment,
       buffers: typeof(ssbo), shared: ptr int32, argsInner: typeof(args)): ThreadClosure {.nimcall.} =

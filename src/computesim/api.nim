@@ -138,8 +138,8 @@ template subgroupMemoryBarrier*() =
 
 template memoryBarrier*() =
   ## Performs a memory barrier across all memory operations in the shader.
-  ## This ensures memory operations from all invocations before the barrier
-  ## are visible to all other invocations before operations after the barrier.
+  ## Ensures that all memory operations issued before the barrier complete
+  ## before any memory operations after the barrier can begin.
   {.error: SubgroupOpError.}
 
 template groupMemoryBarrier*() =
