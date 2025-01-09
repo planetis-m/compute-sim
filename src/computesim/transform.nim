@@ -285,4 +285,3 @@ macro computeShader*(prc: untyped): untyped =
   # Now inject the parameters and pragmas from original proc
   result.params.add prc.params[1..^1]
   result.pragma = prc.pragma
-  echo result.treerepr
