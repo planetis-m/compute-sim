@@ -203,19 +203,27 @@ proc runCompute[A, B, C](
 template runComputeOnCpu*(
     numWorkGroups, workGroupSize: UVec3,
     compute, ssbo: typed) =
-  dispatchCompute(runCompute, compute, ssbo)
+  bind isolate, extract
+  wrapCompute(compute, ssbo)
+  runCompute(numWorkGroups, workGroupSize, wCompute, ssbo, 0, 0)
 
 template runComputeOnCpu*(
     numWorkGroups, workGroupSize: UVec3,
-    compute, ssbo, shared: typed) =
-  dispatchCompute(runCompute, compute, ssbo, smem = shared)
+    compute, ssbo, smem: typed) =
+  bind isolate, extract
+  wrapCompute(compute, ssbo, shared = smem)
+  runCompute(numWorkGroups, workGroupSize, wCompute, ssbo, smem, 0)
 
 template runComputeOnCpu*(
     numWorkGroups, workGroupSize: UVec3,
-    compute, ssbo, shared, args: typed) =
-  dispatchCompute(runCompute, compute, ssbo, shared, args)
+    compute, ssbo, smem, args: typed) =
+  bind isolate, extract
+  wrapCompute(compute, ssbo, smem, args)
+  runCompute(numWorkGroups, workGroupSize, wCompute, ssbo, smem, args)
 
 template runComputeOnCpu*(
     numWorkGroups, workGroupSize: UVec3,
     compute, ssbo, args: typed) =
-  dispatchCompute(runCompute, compute, ssbo, params = args)
+  bind isolate, extract
+  wrapCompute(compute, ssbo, params = args)
+  runCompute(numWorkGroups, workGroupSize, wCompute, ssbo, 0, args)

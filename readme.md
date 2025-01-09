@@ -18,7 +18,7 @@ A compute shader emulator for learning and debugging GPU compute shaders.
 
 import std/math, computesim
 
-proc reduce(input: seq[int32], atomicSum: var int32; numElements: uint32) {.computeShader.} =
+proc reduce(input: seq[int32], atomicSum: ptr int32; numElements: uint32) {.computeShader.} =
   let gid = gl_GlobalInvocationID.x
   let value = if gid < numElements: input[gid] else: 0
 

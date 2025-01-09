@@ -5,7 +5,7 @@
 
 import std/math, computesim
 
-proc reductionShader(input: seq[int32], output, smem: var seq[int32],
+proc reductionShader(input: seq[int32], output, smem: ptr seq[int32],
                      n, coarseFactor: uint32) {.computeShader.} =
   let localIdx = gl_LocalInvocationID.x
   let localSize = gl_WorkGroupSize.x

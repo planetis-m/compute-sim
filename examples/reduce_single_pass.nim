@@ -4,8 +4,8 @@
 
 import std/math, computesim
 
-proc reductionShader(input: seq[int32]; output: var seq[int32], retirementCount: var uint32,
-                     buffer: var seq[int32], isLastWorkGroup: var uint32,
+proc reductionShader(input: seq[int32]; output: ptr seq[int32], retirementCount: ptr uint32,
+                     buffer: ptr seq[int32], isLastWorkGroup: ptr uint32,
                      n, coarseFactor: uint32) {.computeShader.} =
   let localIdx = gl_LocalInvocationID.x
   let gridSize = gl_NumWorkGroups.x
@@ -38,12 +38,12 @@ proc reductionShader(input: seq[int32]; output: var seq[int32], retirementCount:
   if gridSize > 1:
     memoryBarrier() # buffer
     if localIdx == 0:
-      let ticket = atomicAdd(retirementCount, 1)
-      isLastWorkGroup = uint32(ticket == gridSize - 1)
+      let ticket = atomicAdd(retirementCount[], 1)
+      isLastWorkGroup[] = uint32(ticket == gridSize - 1)
     memoryBarrier() # shared
     barrier()
     # The last block sums the results of all other blocks
-    if isLastWorkGroup != 0:
+    if isLastWorkGroup[] != 0:
       var sum: int32 = 0
       for i in countup(localIdx, gridSize, localSize):
         sum += output[i]
@@ -61,7 +61,7 @@ proc reductionShader(input: seq[int32]; output: var seq[int32], retirementCount:
       if localIdx == 0:
         output[0] = buffer[0]
         # reset retirement count so that next run succeeds
-        retirementCount = 0
+        retirementCount[] = 0
 
 # Main
 const
