@@ -428,6 +428,17 @@ defineSubgroupOp(execSubBarrier):
   if showDebugOutput:
     debugSubgroupOp("SubBarrier", opId, group, commands, "subgroup sync")
 
+defineSubgroupOp(execSubgroupMemoryBarrier):
+  # For memory barrier, synchronize all threads in the subgroup
+  for threadId in threadsInGroup(group):
+    results[threadId] = SubgroupResult(
+      id: opId,
+      kind: subgroupMemoryBarrier
+    )
+
+  if showDebugOutput:
+    debugSubgroupOp("SubgroupMemoryBarrier", opId, group, commands, "memory sync")
+
 defineSubgroupOp(execBarrier):
   # For barrier, just mark that each thread participated
   for threadId in threadsInGroup(group):

@@ -44,7 +44,7 @@ proc reductionShader(b: ptr Buffers, smem: ptr seq[int32], args: Args) {.compute
   if localIdx < 8:
     if localSize >= 16:
       smem[localIdx] += smem[localIdx + 8]
-      subgroupBarrier() # on GPU threads within a subgroup execute in lock-step
+      subgroupMemoryBarrier() # on GPU threads within a subgroup execute in lock-step
     sum = smem[localIdx]
     sum += subgroupShuffleDown(sum, 4)
     sum += subgroupShuffleDown(sum, 2)

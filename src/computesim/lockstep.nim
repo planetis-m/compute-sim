@@ -67,7 +67,7 @@ proc runThreads*(threads: SubgroupThreads, numActiveThreads: uint32; workgroupID
           threadStates[threadId] = finished
         elif commands[threadId].kind == barrier:
           threadStates[threadId] = atBarrier
-        elif commands[threadId].kind == subgroupBarrier:
+        elif commands[threadId].kind in {subgroupBarrier, subgroupMemoryBarrier}:
           threadStates[threadId] = atSubBarrier
         elif commands[threadId].kind == reconverge:
           threadStates[threadId] = halted
@@ -170,6 +170,8 @@ proc runThreads*(threads: SubgroupThreads, numActiveThreads: uint32; workgroupID
         execSubgroupOp(execAny)
       of subgroupBarrier:
         execSubgroupOp(execSubBarrier)
+      of subgroupMemoryBarrier:
+        execSubgroupOp(execSubgroupMemoryBarrier)
       of barrier:
         # Wait for all threads in workgroup (outside subgroup) using barrier sync
         # Note: Will deadlock silently if any subgroups have already completed

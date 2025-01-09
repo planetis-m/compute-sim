@@ -131,6 +131,11 @@ template barrier*() =
   ## Synchronizes all threads within the current workgroup
   {.error: SubgroupOpError.}
 
+template subgroupMemoryBarrier*() =
+  ## Performs a memory barrier that ensures memory operations within the subgroup
+  ## are properly ordered as seen by other invocations.
+  {.error: SubgroupOpError.}
+
 # GLSL-style atomic operations implementation using sysatomics
 # Memory model is sequentially consistent as per GLSL spec.
 

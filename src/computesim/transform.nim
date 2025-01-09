@@ -63,6 +63,8 @@ proc getSubgroupOp(node: NimNode): SubgroupOp =
     validateNoArgOp(subgroupElect)
   of "subgroupbarrier":
     validateNoArgOp(subgroupBarrier)
+  of "subgroupmemorybarrier":
+    validateNoArgOp(subgroupMemoryBarrier)
   of "barrier":
     validateNoArgOp(barrier)
   else:
@@ -99,7 +101,7 @@ proc genSubgroupOpCall(op: SubgroupOp; node, id, iterArg: NimNode): NimNode =
       getAst(unaryOpCommand(id, newLit(op), node[1]))
     of subgroupBallot, subgroupAll, subgroupAny:
       getAst(boolOpCommand(id, newLit(op), node[1]))
-    of subgroupElect, subgroupBarrier, barrier:
+    of subgroupElect, subgroupBarrier, subgroupMemoryBarrier, barrier:
       quote do:
         SubgroupCommand(id: `id`, kind: `op`)
     else: nil # cannot happen
@@ -114,12 +116,15 @@ proc genSubgroupOpCall(op: SubgroupOp; node, id, iterArg: NimNode): NimNode =
       newTree(nnkDotExpr, iterArg, ident"bRes")
     of subgroupBallot:
       getAst(ballotResult(iterArg))
-    of subgroupBarrier, barrier:
+    of subgroupBarrier, subgroupMemoryBarrier, barrier:
       newTree(nnkDiscardStmt, newEmptyNode())
     else: nil
   # Choose appropriate sentinel based on operation type
-  let sentinel = if op in {barrier, subgroupBarrier}: SomeBarrier
-                 else: NotUseful
+  let sentinel =
+    case op
+    of barrier, subgroupBarrier: SomeBarrier
+    of subgroupMemoryBarrier: Optimizable
+    else: NotUseful
   # Combine both parts
   result = quote do:
     discard `sentinel`

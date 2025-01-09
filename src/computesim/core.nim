@@ -50,6 +50,7 @@ type
     subgroupAny
     subgroupAllEqual
     subgroupBarrier
+    subgroupMemoryBarrier
     barrier
 
   SubgroupCommand* = object
@@ -64,7 +65,7 @@ type
       val*: RawValue
     of subgroupBallot, subgroupAll, subgroupAny:
       bVal*: bool
-    of subgroupElect, subgroupBarrier, barrier, reconverge, invalid:
+    of subgroupElect, subgroupBarrier, barrier, subgroupMemoryBarrier, reconverge, invalid:
       discard
 
   SubgroupResult* = object
@@ -78,7 +79,7 @@ type
       res*: RawValue
     of subgroupElect, subgroupAll, subgroupAny, subgroupAllEqual:
       bRes*: bool
-    of subgroupBarrier, barrier, reconverge, invalid:
+    of subgroupBarrier, barrier, subgroupMemoryBarrier, reconverge, invalid:
       discard
 
   BarrierHandle* = object
