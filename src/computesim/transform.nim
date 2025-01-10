@@ -122,7 +122,7 @@ proc genSubgroupOpCall(op: SubgroupOp; node, id, iterArg: NimNode): NimNode =
     else: nil
   # Combine both parts
   result = quote do:
-    discard `op`
+    discard SubgroupOp(`op`)
     yield `cmdPart`
     case `iterArg`.kind
     of `op`:
@@ -152,10 +152,12 @@ proc generateEnvTemplates(envSym: NimNode): NimNode =
       template `fieldIdent`(): untyped {.used.} = `envSym`.`fieldIdent`
 
 proc isDiscard(n: NimNode, op: SubgroupOp): bool =
-  n.kind == nnkDiscardStmt and n[0].kind == nnkIntLit and SubgroupOp(n[0].intVal) == op
+  n.kind == nnkDiscardStmt and n[0].kind == nnkCall and n[0][0].strVal == "SubgroupOp" and
+    n[0][1].kind == nnkIntLit and SubgroupOp(n[0][1].intVal) == op
 
 proc isDiscardAny(n: NimNode, ops: set[SubgroupOp]): bool =
-  n.kind == nnkDiscardStmt and n[0].kind == nnkIntLit and SubgroupOp(n[0].intVal) in ops
+  n.kind == nnkDiscardStmt and n[0].kind == nnkCall and n[0][0].strVal == "SubgroupOp" and
+    n[0][1].kind == nnkIntLit and SubgroupOp(n[0][1].intVal) in ops
 
 proc optimizeReconvergePoints*(node: NimNode): NimNode =
   if node.kind == nnkStmtList:
@@ -194,7 +196,7 @@ macro computeShader*(prc: untyped): untyped =
   proc genReconvergeCall(): NimNode =
     let id = newYieldId()
     quote do:
-      discard `reconverge`
+      discard SubgroupOp(`reconverge`)
       yield SubgroupCommand(id: `id`, kind: reconverge)
 
   # Transform AST to handle divergent control flow and subgroup operations
@@ -273,4 +275,3 @@ macro computeShader*(prc: untyped): untyped =
   # Now inject the parameters and pragmas from original proc
   result.params.add prc.params[1..^1]
   result.pragma = prc.pragma
-  echo result.repr
