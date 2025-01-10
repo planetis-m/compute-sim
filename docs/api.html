@@ -507,7 +507,7 @@
   <dt><pre><span class="Keyword">template</span> <a href="#memoryBarrier.t"><span class="Identifier">memoryBarrier</span></a><span class="Other">(</span><span class="Other">)</span></pre></dt>
   <dd>
     
-    Performs a memory barrier across all memory operations in the shader. This ensures memory operations from all invocations before the barrier are visible to all other invocations before operations after the barrier.
+    Performs a memory barrier across all memory operations in the shader. Ensures that all memory operations issued before the barrier complete before any memory operations after the barrier can begin.
     <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L139" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
 <a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L139" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
@@ -798,7 +798,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2025-01-09 11:26:24 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2025-01-10 00:04:32 UTC</small>
       </div>
     </div>
   </div>

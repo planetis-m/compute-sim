@@ -177,12 +177,12 @@ proc optimizeReconvergePoints*(node: NimNode): NimNode =
     while i < node.len:
       if i < node.len - 4 and
           ((isDiscard(node[i], Optimizable) and
-          isDiscard(node[i+2], Barrier) or isDiscard(node[i+2], SubBarrier))):
+          (isDiscard(node[i+2], Barrier) or isDiscard(node[i+2], SubBarrier)))):
         result.add node[i+2..i+4] # keep barrier
         inc i, 5
       elif i < node.len - 5 and
           ((isDiscard(node[i], SubOptimizable) and
-          isDiscard(node[i+3], Barrier) or isDiscard(node[i+3], SubBarrier)) or
+          (isDiscard(node[i+3], Barrier) or isDiscard(node[i+3], SubBarrier))) or
           (isDiscard(node[i], GroupOptimizable) and isDiscard(node[i+3], Barrier))):
         result.add node[i+3..i+5] # keep barrier
         inc i, 6
@@ -285,3 +285,4 @@ macro computeShader*(prc: untyped): untyped =
   # Now inject the parameters and pragmas from original proc
   result.params.add prc.params[1..^1]
   result.pragma = prc.pragma
+  echo result.repr
