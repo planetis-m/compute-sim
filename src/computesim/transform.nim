@@ -89,14 +89,6 @@ template scalarOpResult(iterArg, cmdVal: untyped): untyped =
 template ballotResult(iterArg: untyped): untyped =
   uvec4(getValue[uint32](iterArg.res), 0, 0, 0)
 
-const
-  NotUseful = 0xFEAD0000
-  Optimizable = 0xFEAD0001
-  SubOptimizable = 0xFEAD0002
-  GroupOptimizable = 0xFEAD0003
-  Barrier = 0xFEAD0004
-  SubBarrier = 0xFEAD0005
-
 proc genSubgroupOpCall(op: SubgroupOp; node, id, iterArg: NimNode): NimNode =
   # Generate the command part based on operation type
   let cmdPart = case op
@@ -128,17 +120,9 @@ proc genSubgroupOpCall(op: SubgroupOp; node, id, iterArg: NimNode): NimNode =
         groupMemoryBarrier:
       newTree(nnkDiscardStmt, newEmptyNode())
     else: nil
-  # Choose appropriate sentinel based on operation type
-  let sentinel =
-    case op
-    of barrier: Barrier
-    of subgroupBarrier: SubBarrier
-    of subgroupMemoryBarrier: SubOptimizable
-    of memoryBarrier, groupMemoryBarrier: GroupOptimizable
-    else: NotUseful
   # Combine both parts
   result = quote do:
-    discard `sentinel`
+    discard `op`
     yield `cmdPart`
     case `iterArg`.kind
     of `op`:
@@ -167,8 +151,11 @@ proc generateEnvTemplates(envSym: NimNode): NimNode =
     result.add quote do:
       template `fieldIdent`(): untyped {.used.} = `envSym`.`fieldIdent`
 
-template isDiscard(n: NimNode, val: int): bool =
-  n.kind == nnkDiscardStmt and n[0].kind == nnkIntLit and n[0].intVal == val
+proc isDiscard(n: NimNode, op: SubgroupOp): bool =
+  n.kind == nnkDiscardStmt and n[0].kind == nnkIntLit and SubgroupOp(n[0].intVal) == op
+
+proc isDiscardAny(n: NimNode, ops: set[SubgroupOp]): bool =
+  n.kind == nnkDiscardStmt and n[0].kind == nnkIntLit and SubgroupOp(n[0].intVal) in ops
 
 proc optimizeReconvergePoints*(node: NimNode): NimNode =
   if node.kind == nnkStmtList:
@@ -176,14 +163,15 @@ proc optimizeReconvergePoints*(node: NimNode): NimNode =
     var i = 0
     while i < node.len:
       if i < node.len - 4 and
-          ((isDiscard(node[i], Optimizable) and
-          (isDiscard(node[i+2], Barrier) or isDiscard(node[i+2], SubBarrier)))):
-        result.add node[i+2..i+4] # keep barrier
-        inc i, 5
+          isDiscard(node[i], reconverge) and
+          isDiscardAny(node[i+2], {barrier, subgroupBarrier, subgroupMemoryBarrier,
+          groupMemoryBarrier, memoryBarrier}):
+        inc i, 2
       elif i < node.len - 5 and
-          ((isDiscard(node[i], SubOptimizable) and
-          (isDiscard(node[i+3], Barrier) or isDiscard(node[i+3], SubBarrier))) or
-          (isDiscard(node[i], GroupOptimizable) and isDiscard(node[i+3], Barrier))):
+          ((isDiscard(node[i], subgroupMemoryBarrier) and
+            isDiscardAny(node[i+3], {barrier, subgroupBarrier})) or
+           (isDiscardAny(node[i], {groupMemoryBarrier, memoryBarrier}) and
+            isDiscard(node[i+3], barrier))):
         result.add node[i+3..i+5] # keep barrier
         inc i, 6
       else:
@@ -206,7 +194,7 @@ macro computeShader*(prc: untyped): untyped =
   proc genReconvergeCall(): NimNode =
     let id = newYieldId()
     quote do:
-      discard `Optimizable`
+      discard `reconverge`
       yield SubgroupCommand(id: `id`, kind: reconverge)
 
   # Transform AST to handle divergent control flow and subgroup operations
