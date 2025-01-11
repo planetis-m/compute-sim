@@ -174,6 +174,7 @@ proc optimizeReconvergePoints*(node: NimNode): NimNode =
             isDiscardAny(node[i+3], {barrier, subgroupBarrier})) or
            (isDiscardAny(node[i], {groupMemoryBarrier, memoryBarrier}) and
             isDiscard(node[i+3], barrier))):
+        warning("Emulator optimizing away " & $SubgroupOp(node[i][0][1].intVal), node[i+1])
         result.add node[i+3..i+5] # keep barrier
         inc i, 6
       else:
