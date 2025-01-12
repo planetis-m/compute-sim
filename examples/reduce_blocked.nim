@@ -18,15 +18,11 @@ proc reductionShader(b: ptr Buffers, smem: ptr seq[int32], a: Args) {.computeSha
   let localSize = gl_WorkGroupSize.x
   let globalIdx = gl_WorkGroupID.x * localSize * a.coarseFactor + localIdx
 
-  # Memory coalescing occurs when threads in the same subgroup access adjacent memory
-  # locations simultaneously - not when a single thread accesses different locations
-  # sequentially. Here, each thread reads two values with a fixed stride between them.
   var sum: int32 = 0
   var baseIdx = globalIdx
   # Check if this is the last workgroup
   if gl_WorkGroupID.x == gl_NumWorkGroups.x - 1:
-    let needsCheck = subgroupAny(baseIdx + localSize * (a.coarseFactor - 1) >= a.n)
-    if needsCheck:
+    if subgroupAny(baseIdx + localSize * (a.coarseFactor - 1) >= a.n):
       # Slow path with bounds check
       for tile in 0..<a.coarseFactor:
         sum += (if baseIdx < a.n: b.input[baseIdx] else: 0)
