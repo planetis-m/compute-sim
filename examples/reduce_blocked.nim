@@ -16,17 +16,31 @@ type
 proc reductionShader(b: ptr Buffers, smem: ptr seq[int32], a: Args) {.computeShader.} =
   let localIdx = gl_LocalInvocationID.x
   let localSize = gl_WorkGroupSize.x
-  var globalIdx = gl_WorkGroupID.x * localSize * 2 * a.coarseFactor + localIdx
+  let globalIdx = gl_WorkGroupID.x * localSize * a.coarseFactor + localIdx
 
   # Memory coalescing occurs when threads in the same subgroup access adjacent memory
   # locations simultaneously - not when a single thread accesses different locations
   # sequentially. Here, each thread reads two values with a fixed stride between them.
   var sum: int32 = 0
-  for tile in 0 ..< a.coarseFactor:
-    # todo: use arithmetic to mask out invalid accesses instead
-    sum += (if globalIdx < a.n: b.input[globalIdx] else: 0) +
-        (if globalIdx + localSize < a.n: b.input[globalIdx + localSize] else: 0)
-    globalIdx += 2 * localSize
+  var baseIdx = globalIdx
+  # Check if this is the last workgroup
+  if gl_WorkGroupID.x == gl_NumWorkGroups.x - 1:
+    let needsCheck = subgroupAny(baseIdx + localSize * (a.coarseFactor - 1) >= a.n)
+    if needsCheck:
+      # Slow path with bounds check
+      for tile in 0..<a.coarseFactor:
+        sum += (if baseIdx < a.n: b.input[baseIdx] else: 0)
+        baseIdx += localSize
+    else:
+      # Fast path without bounds check
+      for tile in 0..<a.coarseFactor:
+        sum += b.input[baseIdx]
+        baseIdx += localSize
+  else:
+    # Fast path for all other workgroups
+    for tile in 0..<a.coarseFactor:
+      sum += b.input[baseIdx]
+      baseIdx += localSize
   smem[localIdx] = sum
 
   memoryBarrier() # shared
@@ -55,10 +69,10 @@ proc reductionShader(b: ptr Buffers, smem: ptr seq[int32], a: Args) {.computeSha
 
 # Main
 const
-  NumElements = 1024'u32
+  NumElements = 901'u32
   CoarseFactor = 4'u32
   WorkGroupSize = 16'u32 # must be a power of two!
-  Segment = WorkGroupSize * 2 * CoarseFactor
+  Segment = WorkGroupSize * CoarseFactor
 
 proc main =
   # Set the number of work groups and the size of each work group
