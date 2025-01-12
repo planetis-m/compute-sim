@@ -91,6 +91,8 @@ template ballotResult(iterArg: untyped): untyped =
 
 proc genSubgroupOpCall(op: SubgroupOp; node, id, iterArg: NimNode): NimNode =
   # Generate the command part based on operation type
+  if defined(debugSubgroup):
+    warning("Assigning ID " & $id.intVal & " to " & repr(node), node)
   let cmdPart = case op
     of subgroupBroadcast, subgroupShuffle, subgroupShuffleXor,
         subgroupShuffleDown, subgroupShuffleUp:
@@ -175,7 +177,7 @@ proc optimizeReconvergePoints*(node: NimNode): NimNode =
            (isDiscardAny(node[i], {groupMemoryBarrier, memoryBarrier}) and
             isDiscard(node[i+3], barrier))):
         if defined(debugSubgroup):
-          warning("Emulator optimizing away " & $SubgroupOp(node[i][0][1].intVal), node[i+1])
+          warning("Optimizing away " & $SubgroupOp(node[i][0][1].intVal), node[i+1])
         result.add node[i+3..i+5] # keep barrier
         inc i, 6
       else:
