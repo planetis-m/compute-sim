@@ -92,9 +92,9 @@ export vectors, transform, api
 
 type
   GlEnvironment* = object
-    gl_GlobalInvocationID*: UVec3    ## Global ID of the current invocation
-    gl_LocalInvocationID*: UVec3     ## Local ID within the workgroup
-    gl_WorkGroupID*: UVec3           ## ID of the current workgroup
+    gl_GlobalInvocationID*: UVec3    ## Global ID of the current invocation [0..gl_NumWorkGroups*gl_WorkGroupSize)
+    gl_LocalInvocationID*: UVec3     ## Local ID within the workgroup [0..gl_WorkGroupSize)
+    gl_WorkGroupID*: UVec3           ## ID of the current workgroup [0..gl_NumWorkGroups)
     gl_WorkGroupSize*: UVec3         ## Size of the workgroup (x, y, z)
     gl_NumWorkGroups*: UVec3         ## Total number of workgroups (x, y, z)
     gl_NumSubgroups*: uint32         ## Number of subgroups in the workgroup

@@ -110,27 +110,27 @@ template defineVec4Constructors(Vec2Type, Vec3Type, Vec4Type: typedesc,
 
 {.push boundChecks: off.}
 
-# Usage example for boolean vectors:
+# Constructors for boolean vectors:
 defineVec2Constructors(BVec2, BVec3, BVec4, bool, bvec2)
 defineVec3Constructors(BVec2, BVec3, BVec4, bool, bvec3)
 defineVec4Constructors(BVec2, BVec3, BVec4, bool, bvec4)
 
-# Usage example for integer vectors:
+# Constructors for integer vectors:
 defineVec2Constructors(IVec2, IVec3, IVec4, int32, ivec2)
 defineVec3Constructors(IVec2, IVec3, IVec4, int32, ivec3)
 defineVec4Constructors(IVec2, IVec3, IVec4, int32, ivec4)
 
-# Usage example for unsigned integer vectors:
+# Constructors for unsigned integer vectors:
 defineVec2Constructors(UVec2, UVec3, UVec4, uint32, uvec2)
 defineVec3Constructors(UVec2, UVec3, UVec4, uint32, uvec3)
 defineVec4Constructors(UVec2, UVec3, UVec4, uint32, uvec4)
 
-# Usage example for float vectors:
+# Constructors for float vectors:
 defineVec2Constructors(Vec2, Vec3, Vec4, float32, vec2)
 defineVec3Constructors(Vec2, Vec3, Vec4, float32, vec3)
 defineVec4Constructors(Vec2, Vec3, Vec4, float32, vec4)
 
-# Usage example for double vectors:
+# Constructors for double vectors:
 defineVec2Constructors(DVec2, DVec3, DVec4, float64, dvec2)
 defineVec3Constructors(DVec2, DVec3, DVec4, float64, dvec3)
 defineVec4Constructors(DVec2, DVec3, DVec4, float64, dvec4)
