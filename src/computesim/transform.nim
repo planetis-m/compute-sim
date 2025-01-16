@@ -144,7 +144,6 @@ proc generateEnvTemplates(envSym: NimNode): NimNode =
     "gl_WorkGroupSize",
     "gl_NumWorkGroups",
     "gl_NumSubgroups",
-    "gl_SubgroupSize",
     "gl_SubgroupID",
     "gl_SubgroupInvocationID",
   ]

@@ -88,7 +88,7 @@
 import std/[isolation, math], threading/barrier, malebolgia
 
 import computesim/[core, vectors, transform, lockstep, api]
-export vectors, transform, api
+export vectors, transform, api, SubgroupSize
 
 type
   GlEnvironment* = object
@@ -98,7 +98,6 @@ type
     gl_WorkGroupSize*: UVec3         ## Size of the workgroup (x, y, z)
     gl_NumWorkGroups*: UVec3         ## Total number of workgroups (x, y, z)
     gl_NumSubgroups*: uint32         ## Number of subgroups in the workgroup
-    gl_SubgroupSize*: uint32         ## Size of each subgroup
     gl_SubgroupID*: uint32           ## ID of the current subgroup [0..gl_NumSubgroups)
     gl_SubgroupInvocationID*: uint32 ## ID of the invocation within the subgroup [0..gl_SubgroupSize)
 
@@ -175,7 +174,6 @@ proc runCompute[A, B, C](
   let env = GlEnvironment(
     gl_NumWorkGroups: numWorkGroups,
     gl_WorkGroupSize: workGroupSize,
-    gl_SubgroupSize: SubgroupSize
   )
   let totalGroups = numWorkGroups.x * numWorkGroups.y * numWorkGroups.z
   let numBatches = ceilDiv(totalGroups, MaxConcurrentWorkGroups)

@@ -6,7 +6,7 @@ proc calculate(output: ptr seq[int32]; numElements: uint32) {.computeShader.} =
   let workgroupSize = gl_WorkGroupSize.x
   # Only proceed if within bounds
   # if tid < numElements:
-  var value: int32 = tid.int32
+  var value = tid.int32
   # First phase - each thread stores its ID
   output[tid] = value
   # Barrier to ensure all threads in workgroup have written

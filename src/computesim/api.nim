@@ -3,6 +3,10 @@ import std/bitops, core, vectors
 const
   SubgroupOpError = "This function can only be used inside a proc marked with {.computeShader.}"
 
+template gl_SubgroupSize*(): uint32 =
+  ## The number of invocations in a subgroup
+  SubgroupSize
+
 template gl_SubgroupEqMask*(): UVec4 =
   ## Returns a mask where only the bit at the current invocation's index is set
   uvec4(SubgroupMasks[gl_SubgroupInvocationID].eq, 0, 0, 0)
