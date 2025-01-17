@@ -1,6 +1,13 @@
 # Copyright (c) 2024 Antonis Geralis
 import std/typetraits
 
+proc copyInto*[T, N](dst: var array[N, T], src: array[N, T])
+proc copyInto*[T](dst: var ref T, src: ref T)
+proc copyInto*(dst: var string, src: string)
+proc copyInto*[T: distinct](dst: var T, src: T)
+proc copyInto*[T](dst: var T, src: T)
+proc copyInto*[T: object](dst: var T, src: T)
+
 proc copyInto*[T](dst: var seq[T], src: seq[T]) =
   if dst.len != src.len:
     dst.setLen(src.len)
@@ -23,9 +30,11 @@ proc copyInto*(dst: var string, src: string) =
   dst.setLen(src.len)
   copyMem(addr dst[0], addr src[0], src.len)
 
-proc copyInto*[T](dst: var T, src: T) {.nodestroy.} =
-  # Generic fallback for types that support assignment
-  dst = src
+proc copyInto*[T: distinct](dst: var T, src: T) =
+  copyInto(dst.distinctBase, src.distinctBase)
+
+proc copyInto*[T](dst: var T, src: T) =
+  copyMem(addr dst, addr src, sizeof(T))
 
 proc copyInto*[T: object](dst: var T, src: T) =
   when supportsCopyMem(T):
