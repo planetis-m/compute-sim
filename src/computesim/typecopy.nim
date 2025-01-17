@@ -6,7 +6,7 @@ proc copyInto*[T](dst: var ref T, src: ref T)
 proc copyInto*(dst: var string, src: string)
 proc copyInto*[T: distinct](dst: var T, src: T)
 proc copyInto*[T](dst: var T, src: T)
-proc copyInto*[T: object](dst: var T, src: T)
+proc copyInto*[T: object | tuple](dst: var T, src: T)
 
 proc copyInto*[T](dst: var seq[T], src: seq[T]) =
   if dst.len != src.len:
@@ -36,7 +36,7 @@ proc copyInto*[T: distinct](dst: var T, src: T) =
 proc copyInto*[T](dst: var T, src: T) =
   copyMem(addr dst, addr src, sizeof(T))
 
-proc copyInto*[T: object](dst: var T, src: T) =
+proc copyInto*[T: object | tuple](dst: var T, src: T) =
   when supportsCopyMem(T):
     copyMem(addr dst, addr src, sizeof(T))
   else:
