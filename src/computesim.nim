@@ -180,10 +180,7 @@ proc runCompute[A, B, C](
   # Initialize workgroup coordinates
   var wgX, wgY, wgZ: uint32 = 0
   # Create array of shared memory for concurrent workgroups
-  var smemArr: array[MaxConcurrentWorkGroups, B]
-  # Initialize shared memory array once
-  for i in 0 ..< MaxConcurrentWorkGroups:
-    smemArr[i] = default(B)
+  var smemArr = arrayWithDefault[B](MaxConcurrentWorkGroups)
   # Process workgroups in batches to limit concurrent execution
   for batch in 0 ..< numBatches:
     let endGroup = min(currentGroup + MaxConcurrentWorkGroups, totalGroups.int)
