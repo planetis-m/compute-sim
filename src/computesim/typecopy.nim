@@ -1,7 +1,7 @@
 # Copyright (c) 2024 Antonis Geralis
 import std/typetraits
 
-proc copyInto*[T, N](dst: var array[N, T], src: array[N, T])
+proc copyInto*[N, T](dst: var array[N, T], src: array[N, T])
 proc copyInto*[T](dst: var ref T, src: ref T)
 proc copyInto*(dst: var string, src: string)
 proc copyInto*[T: distinct](dst: var T, src: T)
@@ -18,7 +18,7 @@ proc copyInto*[T](dst: var seq[T], src: seq[T]) =
     for i in 0..<src.len:
       copyInto(dst[i], src[i])
 
-proc copyInto*[T, N](dst: var array[N, T], src: array[N, T]) =
+proc copyInto*[N, T](dst: var array[N, T], src: array[N, T]) =
   copyMem(addr dst, addr src, sizeof(src))
 
 proc copyInto*[T](dst: var ref T, src: ref T) =
