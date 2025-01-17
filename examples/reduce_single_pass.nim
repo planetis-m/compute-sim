@@ -9,7 +9,7 @@ type
     input, output: seq[int32]
     retirementCount: uint32
 
-  Shared = object
+  Shared = tuple
     buffer: seq[int32]
     isLastWorkGroup: uint32
 
@@ -104,7 +104,7 @@ proc main =
   # Run the compute shader on CPU, pass buffers as parameters.
   runComputeOnCpu(numWorkGroups, workGroupSize, reductionShader,
     ssbo = addr buffers,
-    smem = Shared(buffer: newSeq[int32](workGroupSize.x), isLastWorkGroup: 0'u32),
+    smem = (buffer: newSeq[int32](workGroupSize.x), isLastWorkGroup: 0'u32),
     args = (NumElements, CoarseFactor)
   )
 
