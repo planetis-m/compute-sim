@@ -186,7 +186,7 @@ proc runCompute[A, B, C](
     let endGroup = min(currentGroup + MaxConcurrentWorkGroups, totalGroups.int)
     # Create master for managing work groups
     var master = createMaster(activeProducer = false) # not synchronized
-    # Initialize shared memory for this batch
+    # Reset shared memory for this batch
     for i in 0 ..< min(MaxConcurrentWorkGroups, endGroup - currentGroup):
       copyInto(smemArr[i], smem)
     master.awaitAll:

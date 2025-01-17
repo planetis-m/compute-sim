@@ -139,6 +139,10 @@
   <li><a class="reference" href="#gl_SubgroupLtMask.t" title="gl_SubgroupLtMask(): UVec4">gl_SubgroupLtMask(): UVec4</a></li>
 
 </ul>
+<ul class="simple nested-toc-section">gl_SubgroupSize
+  <li><a class="reference" href="#gl_SubgroupSize.t" title="gl_SubgroupSize(): uint32">gl_SubgroupSize(): uint32</a></li>
+
+</ul>
 <ul class="simple nested-toc-section">groupMemoryBarrier
   <li><a class="reference" href="#groupMemoryBarrier.t" title="groupMemoryBarrier()">groupMemoryBarrier()</a></li>
 
@@ -260,8 +264,8 @@
   <dd>
     
     Type class for atomic integer operations
-    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L154" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L154" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L158" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L158" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -277,8 +281,8 @@
   <dd>
     
     Performs atomic addition on mem with data. Returns the original value stored in mem.
-    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L158" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L158" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L162" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L162" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -290,8 +294,8 @@
   <dd>
     
     Performs atomic AND on mem with data. Returns the original value stored in mem.
-    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L163" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L163" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L167" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L167" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -303,8 +307,8 @@
   <dd>
     
     Performs an atomic comparison of compare with the contents of mem. If the content of mem is equal to compare, then the content of data is written into mem, otherwise the content of mem is unmodified. Returns the original content of mem regardless of the outcome of the comparison.
-    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L184" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L184" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L188" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L188" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -316,8 +320,8 @@
   <dd>
     
     Atomically stores data into mem and returns the original value.
-    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L178" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L178" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L182" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L182" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -329,8 +333,8 @@
   <dd>
     
     Performs atomic OR on mem with data. Returns the original value stored in mem.
-    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L168" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L168" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L172" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L172" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -342,8 +346,8 @@
   <dd>
     
     Performs atomic XOR on mem with data. Returns the original value stored in mem.
-    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L173" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L173" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L177" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L177" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -356,8 +360,8 @@
   <dd>
     
     Returns the number of set bits in a ballot value, only counting bits up to gl_SubgroupSize
-    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L74" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L74" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L78" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L78" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -370,8 +374,8 @@
   <dd>
     
     Returns true if the bit at position index is set in value Only valid for indices less than gl_SubgroupSize
-    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L79" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L79" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L83" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L83" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -384,8 +388,8 @@
   <dd>
     
     Returns the index of the least significant 1 bit in value Only considers the bottom gl_SubgroupSize bits
-    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L98" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L98" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L102" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L102" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -398,8 +402,8 @@
   <dd>
     
     Returns the index of the most significant 1 bit in value Only considers the bottom gl_SubgroupSize bits
-    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L104" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L104" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L108" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L108" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -417,8 +421,8 @@
   <dd>
     
     Synchronizes all threads within the current workgroup
-    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L130" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L130" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L134" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L134" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -430,8 +434,8 @@
   <dd>
     
     Returns a mask where only the bit at the current invocation's index is set
-    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L6" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L6" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L10" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L10" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -443,8 +447,8 @@
   <dd>
     
     Returns a mask where bits at and above the current invocation's index are set
-    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L10" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L10" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L14" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L14" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -456,8 +460,8 @@
   <dd>
     
     Returns a mask where bits above the current invocation's index are set
-    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L14" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L14" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L18" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L18" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -469,8 +473,8 @@
   <dd>
     
     Returns a mask where bits at and below the current invocation's index are set
-    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L18" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L18" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L22" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L22" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -482,8 +486,21 @@
   <dd>
     
     Returns a mask where bits below the current invocation's index are set
-    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L22" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L22" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L26" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L26" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+
+  </dd>
+</div>
+
+</div>
+<div id="gl_SubgroupSize-templates-all">
+  <div id="gl_SubgroupSize.t">
+  <dt><pre><span class="Keyword">template</span> <a href="#gl_SubgroupSize.t"><span class="Identifier">gl_SubgroupSize</span></a><span class="Other">(</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">uint32</span></pre></dt>
+  <dd>
+    
+    The number of invocations in a subgroup
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L6" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L6" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -495,8 +512,8 @@
   <dd>
     
     Performs a memory barrier across all memory operations within the workgroup. Similar to memoryBarrier() but only synchronizes within the current workgroup.
-    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L145" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L145" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L149" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L149" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -508,8 +525,8 @@
   <dd>
     
     Performs a memory barrier across all memory operations in the shader. Ensures that all memory operations issued before the barrier complete before any memory operations after the barrier can begin.
-    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L139" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L139" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L143" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L143" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -521,8 +538,8 @@
   <dd>
     
     Returns sum of value across all threads in subgroup
-    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L34" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L34" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L38" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L38" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -534,8 +551,8 @@
   <dd>
     
     Returns true if condition is true for all active threads
-    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L114" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L114" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L118" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L118" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -547,8 +564,8 @@
   <dd>
     
     Returns true if value is equal across all active threads in subgroup
-    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L122" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L122" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L126" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L126" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -560,8 +577,8 @@
   <dd>
     
     Returns true if condition is true for any active thread
-    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L118" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L118" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L122" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L122" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -573,8 +590,8 @@
   <dd>
     
     Returns bitmap of which threads have condition true
-    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L70" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L70" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L74" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L74" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -586,8 +603,8 @@
   <dd>
     
     Returns the number of bits set in value up to the current invocation's index (exclusive) Only counts bits up to gl_SubgroupSize
-    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L93" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L93" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L97" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L97" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -599,8 +616,8 @@
   <dd>
     
     Returns the number of bits set in value up to the current invocation's index (inclusive) Only counts bits up to gl_SubgroupSize
-    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L88" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L88" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L92" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L92" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -612,8 +629,8 @@
   <dd>
     
     Synchronizes all threads within the current subgroup
-    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L126" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L126" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L130" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L130" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -625,8 +642,8 @@
   <dd>
     
     Broadcasts value from thread with specified id to all threads in subgroup
-    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L26" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L26" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L30" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L30" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -638,8 +655,8 @@
   <dd>
     
     Broadcasts value from first active thread to all threads in subgroup
-    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L30" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L30" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L34" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L34" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -651,8 +668,8 @@
   <dd>
     
     Returns true for exactly one active thread in subgroup
-    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L110" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L110" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L114" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L114" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -664,8 +681,8 @@
   <dd>
     
     Returns exclusive prefix sum of value for current thread
-    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L50" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L50" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L54" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L54" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -677,8 +694,8 @@
   <dd>
     
     Returns inclusive prefix sum of value for current thread
-    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L46" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L46" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L50" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L50" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -690,8 +707,8 @@
   <dd>
     
     Returns true if the bit at this invocation's index in value is set
-    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L84" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L84" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L88" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L88" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -703,8 +720,8 @@
   <dd>
     
     Returns maximum of value across all threads in subgroup
-    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L42" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L42" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L46" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L46" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -716,8 +733,8 @@
   <dd>
     
     Performs a memory barrier that ensures memory operations within the subgroup are properly ordered as seen by other invocations.
-    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L134" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L134" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L138" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L138" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -729,8 +746,8 @@
   <dd>
     
     Returns minimum of value across all threads in subgroup
-    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L38" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L38" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L42" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L42" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -742,8 +759,8 @@
   <dd>
     
     Returns value from thread with specified id
-    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L54" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L54" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L58" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L58" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -755,8 +772,8 @@
   <dd>
     
     Returns value from thread with index current_id + delta
-    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L62" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L62" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L66" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L66" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -768,8 +785,8 @@
   <dd>
     
     Returns value from thread with index current_id - delta
-    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L66" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L66" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L70" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L70" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -781,8 +798,8 @@
   <dd>
     
     Returns value from thread with id equal to current_id XOR mask
-    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L58" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L58" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim/api.nim#L62" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim/api.nim#L62" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -798,7 +815,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2025-01-15 21:17:31 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2025-01-17 23:28:27 UTC</small>
       </div>
     </div>
   </div>
