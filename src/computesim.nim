@@ -115,7 +115,6 @@ proc subgroupProc[A, B, C](env: GlEnvironment; numActiveThreads: uint32; barrier
     compute: ThreadGenerator[A, B, C]; buffers: A; shared: ptr B; args: C) =
   var threads = default(SubgroupThreads)
   let startIdx = env.gl_SubgroupID * SubgroupSize
-  var threadId: uint32 = 0
   # Initialize coordinates from startIdx
   var x = startIdx mod env.gl_WorkGroupSize.x
   var y = (startIdx div env.gl_WorkGroupSize.x) mod env.gl_WorkGroupSize.y
@@ -124,6 +123,7 @@ proc subgroupProc[A, B, C](env: GlEnvironment; numActiveThreads: uint32; barrier
   let globalOffsetX = env.gl_WorkGroupID.x * env.gl_WorkGroupSize.x
   let globalOffsetY = env.gl_WorkGroupID.y * env.gl_WorkGroupSize.y
   let globalOffsetZ = env.gl_WorkGroupID.z * env.gl_WorkGroupSize.z
+  var threadId: uint32 = 0
   while threadId < numActiveThreads:
     var env = env # Shadow for modification
     env.gl_LocalInvocationID = uvec3(x, y, z)
@@ -185,11 +185,11 @@ proc runCompute[A, B, C](
   var wgX, wgY, wgZ: uint32 = 0
   # Create array of shared memory for concurrent workgroups
   var smemArr = arrayWith(smem, MaxConcurrentWorkGroups)
+  # Create master for managing work groups
+  var master = createMaster(activeProducer = false) # not synchronized
   # Process workgroups in batches to limit concurrent execution
   for batch in 0 ..< numBatches:
     let endGroup = min(currentGroup + MaxConcurrentWorkGroups, totalGroups.int)
-    # Create master for managing work groups
-    var master = createMaster(activeProducer = false) # not synchronized
     master.awaitAll:
       var groupIdx = 0
       while currentGroup < endGroup:
