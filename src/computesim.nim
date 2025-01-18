@@ -120,13 +120,17 @@ proc subgroupProc[A, B, C](env: GlEnvironment; numActiveThreads: uint32; barrier
   var x = startIdx mod env.gl_WorkGroupSize.x
   var y = (startIdx div env.gl_WorkGroupSize.x) mod env.gl_WorkGroupSize.y
   var z = startIdx div (env.gl_WorkGroupSize.x * env.gl_WorkGroupSize.y)
+  # Pre-compute global offsets
+  let globalOffsetX = env.gl_WorkGroupID.x * env.gl_WorkGroupSize.x
+  let globalOffsetY = env.gl_WorkGroupID.y * env.gl_WorkGroupSize.y
+  let globalOffsetZ = env.gl_WorkGroupID.z * env.gl_WorkGroupSize.z
   while threadId < numActiveThreads:
     var env = env # Shadow for modification
     env.gl_LocalInvocationID = uvec3(x, y, z)
     env.gl_GlobalInvocationID = uvec3(
-      env.gl_WorkGroupID.x * env.gl_WorkGroupSize.x + x,
-      env.gl_WorkGroupID.y * env.gl_WorkGroupSize.y + y,
-      env.gl_WorkGroupID.z * env.gl_WorkGroupSize.z + z
+      globalOffsetX + x,
+      globalOffsetY + y,
+      globalOffsetZ + z
     )
     env.gl_SubgroupInvocationID = threadId
     threads[threadId] = compute(env, buffers, shared, args)
@@ -198,8 +202,8 @@ proc runCompute[A, B, C](
           if wgY >= numWorkGroups.y:
             wgY = 0
             inc wgZ
-        inc groupIdx
         inc currentGroup
+        inc groupIdx
 
 template runComputeOnCpu*(
     numWorkGroups, workGroupSize: UVec3,
