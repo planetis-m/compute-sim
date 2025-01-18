@@ -9,8 +9,7 @@ proc copyInto*[T](dst: var T, src: T)
 proc copyInto*[T: object | tuple](dst: var T, src: T)
 
 proc copyInto*[T](dst: var seq[T], src: seq[T]) =
-  if dst.len != src.len:
-    dst.setLen(src.len)
+  dst.setLen(src.len)
   when supportsCopyMem(T):
     if src.len > 0:
       copyMem(addr dst[0], addr src[0], src.len * sizeof(T))
