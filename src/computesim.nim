@@ -87,7 +87,7 @@
 # (c) 2024 Antonis Geralis
 import std/[isolation, math], threading/barrier, malebolgia
 
-import computesim/[core, vectors, transform, typecopy, lockstep, api]
+import computesim/[core, vectors, transform, lockstep, api]
 export vectors, transform, api, SubgroupSize
 
 type
@@ -180,15 +180,12 @@ proc runCompute[A, B, C](
   # Initialize workgroup coordinates
   var wgX, wgY, wgZ: uint32 = 0
   # Create array of shared memory for concurrent workgroups
-  var smemArr = default(array[MaxConcurrentWorkGroups, B])
+  var smemArr = arrayWith(smem, MaxConcurrentWorkGroups)
   # Process workgroups in batches to limit concurrent execution
   for batch in 0 ..< numBatches:
     let endGroup = min(currentGroup + MaxConcurrentWorkGroups, totalGroups.int)
     # Create master for managing work groups
     var master = createMaster(activeProducer = false) # not synchronized
-    # Reset shared memory for this batch
-    for i in 0 ..< min(MaxConcurrentWorkGroups, endGroup - currentGroup):
-      copyInto(smemArr[i], smem)
     master.awaitAll:
       var groupIdx = 0
       while currentGroup < endGroup:
