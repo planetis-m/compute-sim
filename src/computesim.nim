@@ -132,6 +132,7 @@ proc subgroupProc[A, B, C](wg: WorkGroupContext; numActiveThreads: uint32; barri
   let globalOffsetX = wg.gl_WorkGroupID.x * wg.gl_WorkGroupSize.x
   let globalOffsetY = wg.gl_WorkGroupID.y * wg.gl_WorkGroupSize.y
   let globalOffsetZ = wg.gl_WorkGroupID.z * wg.gl_WorkGroupSize.z
+  # Setup thread contexts
   for threadId in 0..<numActiveThreads:
     threadContexts[threadId] = ThreadContext(
       gl_LocalInvocationID: uvec3(x, y, z),
@@ -142,7 +143,6 @@ proc subgroupProc[A, B, C](wg: WorkGroupContext; numActiveThreads: uint32; barri
       ),
       gl_SubgroupInvocationID: threadId
     )
-    threads[threadId] = compute(buffers, shared, args)
     # Update coordinates
     inc x
     if x >= wg.gl_WorkGroupSize.x:
@@ -151,6 +151,9 @@ proc subgroupProc[A, B, C](wg: WorkGroupContext; numActiveThreads: uint32; barri
       if y >= wg.gl_WorkGroupSize.y:
         y = 0
         inc z
+  # Allocate all compute closures
+  for threadId in 0..<numActiveThreads:
+    threads[threadId] = compute(buffers, shared, args)
   # Run threads in lockstep
   runThreads(threads, wg, threadContexts, numActiveThreads, barrier)
 
