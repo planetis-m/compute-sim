@@ -113,6 +113,7 @@ const
 
 proc subgroupProc[A, B, C](env: GlEnvironment; numActiveThreads: uint32; barrier: BarrierHandle,
     compute: ThreadGenerator[A, B, C]; buffers: A; shared: ptr B; args: C) =
+  var env = env # Shadow for modification
   var threads = default(SubgroupThreads)
   let startIdx = env.gl_SubgroupID * SubgroupSize
   # Initialize coordinates from startIdx
@@ -123,9 +124,7 @@ proc subgroupProc[A, B, C](env: GlEnvironment; numActiveThreads: uint32; barrier
   let globalOffsetX = env.gl_WorkGroupID.x * env.gl_WorkGroupSize.x
   let globalOffsetY = env.gl_WorkGroupID.y * env.gl_WorkGroupSize.y
   let globalOffsetZ = env.gl_WorkGroupID.z * env.gl_WorkGroupSize.z
-  var threadId: uint32 = 0
-  while threadId < numActiveThreads:
-    var env = env # Shadow for modification
+  for threadId in 0..<numActiveThreads:
     env.gl_LocalInvocationID = uvec3(x, y, z)
     env.gl_GlobalInvocationID = uvec3(
       globalOffsetX + x,
@@ -142,7 +141,6 @@ proc subgroupProc[A, B, C](env: GlEnvironment; numActiveThreads: uint32; barrier
       if y >= env.gl_WorkGroupSize.y:
         y = 0
         inc z
-    inc threadId
   # Run threads in lockstep
   runThreads(threads, numActiveThreads, env.gl_WorkGroupID, env.gl_SubgroupID, barrier)
 
@@ -180,7 +178,7 @@ proc runCompute[A, B, C](
   )
   let totalGroups = numWorkGroups.x * numWorkGroups.y * numWorkGroups.z
   let numBatches = ceilDiv(totalGroups, MaxConcurrentWorkGroups)
-  var currentGroup = 0
+  var currentGroup: uint32 = 0
   # Initialize workgroup coordinates
   var wgX, wgY, wgZ: uint32 = 0
   # Create array of shared memory for concurrent workgroups
@@ -188,10 +186,10 @@ proc runCompute[A, B, C](
   # Create master for managing work groups
   var master = createMaster(activeProducer = false) # not synchronized
   # Process workgroups in batches to limit concurrent execution
-  for batch in 0 ..< numBatches:
-    let endGroup = min(currentGroup + MaxConcurrentWorkGroups, totalGroups.int)
+  for batch in 0..<numBatches:
+    let endGroup = min(currentGroup + MaxConcurrentWorkGroups, totalGroups)
     master.awaitAll:
-      var groupIdx = 0
+      var groupIdx: uint32 = 0
       while currentGroup < endGroup:
         master.spawn workGroupProc(uvec3(wgX, wgY, wgZ), env, compute, ssbo, addr smemArr[groupIdx], args)
         # Increment coordinates, wrapping when needed
@@ -202,8 +200,8 @@ proc runCompute[A, B, C](
           if wgY >= numWorkGroups.y:
             wgY = 0
             inc wgZ
-        inc currentGroup
         inc groupIdx
+        inc currentGroup
 
 template runComputeOnCpu*(
     numWorkGroups, workGroupSize: UVec3,
