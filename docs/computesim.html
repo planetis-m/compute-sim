@@ -63,17 +63,8 @@
   <details open>
     <summary><a class="reference reference-toplevel" href="#7" id="57">Types</a></summary>
     <ul class="simple simple-toc-section">
-      <li><a class="reference" href="#GlEnvironment" title="GlEnvironment = object
-  gl_GlobalInvocationID*: UVec3 ## Global ID of the current invocation [0..gl_NumWorkGroups*gl_WorkGroupSize)
-  gl_LocalInvocationID*: UVec3 ## Local ID within the workgroup [0..gl_WorkGroupSize)
-  gl_WorkGroupID*: UVec3     ## ID of the current workgroup [0..gl_NumWorkGroups)
-  gl_WorkGroupSize*: UVec3   ## Size of the workgroup (x, y, z)
-  gl_NumWorkGroups*: UVec3   ## Total number of workgroups (x, y, z)
-  gl_NumSubgroups*: uint32   ## Number of subgroups in the workgroup
-  gl_SubgroupID*: uint32     ## ID of the current subgroup [0..gl_NumSubgroups)
-  gl_SubgroupInvocationID*: uint32 ## ID of the invocation within the subgroup [0..gl_SubgroupSize)">GlEnvironment</a></li>
-<li><a class="reference" href="#ThreadGenerator" title="ThreadGenerator[A; B; C] = proc (env: GlEnvironment; buffers: A; shared: ptr B;
-                                 args: C): ThreadClosure {.nimcall.}">ThreadGenerator</a></li>
+      <li><a class="reference" href="#ThreadGenerator" title="ThreadGenerator[A; B; C] = proc (buffers: A; shared: ptr B; args: C): ThreadClosure {.
+    nimcall.}">ThreadGenerator</a></li>
 
     </ul>
   </details>
@@ -104,7 +95,7 @@
     <div id="tocRoot"></div>
     
     <p class="module-desc">
-<h2><a class="toc-backref" id="description" href="#description">Description</a></h2><p><tt class="docutils literal"><span class="pre"><span class="Identifier">runComputeOnCpu</span></span></tt> is a function that simulates a GPU-like compute environment on the CPU. It organizes work into workgroups and invocations, similar to how compute shaders operate on GPUs.</p>
+<h2><a class="toc-backref" id="description" href="#description">Description</a></h2><p><tt class="docutils literal"><span class="pre"><span class="Identifier">runComputeOnCpu</span></span></tt> is a function that simulates a GPU-like compute wgironment on the CPU. It organizes work into workgroups and invocations, similar to how compute shaders operate on GPUs.</p>
 <div class="admonition admonition-warning"><span class="admonition-warning-text"><b>Warning:</b></span>
 The thread pool size must be at least <em>MaxConcurrentWorkGroups * (ceilDiv(workgroupSizeX * workgroupSizeY * workgroupSizeZ, SubgroupSize) + 1)</em>. Compile with: <tt class="docutils literal"><span class="pre"><span class="Operator">-</span><span class="Identifier">d</span><span class="Punctuation">:</span><span class="Identifier">ThreadPoolSize</span><span class="Operator">=</span><span class="Identifier">N</span></span></tt> where N meets this requirement.</div>
 <div class="admonition admonition-warning"><span class="admonition-warning-text"><b>Warning:</b></span>
@@ -175,32 +166,14 @@ Using <tt class="docutils literal"><span class="pre"><span class="Identifier">ba
 <div class="section" id="7">
   <h1><a class="toc-backref" href="#7">Types</a></h1>
   <dl class="item">
-    <div id="GlEnvironment">
-  <dt><pre><a href="computesim.html#GlEnvironment"><span class="Identifier">GlEnvironment</span></a> <span class="Other">=</span> <span class="Keyword">object</span>
-  <span class="Identifier">gl_GlobalInvocationID</span><span class="Operator">*</span><span class="Other">:</span> <a href="vectors.html#UVec3"><span class="Identifier">UVec3</span></a> <span class="Comment">## Global ID of the current invocation [0..gl_NumWorkGroups*gl_WorkGroupSize)</span>
-  <span class="Identifier">gl_LocalInvocationID</span><span class="Operator">*</span><span class="Other">:</span> <a href="vectors.html#UVec3"><span class="Identifier">UVec3</span></a> <span class="Comment">## Local ID within the workgroup [0..gl_WorkGroupSize)</span>
-  <span class="Identifier">gl_WorkGroupID</span><span class="Operator">*</span><span class="Other">:</span> <a href="vectors.html#UVec3"><span class="Identifier">UVec3</span></a>     <span class="Comment">## ID of the current workgroup [0..gl_NumWorkGroups)</span>
-  <span class="Identifier">gl_WorkGroupSize</span><span class="Operator">*</span><span class="Other">:</span> <a href="vectors.html#UVec3"><span class="Identifier">UVec3</span></a>   <span class="Comment">## Size of the workgroup (x, y, z)</span>
-  <span class="Identifier">gl_NumWorkGroups</span><span class="Operator">*</span><span class="Other">:</span> <a href="vectors.html#UVec3"><span class="Identifier">UVec3</span></a>   <span class="Comment">## Total number of workgroups (x, y, z)</span>
-  <span class="Identifier">gl_NumSubgroups</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint32</span>   <span class="Comment">## Number of subgroups in the workgroup</span>
-  <span class="Identifier">gl_SubgroupID</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint32</span>     <span class="Comment">## ID of the current subgroup [0..gl_NumSubgroups)</span>
-  <span class="Identifier">gl_SubgroupInvocationID</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">uint32</span> <span class="Comment">## ID of the invocation within the subgroup [0..gl_SubgroupSize)</span></pre></dt>
+    <div id="ThreadGenerator">
+  <dt><pre><a href="computesim.html#ThreadGenerator"><span class="Identifier">ThreadGenerator</span></a><span class="Other">[</span><span class="Identifier">A</span><span class="Other">;</span> <span class="Identifier">B</span><span class="Other">;</span> <span class="Identifier">C</span><span class="Other">]</span> <span class="Other">=</span> <span class="Keyword">proc</span> <span class="Other">(</span><span class="Identifier">buffers</span><span class="Other">:</span> <span class="Identifier">A</span><span class="Other">;</span> <span class="Identifier">shared</span><span class="Other">:</span> <span class="Keyword">ptr</span> <span class="Identifier">B</span><span class="Other">;</span> <span class="Identifier">args</span><span class="Other">:</span> <span class="Identifier">C</span><span class="Other">)</span><span class="Other">:</span> <a href="core.html#ThreadClosure"><span class="Identifier">ThreadClosure</span></a> {.
+    <span class="Identifier">nimcall</span>.}</pre></dt>
   <dd>
     
     
     <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim.nim#L94" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
 <a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim.nim#L94" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
-
-  </dd>
-</div>
-<div id="ThreadGenerator">
-  <dt><pre><a href="computesim.html#ThreadGenerator"><span class="Identifier">ThreadGenerator</span></a><span class="Other">[</span><span class="Identifier">A</span><span class="Other">;</span> <span class="Identifier">B</span><span class="Other">;</span> <span class="Identifier">C</span><span class="Other">]</span> <span class="Other">=</span> <span class="Keyword">proc</span> <span class="Other">(</span><span class="Identifier">env</span><span class="Other">:</span> <a href="computesim.html#GlEnvironment"><span class="Identifier">GlEnvironment</span></a><span class="Other">;</span> <span class="Identifier">buffers</span><span class="Other">:</span> <span class="Identifier">A</span><span class="Other">;</span> <span class="Identifier">shared</span><span class="Other">:</span> <span class="Keyword">ptr</span> <span class="Identifier">B</span><span class="Other">;</span>
-                                 <span class="Identifier">args</span><span class="Other">:</span> <span class="Identifier">C</span><span class="Other">)</span><span class="Other">:</span> <a href="core.html#ThreadClosure"><span class="Identifier">ThreadClosure</span></a> {.<span class="Identifier">nimcall</span>.}</pre></dt>
-  <dd>
-    
-    
-    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim.nim#L104" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim.nim#L104" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -217,8 +190,8 @@ Using <tt class="docutils literal"><span class="pre"><span class="Identifier">ba
   <dd>
     
     
-    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim.nim#L206" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim.nim#L206" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim.nim#L197" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim.nim#L197" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -228,8 +201,8 @@ Using <tt class="docutils literal"><span class="pre"><span class="Identifier">ba
   <dd>
     
     
-    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim.nim#L212" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
-<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim.nim#L212" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
+    <a href="https://github.com/planetis-m/compute-sim/tree/master/src/computesim.nim#L203" class="link-seesrc" target="_blank">Source</a>&nbsp;&nbsp;
+<a href="https://github.com/planetis-m/compute-sim/edit/master/src/computesim.nim#L203" class="link-seesrc" target="_blank" >Edit</a>&nbsp;&nbsp;
 
   </dd>
 </div>
@@ -245,7 +218,7 @@ Using <tt class="docutils literal"><span class="pre"><span class="Identifier">ba
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2025-01-20 07:55:30 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2025-01-20 16:18:11 UTC</small>
       </div>
     </div>
   </div>

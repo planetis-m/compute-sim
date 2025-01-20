@@ -10,10 +10,10 @@ const
 
 template shouldShowDebugOutput(debug: untyped) =
   let debug = when defined(debugSubgroup):
-    workgroupID.x == debugWorkgroupX and
-    workgroupID.y == debugWorkgroupY and
-    workgroupID.z == debugWorkgroupZ and
-    subgroupID == debugSubgroupID
+    workGroup.gl_WorkgroupID.x == debugWorkgroupX and
+    workGroup.gl_WorkgroupID.y == debugWorkgroupY and
+    workGroup.gl_WorkgroupID.z == debugWorkgroupZ and
+    workGroup.gl_SubgroupID == debugSubgroupID
   else:
     false
 
@@ -32,8 +32,8 @@ type
   ThreadState = enum
     running, halted, atSubBarrier, atBarrier, finished
 
-proc runThreads*(threads: SubgroupThreads, numActiveThreads: uint32; workgroupID: UVec3;
-                 subgroupID: uint32; b: BarrierHandle) =
+proc runThreads*(threads: SubgroupThreads; workGroup: WorkGroupContext,
+                 threadContexts: ThreadContexts; numActiveThreads: uint32; b: BarrierHandle) =
   var
     anyThreadsActive = true
     allThreadsHalted = false
@@ -62,7 +62,7 @@ proc runThreads*(threads: SubgroupThreads, numActiveThreads: uint32; workgroupID
           threadStates[threadId] == running or canReconverge or canPassBarrier:
         madeProgress = true
         {.cast(gcsafe).}:
-          commands[threadId] = threads[threadId](results[threadId])
+          commands[threadId] = threads[threadId](results[threadId], workGroup, threadContexts[threadId])
         if finished(threads[threadId]):
           threadStates[threadId] = finished
         elif commands[threadId].kind == barrier:
@@ -95,12 +95,14 @@ proc runThreads*(threads: SubgroupThreads, numActiveThreads: uint32; workgroupID
         if barrierId == InvalidId:
           barrierId = commands[threadId].id
         elif barrierId != commands[threadId].id:
-          raiseNonUniformBarrierError(workgroupID, subgroupID, barrierId, commands[threadId].id)
+          raiseNonUniformBarrierError(workGroup.gl_WorkGroupID, workGroup.gl_SubgroupID,
+                                      barrierId, commands[threadId].id)
       of finished:
         discard
 
     if not madeProgress: # No thread could execute this iteration
-      raiseDeadlockError(workgroupID, subgroupID, barrierThreadCount, numActiveThreads)
+      raiseDeadlockError(workGroup.gl_WorkGroupID, workGroup.gl_SubgroupID,
+                         barrierThreadCount, numActiveThreads)
 
     # Group matching operations
     var

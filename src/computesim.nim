@@ -1,6 +1,6 @@
 ## ## Description
 ##
-## `runComputeOnCpu` is a function that simulates a GPU-like compute environment on the CPU.
+## `runComputeOnCpu` is a function that simulates a GPU-like compute wgironment on the CPU.
 ## It organizes work into workgroups and invocations, similar to how compute shaders operate
 ## on GPUs.
 ##
@@ -91,18 +91,7 @@ import computesim/[core, vectors, transform, lockstep, api]
 export vectors, transform, api, SubgroupSize
 
 type
-  GlEnvironment* = object
-    gl_GlobalInvocationID*: UVec3    ## Global ID of the current invocation [0..gl_NumWorkGroups*gl_WorkGroupSize)
-    gl_LocalInvocationID*: UVec3     ## Local ID within the workgroup [0..gl_WorkGroupSize)
-    gl_WorkGroupID*: UVec3           ## ID of the current workgroup [0..gl_NumWorkGroups)
-    gl_WorkGroupSize*: UVec3         ## Size of the workgroup (x, y, z)
-    gl_NumWorkGroups*: UVec3         ## Total number of workgroups (x, y, z)
-    gl_NumSubgroups*: uint32         ## Number of subgroups in the workgroup
-    gl_SubgroupID*: uint32           ## ID of the current subgroup [0..gl_NumSubgroups)
-    gl_SubgroupInvocationID*: uint32 ## ID of the invocation within the subgroup [0..gl_SubgroupSize)
-
   ThreadGenerator*[A, B, C] = proc (
-    env: GlEnvironment,
     buffers: A,
     shared: ptr B,
     args: C
@@ -111,50 +100,52 @@ type
 const
   MaxConcurrentWorkGroups {.intdefine.} = 2
 
-proc subgroupProc[A, B, C](env: GlEnvironment; numActiveThreads: uint32; barrier: BarrierHandle,
+proc subgroupProc[A, B, C](wg: WorkGroupContext; numActiveThreads: uint32; barrier: BarrierHandle,
     compute: ThreadGenerator[A, B, C]; buffers: A; shared: ptr B; args: C) =
-  var env = env # Shadow for modification
   var threads = default(SubgroupThreads)
-  let startIdx = env.gl_SubgroupID * SubgroupSize
+  var threadContexts {.noinit.}: ThreadContexts
+  let startIdx = wg.gl_SubgroupID * SubgroupSize
   # Initialize coordinates from startIdx
-  var x = startIdx mod env.gl_WorkGroupSize.x
-  var y = (startIdx div env.gl_WorkGroupSize.x) mod env.gl_WorkGroupSize.y
-  var z = startIdx div (env.gl_WorkGroupSize.x * env.gl_WorkGroupSize.y)
+  var x = startIdx mod wg.gl_WorkGroupSize.x
+  var y = (startIdx div wg.gl_WorkGroupSize.x) mod wg.gl_WorkGroupSize.y
+  var z = startIdx div (wg.gl_WorkGroupSize.x * wg.gl_WorkGroupSize.y)
   # Pre-compute global offsets
-  let globalOffsetX = env.gl_WorkGroupID.x * env.gl_WorkGroupSize.x
-  let globalOffsetY = env.gl_WorkGroupID.y * env.gl_WorkGroupSize.y
-  let globalOffsetZ = env.gl_WorkGroupID.z * env.gl_WorkGroupSize.z
+  let globalOffsetX = wg.gl_WorkGroupID.x * wg.gl_WorkGroupSize.x
+  let globalOffsetY = wg.gl_WorkGroupID.y * wg.gl_WorkGroupSize.y
+  let globalOffsetZ = wg.gl_WorkGroupID.z * wg.gl_WorkGroupSize.z
   for threadId in 0..<numActiveThreads:
-    env.gl_LocalInvocationID = uvec3(x, y, z)
-    env.gl_GlobalInvocationID = uvec3(
-      globalOffsetX + x,
-      globalOffsetY + y,
-      globalOffsetZ + z
+    threadContexts[threadId] = ThreadContext(
+      gl_LocalInvocationID: uvec3(x, y, z),
+      gl_GlobalInvocationID: uvec3(
+        globalOffsetX + x,
+        globalOffsetY + y,
+        globalOffsetZ + z
+      ),
+      gl_SubgroupInvocationID: threadId
     )
-    env.gl_SubgroupInvocationID = threadId
-    threads[threadId] = compute(env, buffers, shared, args)
+    threads[threadId] = compute(buffers, shared, args)
     # Update coordinates
     inc x
-    if x >= env.gl_WorkGroupSize.x:
+    if x >= wg.gl_WorkGroupSize.x:
       x = 0
       inc y
-      if y >= env.gl_WorkGroupSize.y:
+      if y >= wg.gl_WorkGroupSize.y:
         y = 0
         inc z
   # Run threads in lockstep
-  runThreads(threads, numActiveThreads, env.gl_WorkGroupID, env.gl_SubgroupID, barrier)
+  runThreads(threads, wg, threadContexts, numActiveThreads, barrier)
 
 proc workGroupProc[A, B, C](
     workgroupID: UVec3,
-    env: GlEnvironment,
+    wg: WorkGroupContext,
     compute: ThreadGenerator[A, B, C],
     ssbo: A, smem: ptr B, args: C) {.nimcall.} =
   # Auxiliary proc for work group management
-  var env = env # Shadow for modification
-  env.gl_WorkGroupID = workgroupID
-  let threadsInWorkgroup = env.gl_WorkGroupSize.x * env.gl_WorkGroupSize.y * env.gl_WorkGroupSize.z
+  var wg = wg # Shadow for modification
+  wg.gl_WorkGroupID = workgroupID
+  let threadsInWorkgroup = wg.gl_WorkGroupSize.x * wg.gl_WorkGroupSize.y * wg.gl_WorkGroupSize.z
   let numSubgroups = ceilDiv(threadsInWorkgroup, SubgroupSize)
-  env.gl_NumSubgroups = numSubgroups
+  wg.gl_NumSubgroups = numSubgroups
   # Initialize local shared memory
   var barrier = createBarrier(numSubgroups)
   # Create master for managing threads
@@ -162,21 +153,21 @@ proc workGroupProc[A, B, C](
   var remainingThreads = threadsInWorkgroup
   master.awaitAll:
     for subgroupId in 0..<numSubgroups:
-      env.gl_SubgroupID = subgroupId
+      wg.gl_SubgroupID = subgroupId
       # Calculate number of active threads in this subgroup
       let threadsInSubgroup = min(remainingThreads, SubgroupSize)
-      master.spawn subgroupProc(env, threadsInSubgroup, barrier.getHandle(), compute, ssbo, smem, args)
+      master.spawn subgroupProc(wg, threadsInSubgroup, barrier.getHandle(), compute, ssbo, smem, args)
       dec remainingThreads, threadsInSubgroup
 
 proc runCompute[A, B, C](
     numWorkGroups, workGroupSize: UVec3,
     compute: ThreadGenerator[A, B, C],
     ssbo: A, smem: B, args: C) =
-  let env = GlEnvironment(
+  let wg = WorkGroupContext(
     gl_NumWorkGroups: numWorkGroups,
     gl_WorkGroupSize: workGroupSize
   )
-  let totalGroups = numWorkGroups.x * numWorkGroups.y * numWorkGroups.z
+  let totalGroups = wg.gl_NumWorkGroups.x * wg.gl_NumWorkGroups.y * wg.gl_NumWorkGroups.z
   let numBatches = ceilDiv(totalGroups, MaxConcurrentWorkGroups)
   var currentGroup: uint32 = 0
   # Initialize workgroup coordinates
@@ -191,13 +182,13 @@ proc runCompute[A, B, C](
     master.awaitAll:
       var groupIdx: uint32 = 0
       while currentGroup < endGroup:
-        master.spawn workGroupProc(uvec3(wgX, wgY, wgZ), env, compute, ssbo, addr smemArr[groupIdx], args)
+        master.spawn workGroupProc(uvec3(wgX, wgY, wgZ), wg, compute, ssbo, addr smemArr[groupIdx], args)
         # Increment coordinates, wrapping when needed
         inc wgX
-        if wgX >= numWorkGroups.x:
+        if wgX >= wg.gl_NumWorkGroups.x:
           wgX = 0
           inc wgY
-          if wgY >= numWorkGroups.y:
+          if wgY >= wg.gl_NumWorkGroups.y:
             wgY = 0
             inc wgZ
         inc groupIdx
@@ -213,7 +204,7 @@ template runComputeOnCpu*(
     numWorkGroups, workGroupSize: UVec3,
     compute, ssbo, args: typed) =
   bind isolate, extract
-  proc wrapCompute(env: GlEnvironment,
-      buffers: typeof(ssbo), shared: ptr int32, argsInner: typeof(args)): ThreadClosure {.nimcall.} =
-    compute(env, buffers, argsInner)
+  proc wrapCompute(buffers: typeof(ssbo), shared: ptr int32,
+                   argsInner: typeof(args)): ThreadClosure {.nimcall.} =
+    compute(buffers, argsInner)
   runCompute(numWorkGroups, workGroupSize, wrapCompute, ssbo, 0, args)

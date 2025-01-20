@@ -89,6 +89,18 @@ type
   BarrierHandle* = object
     x: ptr Barrier
 
+  WorkGroupContext* = object
+    gl_WorkGroupID*: UVec3           ## ID of the current workgroup [0..gl_NumWorkGroups)
+    gl_WorkGroupSize*: UVec3         ## Size of the workgroup (x, y, z)
+    gl_NumWorkGroups*: UVec3         ## Total number of workgroups (x, y, z)
+    gl_NumSubgroups*: uint32         ## Number of subgroups in the workgroup
+    gl_SubgroupID*: uint32           ## ID of the current subgroup [0..gl_NumSubgroups)
+
+  ThreadContext* = object
+    gl_GlobalInvocationID*: UVec3    ## Global ID of the current invocation [0..gl_NumWorkGroups*gl_WorkGroupSize)
+    gl_LocalInvocationID*: UVec3     ## Local ID within the workgroup [0..gl_WorkGroupSize)
+    gl_SubgroupInvocationID*: uint32 ## ID of the invocation within the subgroup [0..gl_SubgroupSize)
+
 proc toValue*[T](val: T): RawValue {.noinit.} =
   cast[ptr T](addr result.data)[] = val
 
@@ -117,11 +129,13 @@ proc wait*(m: BarrierHandle) {.inline.} =
   wait(m.x[])
 
 type
-  ThreadClosure* = iterator (iterArg: SubgroupResult): SubgroupCommand
+  ThreadClosure* = iterator (iterArg: SubgroupResult,
+                             wg: WorkGroupContext, thread: ThreadContext): SubgroupCommand
   SubgroupResults* = array[SubgroupSize, SubgroupResult]
   SubgroupCommands* = array[SubgroupSize, SubgroupCommand]
   SubgroupThreadIDs* = array[SubgroupSize, uint32]
   SubgroupThreads* = array[SubgroupSize, ThreadClosure]
+  ThreadContexts* = array[SubgroupSize, ThreadContext]
 
 const
   InvalidId* = high(uint32) # Sentinel value for empty/invalid

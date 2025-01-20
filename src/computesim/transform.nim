@@ -134,23 +134,28 @@ proc genSubgroupOpCall(op: SubgroupOp; node, id, iterArg: NimNode): NimNode =
   result[1].copyLineInfo(node)
   result[2].copyLineInfo(node)
 
-proc generateEnvTemplates(envSym: NimNode): NimNode =
+proc generateTemplates(sym: NimNode; fields: openArray[string]): NimNode =
   result = newNimNode(nnkStmtList)
-  # Define templates for each GlEnvironment field
-  let envFields = [
-    "gl_GlobalInvocationID",
-    "gl_LocalInvocationID",
+  for field in fields:
+    let fieldIdent = ident(field)
+    result.add quote do:
+      template `fieldIdent`(): untyped {.used.} = `sym`.`fieldIdent`
+
+proc generateWorkGroupTemplates(wgSym: NimNode): NimNode =
+  generateTemplates(wgSym, [
     "gl_WorkGroupID",
     "gl_WorkGroupSize",
     "gl_NumWorkGroups",
     "gl_NumSubgroups",
-    "gl_SubgroupID",
-    "gl_SubgroupInvocationID",
-  ]
-  for field in envFields:
-    let fieldIdent = ident(field)
-    result.add quote do:
-      template `fieldIdent`(): untyped {.used.} = `envSym`.`fieldIdent`
+    "gl_SubgroupID"
+  ])
+
+proc generateThreadTemplates(threadSym: NimNode): NimNode =
+  generateTemplates(threadSym, [
+    "gl_GlobalInvocationID",
+    "gl_LocalInvocationID",
+    "gl_SubgroupInvocationID"
+  ])
 
 proc isDiscard(n: NimNode, op: SubgroupOp): bool =
   n.kind == nnkDiscardStmt and n[0].kind == nnkCall and n[0][0].strVal == "SubgroupOp" and
@@ -265,14 +270,19 @@ macro computeShader*(prc: untyped): untyped =
   var traversedBody = traverseAndModify(prc.body)
   # Apply optimization to remove unnecessary reconverge points
   traversedBody = optimizeReconvergePoints(traversedBody)
-  # Create template declarations for GlEnvironment fields
-  let envSym = genSym(nskParam, "env")
-  let envTemplates = generateEnvTemplates(envSym)
+  # Create symbols for both contexts
+  let wgSym = genSym(nskParam, "wg")
+  let threadSym = genSym(nskParam, "thread")
+  # Generate template declarations for both contexts
+  let wgTemplates = generateWorkGroupTemplates(wgSym)
+  let threadTemplates = generateThreadTemplates(threadSym)
 
   result = quote do:
-    proc `procName`(`envSym`: GlEnvironment): ThreadClosure =
-      `envTemplates`
-      iterator (`iterArg`: SubgroupResult): SubgroupCommand =
+    proc `procName`(): ThreadClosure =
+      iterator (`iterArg`: SubgroupResult, `wgSym`: WorkGroupContext,
+                `threadSym`: ThreadContext): SubgroupCommand =
+        `wgTemplates`
+        `threadTemplates`
         `traversedBody`
 
   # Now inject the parameters and pragmas from original proc
