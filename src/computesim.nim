@@ -74,6 +74,25 @@
 ## )
 ## ```
 ##
+## ## GLSL Built-in Variables
+##
+## | GLSL Constant | Type | Description |
+## |--------------|------|-------------|
+## | gl_WorkGroupID | UVec3 | ID of the current workgroup [0..gl_NumWorkGroups) |
+## | gl_WorkGroupSize | UVec3 | Size of the workgroup (x, y, z) |
+## | gl_NumWorkGroups | UVec3 | Total number of workgroups (x, y, z) |
+## | gl_NumSubgroups | uint32 | Number of subgroups in the workgroup |
+## | gl_SubgroupID | uint32 | ID of the current subgroup [0..gl_NumSubgroups) |
+## | gl_GlobalInvocationID | UVec3 | Global ID of the current invocation [0..gl_NumWorkGroups * gl_WorkGroupSize) |
+## | gl_LocalInvocationID | UVec3 | Local ID within the workgroup [0..gl_WorkGroupSize) |
+## | gl_SubgroupSize | uint32 | Size of subgroups (constant across all subgroups) |
+## | gl_SubgroupInvocationID | uint32 | ID of the invocation within the subgroup [0..gl_SubgroupSize) |
+## | gl_SubgroupEqMask | UVec4 | Mask with bit set only at current invocation's index |
+## | gl_SubgroupGeMask | UVec4 | Mask with bits set at and above current invocation's index |
+## | gl_SubgroupGtMask | UVec4 | Mask with bits set above current invocation's index |
+## | gl_SubgroupLeMask | UVec4 | Mask with bits set at and below current invocation's index |
+## | gl_SubgroupLtMask | UVec4 | Mask with bits set below current invocation's index |
+##
 ## ## CUDA to GLSL Translation Table
 ##
 ## | CUDA Concept | GLSL Equivalent | Description |

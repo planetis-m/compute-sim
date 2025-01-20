@@ -86,20 +86,20 @@ type
         groupMemoryBarrier, reconverge, invalid:
       discard
 
-  BarrierHandle* = object
-    x: ptr Barrier
-
   WorkGroupContext* = object
-    gl_WorkGroupID*: UVec3           ## ID of the current workgroup [0..gl_NumWorkGroups)
-    gl_WorkGroupSize*: UVec3         ## Size of the workgroup (x, y, z)
-    gl_NumWorkGroups*: UVec3         ## Total number of workgroups (x, y, z)
-    gl_NumSubgroups*: uint32         ## Number of subgroups in the workgroup
-    gl_SubgroupID*: uint32           ## ID of the current subgroup [0..gl_NumSubgroups)
+    gl_WorkGroupID*: UVec3
+    gl_WorkGroupSize*: UVec3
+    gl_NumWorkGroups*: UVec3
+    gl_NumSubgroups*: uint32
+    gl_SubgroupID*: uint32
 
   ThreadContext* = object
-    gl_GlobalInvocationID*: UVec3    ## Global ID of the current invocation [0..gl_NumWorkGroups*gl_WorkGroupSize)
-    gl_LocalInvocationID*: UVec3     ## Local ID within the workgroup [0..gl_WorkGroupSize)
-    gl_SubgroupInvocationID*: uint32 ## ID of the invocation within the subgroup [0..gl_SubgroupSize)
+    gl_GlobalInvocationID*: UVec3
+    gl_LocalInvocationID*: UVec3
+    gl_SubgroupInvocationID*: uint32
+
+  BarrierHandle* = object
+    x: ptr Barrier
 
 proc toValue*[T](val: T): RawValue {.noinit.} =
   cast[ptr T](addr result.data)[] = val
