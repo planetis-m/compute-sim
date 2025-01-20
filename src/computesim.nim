@@ -140,8 +140,7 @@ proc subgroupProc[A, B, C](wg: WorkGroupContext; numActiveThreads: uint32; barri
         globalOffsetX + x,
         globalOffsetY + y,
         globalOffsetZ + z
-      ),
-      gl_SubgroupInvocationID: threadId
+      )
     )
     # Update coordinates
     inc x

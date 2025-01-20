@@ -153,8 +153,7 @@ proc generateWorkGroupTemplates(wgSym: NimNode): NimNode =
 proc generateThreadTemplates(threadSym: NimNode): NimNode =
   generateTemplates(threadSym, [
     "gl_GlobalInvocationID",
-    "gl_LocalInvocationID",
-    "gl_SubgroupInvocationID"
+    "gl_LocalInvocationID"
   ])
 
 proc isDiscard(n: NimNode, op: SubgroupOp): bool =
@@ -273,6 +272,7 @@ macro computeShader*(prc: untyped): untyped =
   # Create symbols for both contexts
   let wgSym = genSym(nskParam, "wg")
   let threadSym = genSym(nskParam, "thread")
+  let tidSym = genSym(nskParam, "threadId")
   # Generate template declarations for both contexts
   let wgTemplates = generateWorkGroupTemplates(wgSym)
   let threadTemplates = generateThreadTemplates(threadSym)
@@ -280,9 +280,10 @@ macro computeShader*(prc: untyped): untyped =
   result = quote do:
     proc `procName`(): ThreadClosure =
       iterator (`iterArg`: SubgroupResult, `wgSym`: WorkGroupContext,
-                `threadSym`: ThreadContext): SubgroupCommand =
-        `wgTemplates`
+                `threadSym`: ThreadContext, `tidSym`: uint32): SubgroupCommand =
+        template gl_SubgroupInvocationID(): uint32 {.used.} = `tidSym`
         `threadTemplates`
+        `wgTemplates`
         `traversedBody`
 
   # Now inject the parameters and pragmas from original proc

@@ -62,7 +62,7 @@ proc runThreads*(threads: SubgroupThreads; workGroup: WorkGroupContext,
           threadStates[threadId] == running or canReconverge or canPassBarrier:
         madeProgress = true
         {.cast(gcsafe).}:
-          commands[threadId] = threads[threadId](results[threadId], workGroup, threadContexts[threadId])
+          commands[threadId] = threads[threadId](results[threadId], workGroup, threadContexts[threadId], threadId)
         if finished(threads[threadId]):
           threadStates[threadId] = finished
         elif commands[threadId].kind == barrier:

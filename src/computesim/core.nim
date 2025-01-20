@@ -96,7 +96,6 @@ type
   ThreadContext* = object
     gl_GlobalInvocationID*: UVec3
     gl_LocalInvocationID*: UVec3
-    gl_SubgroupInvocationID*: uint32
 
   BarrierHandle* = object
     x: ptr Barrier
@@ -129,8 +128,8 @@ proc wait*(m: BarrierHandle) {.inline.} =
   wait(m.x[])
 
 type
-  ThreadClosure* = iterator (iterArg: SubgroupResult,
-                             wg: WorkGroupContext, thread: ThreadContext): SubgroupCommand
+  ThreadClosure* = iterator (iterArg: SubgroupResult, wg: WorkGroupContext,
+                             thread: ThreadContext, threadId: uint32): SubgroupCommand
   SubgroupResults* = array[SubgroupSize, SubgroupResult]
   SubgroupCommands* = array[SubgroupSize, SubgroupCommand]
   SubgroupThreadIDs* = array[SubgroupSize, uint32]
