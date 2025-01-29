@@ -132,7 +132,7 @@ type
                              thread: ThreadContext, threadId: uint32): SubgroupCommand
   SubgroupResults* = array[SubgroupSize, SubgroupResult]
   SubgroupCommands* = array[SubgroupSize, SubgroupCommand]
-  SubgroupThreadIDs* = array[SubgroupSize, uint32]
+  SubgroupThreadIDs* = array[SubgroupSize + 1, uint32]
   SubgroupThreads* = array[SubgroupSize, ThreadClosure]
   ThreadContexts* = array[SubgroupSize, ThreadContext]
 
@@ -140,6 +140,7 @@ const
   InvalidId* = high(uint32) # Sentinel value for empty/invalid
 
 iterator threadsInGroup*(group: SubgroupThreadIDs): uint32 =
-  for member in group.items:
-    if member == InvalidId: break
-    yield member
+  var idx: uint32 = 0
+  while group[idx] != InvalidId:
+    yield group[idx]
+    inc idx

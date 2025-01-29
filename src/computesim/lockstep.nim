@@ -37,12 +37,14 @@ proc runThreads*(threads: SubgroupThreads; workGroup: WorkGroupContext,
   var
     anyThreadsActive = true
     allThreadsHalted = false
+    threadGroups {.noinit.}: array[SubgroupSize, SubgroupThreadIDs]
     threadStates {.noinit.}: array[SubgroupSize, ThreadState]
     commands {.noinit.}: SubgroupCommands
     results {.noinit.}: SubgroupResults
     minReconvergeId: uint32 = 0
     barrierId = InvalidId
     barrierThreadCount: uint32 = 0
+    numGroups: uint32 = 0
 
   shouldShowDebugOutput(showDebugOutput)
   threadStates.fill(running)
@@ -105,9 +107,7 @@ proc runThreads*(threads: SubgroupThreads; workGroup: WorkGroupContext,
                          barrierThreadCount, numActiveThreads)
 
     # Group matching operations
-    var
-      threadGroups {.noinit.}: array[SubgroupSize, SubgroupThreadIDs]
-      numGroups: uint32 = 0
+    numGroups = 0
 
     # Group by operation id
     for threadId in 0..<numActiveThreads:
@@ -122,8 +122,7 @@ proc runThreads*(threads: SubgroupThreads; workGroup: WorkGroupContext,
             for slot in 0..<SubgroupSize:
               if threadGroups[groupIdx][slot] == InvalidId:
                 threadGroups[groupIdx][slot] = threadId
-                if slot + 1 < SubgroupSize:
-                  threadGroups[groupIdx][slot + 1] = InvalidId
+                threadGroups[groupIdx][slot + 1] = InvalidId
                 break
             found = true
             break

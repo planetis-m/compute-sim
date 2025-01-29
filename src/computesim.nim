@@ -160,7 +160,7 @@ proc workGroupProc[A, B, C](
     workgroupID: UVec3,
     wg: WorkGroupContext,
     compute: ThreadGenerator[A, B, C],
-    ssbo: A, smem: ptr B, args: C) {.nimcall.} =
+    ssbo: A, smem: ptr B, args: C) =
   # Auxiliary proc for work group management
   var wg = wg # Shadow for modification
   wg.gl_WorkGroupID = workgroupID

@@ -5,6 +5,7 @@
 --define:"release"
 --define:"useMalloc"
 --define:"ThreadPoolSize=10"
+# --define:"SubgroupSize=32"
 --define:debugSubgroup
 switch("define", "debugSubgroupID:1")
 
