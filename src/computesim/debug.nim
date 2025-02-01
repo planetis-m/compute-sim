@@ -38,7 +38,7 @@ proc formatThreadList(group: SubgroupThreadIDs): string =
   result.add("}")
 
 proc formatThreadValues(group: SubgroupThreadIDs, commands: SubgroupCommands): string =
-  let firstThreadId = group[0]
+  let firstThreadId = group[1]
   let opKind = commands[firstThreadId].kind
   case opKind
   of subgroupBroadcast, subgroupBroadcastFirst, subgroupAdd, subgroupMin, subgroupMax,

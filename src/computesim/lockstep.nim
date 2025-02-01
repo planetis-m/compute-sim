@@ -116,19 +116,17 @@ proc runThreads*(threads: SubgroupThreads; workGroup: WorkGroupContext,
           (threadStates[threadId] == atSubBarrier and canReconverge) or canPassBarrier):
         var found = false
         for groupIdx in 0..<numGroups:
-          let firstThreadId = threadGroups[groupIdx][0]
+          let firstThreadId = threadGroups[groupIdx][1] # First thread is at index 1
           if commands[firstThreadId].id == commands[threadId].id:
-            # Find first empty slot in group
-            for slot in 0..<SubgroupSize:
-              if threadGroups[groupIdx][slot] == InvalidId:
-                threadGroups[groupIdx][slot] = threadId
-                threadGroups[groupIdx][slot + 1] = InvalidId
-                break
+            let currentLen = threadGroups[groupIdx][0]
+            threadGroups[groupIdx][currentLen + 1] = threadId
+            threadGroups[groupIdx][0] = currentLen + 1
             found = true
             break
         if not found:
-          threadGroups[numGroups][0] = threadId
-          threadGroups[numGroups][1] = InvalidId
+          # Create new group
+          threadGroups[numGroups][0] = 1 # Length is 1
+          threadGroups[numGroups][1] = threadId
           inc numGroups
 
     template execSubgroupOp(op: untyped) =
@@ -136,7 +134,7 @@ proc runThreads*(threads: SubgroupThreads; workGroup: WorkGroupContext,
 
     # Process operation groups
     for groupIdx in 0..<numGroups:
-      let firstThreadId = threadGroups[groupIdx][0]
+      let firstThreadId = threadGroups[groupIdx][1]
       let opKind = commands[firstThreadId].kind
       let opId = commands[firstThreadId].id
       case opKind:

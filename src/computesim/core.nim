@@ -140,7 +140,6 @@ const
   InvalidId* = high(uint32) # Sentinel value for empty/invalid
 
 iterator threadsInGroup*(group: SubgroupThreadIDs): uint32 =
-  var idx: uint32 = 0
-  while group[idx] != InvalidId:
-    yield group[idx]
-    inc idx
+  let length = group[0]
+  for i in 1..length:
+    yield group[i]
