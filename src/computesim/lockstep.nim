@@ -118,9 +118,9 @@ proc runThreads*(threads: SubgroupThreads; workGroup: WorkGroupContext,
         for groupIdx in 0..<numGroups:
           let firstThreadId = threadGroups[groupIdx][1] # First thread is at index 1
           if commands[firstThreadId].id == commands[threadId].id:
-            let currentLen = threadGroups[groupIdx][0]
-            threadGroups[groupIdx][currentLen + 1] = threadId
-            threadGroups[groupIdx][0] = currentLen + 1
+            let len = threadGroups[groupIdx][0] + 1
+            threadGroups[groupIdx][0] = len
+            threadGroups[groupIdx][len] = threadId
             found = true
             break
         if not found:
