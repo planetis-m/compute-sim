@@ -24,7 +24,8 @@ const
       )
     masks
 
-static: assert isPowerOfTwo(SubgroupSize), "SubgroupSize must be a power of two"
+static:
+  assert isPowerOfTwo(SubgroupSize), "SubgroupSize must be a power of two"
 
 type
   ValueType* = enum

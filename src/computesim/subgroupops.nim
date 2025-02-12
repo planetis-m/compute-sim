@@ -224,7 +224,7 @@ defineSubgroupOp(execShuffle):
         found = true
         break
     # If source thread is valid, take its value
-    # Otherwise use this thread's own value
+    # Otherwise use the default value
     shuffledVals[threadId] = if found: commands[srcThreadId].val else: default(RawValue)
 
   let valueType = commands[firstThreadId].t
@@ -253,7 +253,7 @@ defineSubgroupOp(execShuffleXor):
         found = true
         break
     # If source thread is valid, take its value
-    # Otherwise use this thread's own value
+    # Otherwise use the default value
     shuffledVals[threadId] = if found: commands[srcThreadId].val else: default(RawValue)
 
   let valueType = commands[firstThreadId].t

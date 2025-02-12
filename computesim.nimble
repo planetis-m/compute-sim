@@ -1,5 +1,5 @@
 # Package
-version       = "1.3.2"
+version       = "1.3.3"
 author        = "Antonis Geralis"
 description   = "A compute shader emulator for learning and debugging GPU compute shaders."
 license       = "MIT"
