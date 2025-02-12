@@ -7,7 +7,7 @@
 --define:"ThreadPoolSize=10"
 # --define:"SubgroupSize=32"
 --define:debugSubgroup
-switch("define", "debugSubgroupID:1")
+# switch("define", "debugSubgroupID:1")
 
 when not defined(windows):
   --debugger:"native"

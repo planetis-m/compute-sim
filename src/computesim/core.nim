@@ -1,5 +1,6 @@
 # (c) 2024 Antonis Geralis
 import threading/barrier, vectors
+from std/math import isPowerOfTwo
 
 const
   SubgroupSize* {.intdefine.} = 8
@@ -22,6 +23,8 @@ const
         lt: ltMask
       )
     masks
+
+static: assert isPowerOfTwo(SubgroupSize), "SubgroupSize must be a power of two"
 
 type
   ValueType* = enum

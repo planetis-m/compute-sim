@@ -216,7 +216,7 @@ defineSubgroupOp(execShuffle):
   var shuffledVals {.noinit.}: array[SubgroupSize, RawValue]
   # First gather all shuffled values into array
   for threadId in threadsInGroup(group):
-    let srcThreadId = commands[threadId].dirty
+    let srcThreadId = commands[threadId].dirty and SubgroupSize - 1
     # Check if source thread is valid within the group
     var found = false
     for validId in threadsInGroup(group):
@@ -225,7 +225,7 @@ defineSubgroupOp(execShuffle):
         break
     # If source thread is valid, take its value
     # Otherwise use this thread's own value
-    shuffledVals[threadId] = commands[if found: srcThreadId else: threadId].val
+    shuffledVals[threadId] = if found: commands[srcThreadId].val else: default(RawValue)
 
   let valueType = commands[firstThreadId].t
   # Then construct results
@@ -245,7 +245,7 @@ defineSubgroupOp(execShuffleXor):
   var shuffledVals {.noinit.}: array[SubgroupSize, RawValue]
   # First gather all shuffled values into array
   for threadId in threadsInGroup(group):
-    let srcThreadId = threadId xor commands[threadId].dirty
+    let srcThreadId = threadId xor commands[threadId].dirty and SubgroupSize - 1
     # Check if source thread is valid within the group
     var found = false
     for validId in threadsInGroup(group):
@@ -254,7 +254,7 @@ defineSubgroupOp(execShuffleXor):
         break
     # If source thread is valid, take its value
     # Otherwise use this thread's own value
-    shuffledVals[threadId] = commands[if found: srcThreadId else: threadId].val
+    shuffledVals[threadId] = if found: commands[srcThreadId].val else: default(RawValue)
 
   let valueType = commands[firstThreadId].t
   # Then construct results
@@ -273,13 +273,13 @@ defineSubgroupOp(execShuffleXor):
 defineSubgroupOp(execShuffleDown):
   var shuffledVals {.noinit.}: array[SubgroupSize, RawValue]
   for threadId in threadsInGroup(group):
-    let srcThreadId = threadId + commands[threadId].dirty
+    let srcThreadId = (threadId + commands[threadId].dirty) and SubgroupSize - 1
     var found = false
     for validId in threadsInGroup(group):
       if validId == srcThreadId:
         found = true
         break
-    shuffledVals[threadId] = commands[if found: srcThreadId else: threadId].val
+    shuffledVals[threadId] = if found: commands[srcThreadId].val else: default(RawValue)
 
   let valueType = commands[firstThreadId].t
   for threadId in threadsInGroup(group):
@@ -298,16 +298,13 @@ defineSubgroupOp(execShuffleUp):
   var shuffledVals {.noinit.}: array[SubgroupSize, RawValue]
   for threadId in threadsInGroup(group):
     # Convert to signed for safe subtraction
-    let srcThreadId = if threadId >= commands[threadId].dirty:
-      threadId - commands[threadId].dirty
-    else:
-      threadId
+    let srcThreadId = (threadId - commands[threadId].dirty) and SubgroupSize - 1
     var found = false
     for validId in threadsInGroup(group):
       if validId == srcThreadId:
         found = true
         break
-    shuffledVals[threadId] = commands[if found: srcThreadId else: threadId].val
+    shuffledVals[threadId] = if found: commands[srcThreadId].val else: default(RawValue)
 
   let valueType = commands[firstThreadId].t
   for threadId in threadsInGroup(group):
