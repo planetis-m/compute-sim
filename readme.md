@@ -101,6 +101,10 @@ See the examples directory for more patterns and use cases.
 > ### Workgroup Scheduling
 > While this simulator runs workgroups using CPU threads, real GPU compute shaders have no fairness guarantees between workgroups. This means your code might work correctly in this CPU simulator but fail on real GPU hardware where workgroups can execute in any order and with varying levels of parallelism. Do not rely on any assumptions about workgroup execution order or scheduling that might be true in this CPU simulator but not guaranteed on actual GPUs.
 
+> [!WARNING]
+> ### Maximal Reconvergence
+> In Vulkan, the point at which diverging threads in a shader reconverge is not strictly guaranteed by default. To ensure that threads rejoin execution as early as possible after a conditional branch (this is "maximal reconvergence"), the application must enable the `VK_KHR_shader_maximal_reconvergence` Vulkan device extension, and the shader must declare the `MaximalReconvergenceKHR` SPIR-V capability (from the `SPV_KHR_maximal_reconvergence` SPIR-V extension). Without these, shaders might exhibit less optimal reconvergence, potentially leading to performance differences or unexpected behavior across hardware or drivers, as threads might not regroup where your shader logic implicitly expects.
+
 ## Compile-time Defines
 
 ### Thread Management

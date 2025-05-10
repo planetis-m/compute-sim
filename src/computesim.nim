@@ -158,7 +158,7 @@ proc subgroupProc[A, B, C](wg: WorkGroupContext; numActiveThreads: uint32; barri
 
 proc workGroupProc[A, B, C](
     wg: WorkGroupContext,
-    threadsInWorkgroup: uint32,
+    threadsPerWorkgroup: uint32,
     compute: ThreadGenerator[A, B, C],
     ssbo: A, smem: ptr B, args: C) =
   var wg = wg # Shadow for modification
@@ -166,7 +166,7 @@ proc workGroupProc[A, B, C](
   var barrier = createBarrier(wg.gl_NumSubgroups)
   # Create master for managing threads
   var master = createMaster(activeProducer = true)
-  var remainingThreads = threadsInWorkgroup
+  var remainingThreads = threadsPerWorkgroup
   master.awaitAll:
     for subgroupId in 0..<wg.gl_NumSubgroups:
       wg.gl_SubgroupID = subgroupId
