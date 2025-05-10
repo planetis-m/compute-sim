@@ -181,7 +181,7 @@ proc runCompute[A, B, C](
     ssbo: A, smem: B, args: C) =
   let threadsPerWorkgroup = workGroupSize.x * workGroupSize.y * workGroupSize.z
   let numSubgroups = ceilDiv(threadsPerWorkgroup, SubgroupSize)
-  let wg = WorkGroupContext(
+  var wg = WorkGroupContext(
     gl_NumWorkGroups: numWorkGroups,
     gl_WorkGroupSize: workGroupSize,
     gl_NumSubgroups: numSubgroups
