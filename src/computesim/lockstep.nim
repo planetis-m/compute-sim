@@ -13,7 +13,7 @@ template shouldShowDebugOutput(debug: untyped) =
     workGroup.gl_WorkgroupID.x == debugWorkgroupX and
     workGroup.gl_WorkgroupID.y == debugWorkgroupY and
     workGroup.gl_WorkgroupID.z == debugWorkgroupZ and
-    workGroup.gl_SubgroupID == debugSubgroupID
+    subgroupID == debugSubgroupID
   else:
     false
 
@@ -33,7 +33,7 @@ type
     running, halted, atSubBarrier, atBarrier, finished
 
 proc runThreads*(threads: SubgroupThreads; workGroup: WorkGroupContext,
-                 threadContexts: ThreadContexts; numActiveThreads: uint32; b: BarrierHandle) =
+                 threadContexts: ThreadContexts; subgroupId, numActiveThreads: uint32; b: BarrierHandle) =
   var
     anyThreadsActive = true
     allThreadsHalted = false
@@ -64,7 +64,8 @@ proc runThreads*(threads: SubgroupThreads; workGroup: WorkGroupContext,
           threadStates[threadId] == running or canReconverge or canPassBarrier:
         madeProgress = true
         {.cast(gcsafe).}:
-          commands[threadId] = threads[threadId](results[threadId], workGroup, threadContexts[threadId], threadId)
+          commands[threadId] = threads[threadId](results[threadId], workGroup,
+                                                 threadContexts[threadId], subgroupId, threadId)
         if finished(threads[threadId]):
           threadStates[threadId] = finished
         elif commands[threadId].kind == barrier:
@@ -137,7 +138,7 @@ proc runThreads*(threads: SubgroupThreads; workGroup: WorkGroupContext,
       let firstThreadId = threadGroups[groupIdx][1]
       let opKind = commands[firstThreadId].kind
       let opId = commands[firstThreadId].id
-      case opKind:
+      case opKind
       of subgroupBroadcast:
         execSubgroupOp(execBroadcast)
       of subgroupBroadcastFirst:

@@ -133,7 +133,7 @@ proc wait*(m: BarrierHandle) {.inline.} =
 
 type
   ThreadClosure* = iterator (iterArg: SubgroupResult, wg: WorkGroupContext,
-                             thread: ThreadContext, threadId: uint32): SubgroupCommand
+                             thread: ThreadContext, subgroupId, threadId: uint32): SubgroupCommand
   SubgroupResults* = array[SubgroupSize, SubgroupResult]
   SubgroupCommands* = array[SubgroupSize, SubgroupCommand]
   SubgroupThreadIDs* = array[SubgroupSize + 1, uint32]

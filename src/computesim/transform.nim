@@ -146,8 +146,7 @@ proc generateWorkGroupTemplates(wgSym: NimNode): NimNode =
     "gl_WorkGroupID",
     "gl_WorkGroupSize",
     "gl_NumWorkGroups",
-    "gl_NumSubgroups",
-    "gl_SubgroupID"
+    "gl_NumSubgroups"
   ])
 
 proc generateThreadTemplates(threadSym: NimNode): NimNode =
@@ -272,6 +271,7 @@ macro computeShader*(prc: untyped): untyped =
   # Create symbols for both contexts
   let wgSym = genSym(nskParam, "wg")
   let threadSym = genSym(nskParam, "thread")
+  let sidSym = genSym(nskParam, "subgroupId")
   let tidSym = genSym(nskParam, "threadId")
   # Generate template declarations for both contexts
   let wgTemplates = generateWorkGroupTemplates(wgSym)
@@ -280,7 +280,8 @@ macro computeShader*(prc: untyped): untyped =
   result = quote do:
     proc `procName`(): ThreadClosure =
       iterator (`iterArg`: SubgroupResult, `wgSym`: WorkGroupContext,
-                `threadSym`: ThreadContext, `tidSym`: uint32): SubgroupCommand =
+                `threadSym`: ThreadContext, `sidSym`, `tidSym`: uint32): SubgroupCommand =
+        template gl_SubgroupID(): uint32 {.used.} = `sidSym`
         template gl_SubgroupInvocationID(): uint32 {.used.} = `tidSym`
         `threadTemplates`
         `wgTemplates`
