@@ -1,6 +1,6 @@
 ## ## Description
 ##
-## `runComputeOnCpu` is a function that simulates a GPU-like compute wgironment on the CPU.
+## `runComputeOnCpu` is a function that simulates a GPU-like compute environment on the CPU.
 ## It organizes work into workgroups and invocations, similar to how compute shaders operate
 ## on GPUs.
 ##
@@ -162,7 +162,7 @@ proc workGroupProc[A, B, C](
     compute: ThreadGenerator[A, B, C],
     ssbo: A, smem: ptr B, args: C) =
   var wg = wg # Shadow for modification
-  # Create barrier for synchronizing all threads in workgroup
+  # Create barrier for synchronizing threads in workgroup
   var barrier = createBarrier(wg.gl_NumSubgroups)
   # Create master for managing threads
   var master = createMaster(activeProducer = true)
