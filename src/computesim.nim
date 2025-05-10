@@ -160,8 +160,6 @@ proc workGroupProc[A, B, C](
     wg: WorkGroupContext,
     compute: ThreadGenerator[A, B, C],
     ssbo: A, smem: ptr B, args: C) =
-  var wg = wg # Shadow for modification
-  # Initialize local shared memory
   var barrier = createBarrier(wg.gl_NumSubgroups)
   # Create master for managing threads
   var master = createMaster(activeProducer = true)
