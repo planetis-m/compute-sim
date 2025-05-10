@@ -137,7 +137,7 @@ proc runThreads*(threads: SubgroupThreads; workGroup: WorkGroupContext,
       let firstThreadId = threadGroups[groupIdx][1]
       let opKind = commands[firstThreadId].kind
       let opId = commands[firstThreadId].id
-      case opKind:
+      case opKind
       of subgroupBroadcast:
         execSubgroupOp(execBroadcast)
       of subgroupBroadcastFirst:
