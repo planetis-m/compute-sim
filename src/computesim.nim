@@ -162,7 +162,7 @@ proc workGroupProc[A, B, C](
     compute: ThreadGenerator[A, B, C],
     ssbo: A, smem: ptr B, args: C) =
   var wg = wg # Shadow for modification
-  # Initialize local barrier
+  # Create barrier for synchronizing all threads in workgroup
   var barrier = createBarrier(wg.gl_NumSubgroups)
   # Create master for managing threads
   var master = createMaster(activeProducer = true)
