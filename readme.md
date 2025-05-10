@@ -1,6 +1,6 @@
 # computesim
 
-A compute shader emulator for learning and debugging GPU compute shaders.
+A compute shader simulator for learning and debugging GPU compute shaders.
 
 ## Features
 - Emulates GPU compute shader execution on CPU
@@ -99,7 +99,7 @@ See the examples directory for more patterns and use cases.
 
 > [!WARNING]
 > ### Workgroup Scheduling
-> While this emulator runs workgroups using CPU threads, real GPU compute shaders have no fairness guarantees between workgroups. This means your code might work correctly in this CPU emulator but fail on real GPU hardware where workgroups can execute in any order and with varying levels of parallelism. Do not rely on any assumptions about workgroup execution order or scheduling that might be true in this CPU emulator but not guaranteed on actual GPUs.
+> While this simulator runs workgroups using CPU threads, real GPU compute shaders have no fairness guarantees between workgroups. This means your code might work correctly in this CPU simulator but fail on real GPU hardware where workgroups can execute in any order and with varying levels of parallelism. Do not rely on any assumptions about workgroup execution order or scheduling that might be true in this CPU simulator but not guaranteed on actual GPUs.
 
 ## Compile-time Defines
 

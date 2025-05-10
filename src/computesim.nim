@@ -1,6 +1,6 @@
 ## ## Description
 ##
-## `runComputeOnCpu` is a function that simulates a GPU-like compute wgironment on the CPU.
+## `runComputeOnCpu` is a function that simulates a GPU-like compute environment on the CPU.
 ## It organizes work into workgroups and invocations, similar to how compute shaders operate
 ## on GPUs.
 ##
@@ -157,23 +157,18 @@ proc subgroupProc[A, B, C](wg: WorkGroupContext; numActiveThreads: uint32; barri
   runThreads(threads, wg, threadContexts, numActiveThreads, barrier)
 
 proc workGroupProc[A, B, C](
-    workgroupID: UVec3,
     wg: WorkGroupContext,
+    threadsInWorkgroup: uint32,
     compute: ThreadGenerator[A, B, C],
     ssbo: A, smem: ptr B, args: C) =
-  # Auxiliary proc for work group management
   var wg = wg # Shadow for modification
-  wg.gl_WorkGroupID = workgroupID
-  let threadsInWorkgroup = wg.gl_WorkGroupSize.x * wg.gl_WorkGroupSize.y * wg.gl_WorkGroupSize.z
-  let numSubgroups = ceilDiv(threadsInWorkgroup, SubgroupSize)
-  wg.gl_NumSubgroups = numSubgroups
-  # Initialize local shared memory
-  var barrier = createBarrier(numSubgroups)
+  # Create barrier for synchronizing threads in workgroup
+  var barrier = createBarrier(wg.gl_NumSubgroups)
   # Create master for managing threads
   var master = createMaster(activeProducer = true)
   var remainingThreads = threadsInWorkgroup
   master.awaitAll:
-    for subgroupId in 0..<numSubgroups:
+    for subgroupId in 0..<wg.gl_NumSubgroups:
       wg.gl_SubgroupID = subgroupId
       # Calculate number of active threads in this subgroup
       let threadsInSubgroup = min(remainingThreads, SubgroupSize)
@@ -184,10 +179,15 @@ proc runCompute[A, B, C](
     numWorkGroups, workGroupSize: UVec3,
     compute: ThreadGenerator[A, B, C],
     ssbo: A, smem: B, args: C) =
-  let wg = WorkGroupContext(
+  # Determine how many subgroups are needed
+  let threadsPerWorkgroup = workGroupSize.x * workGroupSize.y * workGroupSize.z
+  let numSubgroups = ceilDiv(threadsPerWorkgroup, SubgroupSize)
+  var wg = WorkGroupContext(
     gl_NumWorkGroups: numWorkGroups,
-    gl_WorkGroupSize: workGroupSize
+    gl_WorkGroupSize: workGroupSize,
+    gl_NumSubgroups: numSubgroups
   )
+  # Determine the number of batches needed to process all workgroups
   let totalGroups = wg.gl_NumWorkGroups.x * wg.gl_NumWorkGroups.y * wg.gl_NumWorkGroups.z
   let numBatches = ceilDiv(totalGroups, MaxConcurrentWorkGroups)
   var currentGroup: uint32 = 0
@@ -203,7 +203,8 @@ proc runCompute[A, B, C](
     master.awaitAll:
       var groupIdx: uint32 = 0
       while currentGroup < endGroup:
-        master.spawn workGroupProc(uvec3(wgX, wgY, wgZ), wg, compute, ssbo, addr smemArr[groupIdx], args)
+        wg.gl_WorkGroupID = uvec3(wgX, wgY, wgZ)
+        master.spawn workGroupProc(wg, threadsPerWorkgroup, compute, ssbo, addr smemArr[groupIdx], args)
         # Increment coordinates, wrapping when needed
         inc wgX
         if wgX >= wg.gl_NumWorkGroups.x:
