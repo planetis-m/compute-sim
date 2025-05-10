@@ -32,7 +32,7 @@ type
   ThreadState = enum
     running, halted, atSubBarrier, atBarrier, finished
 
-proc runThreads*(threads: SubgroupThreads; workGroup: WorkGroupContext,
+proc runThreads*(threads: SubgroupThreads; dispatch: DispatchContext; workGroup: WorkGroupContext,
                  threadContexts: ThreadContexts; numActiveThreads: uint32; b: BarrierHandle) =
   var
     anyThreadsActive = true
@@ -64,7 +64,7 @@ proc runThreads*(threads: SubgroupThreads; workGroup: WorkGroupContext,
           threadStates[threadId] == running or canReconverge or canPassBarrier:
         madeProgress = true
         {.cast(gcsafe).}:
-          commands[threadId] = threads[threadId](results[threadId], workGroup, threadContexts[threadId], threadId)
+          commands[threadId] = threads[threadId](results[threadId], dispatch, workGroup, threadContexts[threadId], threadId)
         if finished(threads[threadId]):
           threadStates[threadId] = finished
         elif commands[threadId].kind == barrier:
@@ -137,7 +137,7 @@ proc runThreads*(threads: SubgroupThreads; workGroup: WorkGroupContext,
       let firstThreadId = threadGroups[groupIdx][1]
       let opKind = commands[firstThreadId].kind
       let opId = commands[firstThreadId].id
-      case opKind:
+      case opKind
       of subgroupBroadcast:
         execSubgroupOp(execBroadcast)
       of subgroupBroadcastFirst:

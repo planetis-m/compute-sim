@@ -141,11 +141,15 @@ proc generateTemplates(sym: NimNode; fields: openArray[string]): NimNode =
     result.add quote do:
       template `fieldIdent`(): untyped {.used.} = `sym`.`fieldIdent`
 
+proc generateDispatchTemplates(dspSym: NimNode): NimNode =
+  generateTemplates(dspSym, [
+    "gl_WorkGroupSize",
+    "gl_NumWorkGroups"
+  ])
+
 proc generateWorkGroupTemplates(wgSym: NimNode): NimNode =
   generateTemplates(wgSym, [
     "gl_WorkGroupID",
-    "gl_WorkGroupSize",
-    "gl_NumWorkGroups",
     "gl_NumSubgroups",
     "gl_SubgroupID"
   ])
@@ -270,19 +274,22 @@ macro computeShader*(prc: untyped): untyped =
   # Apply optimization to remove unnecessary reconverge points
   traversedBody = optimizeReconvergePoints(traversedBody)
   # Create symbols for both contexts
+  let dspSym = genSym(nskParam, "dsp")
   let wgSym = genSym(nskParam, "wg")
   let threadSym = genSym(nskParam, "thread")
   let tidSym = genSym(nskParam, "threadId")
   # Generate template declarations for both contexts
+  let dspTemplates = generateDispatchTemplates(dspSym)
   let wgTemplates = generateWorkGroupTemplates(wgSym)
   let threadTemplates = generateThreadTemplates(threadSym)
 
   result = quote do:
     proc `procName`(): ThreadClosure =
-      iterator (`iterArg`: SubgroupResult, `wgSym`: WorkGroupContext,
+      iterator (`iterArg`: SubgroupResult, `dspSym`: DispatchContext, `wgSym`: WorkGroupContext,
                 `threadSym`: ThreadContext, `tidSym`: uint32): SubgroupCommand =
         template gl_SubgroupInvocationID(): uint32 {.used.} = `tidSym`
         `threadTemplates`
+        `dspTemplates`
         `wgTemplates`
         `traversedBody`
 

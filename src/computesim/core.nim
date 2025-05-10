@@ -90,10 +90,12 @@ type
         groupMemoryBarrier, reconverge, invalid:
       discard
 
-  WorkGroupContext* = object
-    gl_WorkGroupID*: UVec3
+  DispatchContext* = object
     gl_WorkGroupSize*: UVec3
     gl_NumWorkGroups*: UVec3
+
+  WorkGroupContext* = object
+    gl_WorkGroupID*: UVec3
     gl_NumSubgroups*: uint32
     gl_SubgroupID*: uint32
 
@@ -132,7 +134,7 @@ proc wait*(m: BarrierHandle) {.inline.} =
   wait(m.x[])
 
 type
-  ThreadClosure* = iterator (iterArg: SubgroupResult, wg: WorkGroupContext,
+  ThreadClosure* = iterator (iterArg: SubgroupResult, dsp: DispatchContext, wg: WorkGroupContext,
                              thread: ThreadContext, threadId: uint32): SubgroupCommand
   SubgroupResults* = array[SubgroupSize, SubgroupResult]
   SubgroupCommands* = array[SubgroupSize, SubgroupCommand]

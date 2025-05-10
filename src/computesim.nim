@@ -119,19 +119,19 @@ type
 const
   MaxConcurrentWorkGroups {.intdefine.} = 2
 
-proc subgroupProc[A, B, C](wg: WorkGroupContext; numActiveThreads: uint32; barrier: BarrierHandle,
-    compute: ThreadGenerator[A, B, C]; buffers: A; shared: ptr B; args: C) =
+proc subgroupProc[A, B, C](dsp: DispatchContext; wg: WorkGroupContext; numActiveThreads: uint32;
+    barrier: BarrierHandle, compute: ThreadGenerator[A, B, C]; buffers: A; shared: ptr B; args: C) =
   var threads = default(SubgroupThreads)
   var threadContexts {.noinit.}: ThreadContexts
   let startIdx = wg.gl_SubgroupID * SubgroupSize
   # Initialize coordinates from startIdx
-  var x = startIdx mod wg.gl_WorkGroupSize.x
-  var y = (startIdx div wg.gl_WorkGroupSize.x) mod wg.gl_WorkGroupSize.y
-  var z = startIdx div (wg.gl_WorkGroupSize.x * wg.gl_WorkGroupSize.y)
+  var x = startIdx mod dsp.gl_WorkGroupSize.x
+  var y = (startIdx div dsp.gl_WorkGroupSize.x) mod dsp.gl_WorkGroupSize.y
+  var z = startIdx div (dsp.gl_WorkGroupSize.x * dsp.gl_WorkGroupSize.y)
   # Pre-compute global offsets
-  let globalOffsetX = wg.gl_WorkGroupID.x * wg.gl_WorkGroupSize.x
-  let globalOffsetY = wg.gl_WorkGroupID.y * wg.gl_WorkGroupSize.y
-  let globalOffsetZ = wg.gl_WorkGroupID.z * wg.gl_WorkGroupSize.z
+  let globalOffsetX = wg.gl_WorkGroupID.x * dsp.gl_WorkGroupSize.x
+  let globalOffsetY = wg.gl_WorkGroupID.y * dsp.gl_WorkGroupSize.y
+  let globalOffsetZ = wg.gl_WorkGroupID.z * dsp.gl_WorkGroupSize.z
   # Setup thread contexts
   for threadId in 0..<numActiveThreads:
     threadContexts[threadId] = ThreadContext(
@@ -144,27 +144,26 @@ proc subgroupProc[A, B, C](wg: WorkGroupContext; numActiveThreads: uint32; barri
     )
     # Update coordinates
     inc x
-    if x >= wg.gl_WorkGroupSize.x:
+    if x >= dsp.gl_WorkGroupSize.x:
       x = 0
       inc y
-      if y >= wg.gl_WorkGroupSize.y:
+      if y >= dsp.gl_WorkGroupSize.y:
         y = 0
         inc z
   # Allocate all compute closures
   for threadId in 0..<numActiveThreads:
     threads[threadId] = compute(buffers, shared, args)
   # Run threads in lockstep
-  runThreads(threads, wg, threadContexts, numActiveThreads, barrier)
+  runThreads(threads, dsp, wg, threadContexts, numActiveThreads, barrier)
 
 proc workGroupProc[A, B, C](
     workgroupID: UVec3,
-    wg: WorkGroupContext,
+    dsp: DispatchContext,
     compute: ThreadGenerator[A, B, C],
     ssbo: A, smem: ptr B, args: C) =
   # Auxiliary proc for work group management
-  var wg = wg # Shadow for modification
-  wg.gl_WorkGroupID = workgroupID
-  let threadsInWorkgroup = wg.gl_WorkGroupSize.x * wg.gl_WorkGroupSize.y * wg.gl_WorkGroupSize.z
+  var wg = WorkGroupContext(gl_WorkGroupID: workgroupID)
+  let threadsInWorkgroup = dsp.gl_WorkGroupSize.x * dsp.gl_WorkGroupSize.y * dsp.gl_WorkGroupSize.z
   let numSubgroups = ceilDiv(threadsInWorkgroup, SubgroupSize)
   wg.gl_NumSubgroups = numSubgroups
   # Initialize local shared memory
@@ -177,18 +176,18 @@ proc workGroupProc[A, B, C](
       wg.gl_SubgroupID = subgroupId
       # Calculate number of active threads in this subgroup
       let threadsInSubgroup = min(remainingThreads, SubgroupSize)
-      master.spawn subgroupProc(wg, threadsInSubgroup, barrier.getHandle(), compute, ssbo, smem, args)
+      master.spawn subgroupProc(dsp, wg, threadsInSubgroup, barrier.getHandle(), compute, ssbo, smem, args)
       dec remainingThreads, threadsInSubgroup
 
 proc runCompute[A, B, C](
     numWorkGroups, workGroupSize: UVec3,
     compute: ThreadGenerator[A, B, C],
     ssbo: A, smem: B, args: C) =
-  let wg = WorkGroupContext(
+  let dsp = DispatchContext(
     gl_NumWorkGroups: numWorkGroups,
     gl_WorkGroupSize: workGroupSize
   )
-  let totalGroups = wg.gl_NumWorkGroups.x * wg.gl_NumWorkGroups.y * wg.gl_NumWorkGroups.z
+  let totalGroups = dsp.gl_NumWorkGroups.x * dsp.gl_NumWorkGroups.y * dsp.gl_NumWorkGroups.z
   let numBatches = ceilDiv(totalGroups, MaxConcurrentWorkGroups)
   var currentGroup: uint32 = 0
   # Initialize workgroup coordinates
@@ -203,13 +202,13 @@ proc runCompute[A, B, C](
     master.awaitAll:
       var groupIdx: uint32 = 0
       while currentGroup < endGroup:
-        master.spawn workGroupProc(uvec3(wgX, wgY, wgZ), wg, compute, ssbo, addr smemArr[groupIdx], args)
+        master.spawn workGroupProc(uvec3(wgX, wgY, wgZ), dsp, compute, ssbo, addr smemArr[groupIdx], args)
         # Increment coordinates, wrapping when needed
         inc wgX
-        if wgX >= wg.gl_NumWorkGroups.x:
+        if wgX >= dsp.gl_NumWorkGroups.x:
           wgX = 0
           inc wgY
-          if wgY >= wg.gl_NumWorkGroups.y:
+          if wgY >= dsp.gl_NumWorkGroups.y:
             wgY = 0
             inc wgZ
         inc groupIdx
